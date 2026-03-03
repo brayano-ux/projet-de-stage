@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="assets/css/style-starter.css">
+
+</head>
+<body>
+    
+<?php
+ if(!empty($_POST["send"])){
+
+	$userName = $_POST["userName"];
+    $userEmail = $_POST["userEmail"];
+	// $userPhone = $_POST["userPhone"];
+	$userMessage = $_POST["userMessage"];
+	$toEmail = "info@orbitgroupcmr.com";
+  
+	$mailHeaders = "Name: " . $userName .
+	"\r\n Email: ". $userEmail  . 
+	// "\r\n Phone: ". $userPhone  . 
+	"\r\n Message: " . $userMessage . "\r\n";
+
+	if(mail($toEmail, $userName, $mailHeaders)) {
+	    $message = "Your contact information is received successfully.";
+	}
+
+    else{
+        $message = "errer d'envoie.";
+    }
+
+ }
+
+?>
+
+<div class="w3l-contact-info py-5" id="contact">
+    <div class="container py-lg-5 py-md-4">
+       <div class="row mt-5">
+            <div class="col-lg-6 form-inner-cont mt-lg-0 mt-sm-5 mt-4">
+                <form action="" method="post" class="signin-form">
+                 <!-- <form action="https://sendmail.w3layouts.com/submitForm" method="post" class="signin-form"> -->
+                    <div class="form-input">
+                        <input type="text" name="userName" id="w3lName" placeholder="Your name">
+                    </div>
+                    <div class="form-input">
+                        <input type="email" name="userEmail" id="w3lSender" placeholder="Your email address"
+                            required="">
+                    </div>
+                    <div class="form-input">
+                        <textarea name="w3lMessage" id="userMessage" placeholder="Your message" required=""></textarea>
+                    </div>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-style btn-red">Envoyer</button>
+                        <?php if (! empty($message)) {?>
+                        <div class='success'>
+                        <strong><?php echo $message; ?>	</strong>
+                        </div>
+                        <?php } ?>
+                    </div>
+                </form>
+            </div>
+       </div>
+    </div>
+</div>
+
+
+
+</body>
+</html>

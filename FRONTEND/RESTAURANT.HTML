@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Salon de Beauté</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --couleur-principale: #EC4899;
+            --couleur-secondaire: #F97316;
+            --couleur-verte: #10B981;
+            --couleur-grise-claire: #F3F4F6;
+            --couleur-grise-foncee: #374151;
+            --couleur-blanc: #FFFFFF;
+            --ombre-legere: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --ombre-forte: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FDF2F8 0%, #FFFFFF 50%, #FFF7ED 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .conteneur-principal {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .carte-formulaire {
+            background: var(--couleur-blanc);
+            border-radius: 2rem;
+            box-shadow: var(--ombre-forte);
+            overflow: hidden;
+        }
+
+        .en-tete-formulaire {
+            background: linear-gradient(to right, #82e333, #10B981);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--couleur-blanc);
+        }
+
+        .titre-principal {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .sous-titre {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .corps-formulaire {
+            padding: 3rem 2rem;
+        }
+
+        .section-formulaire {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-logo {
+           background: rgba(172, 255, 47, 0.212);
+;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 2px dashed rgba(0, 128, 0, 0.733);
+            margin-bottom: 2rem;
+        }
+
+        .titre-section {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--couleur-grise-foncee);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .icone-section {
+            width: 24px;
+            height: 24px;
+            margin-right: 0.5rem;
+            color: var(--couleur-principale);
+        }
+
+        .conteneur-logo {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .zone-apercu-logo {
+            width: 120px;
+            height: 120px;
+            background: var(--couleur-blanc);
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #E5E7EB;
+            flex-shrink: 0;
+        }
+
+        .image-apercu {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+
+        .image-cachee {
+            display: none;
+        }
+
+        .placeholder-logo {
+            text-align: center;
+            color: #9CA3AF;
+        }
+
+        .conteneur-upload {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .zone-upload {
+            position: relative;
+            border: 2px dashed rgba(0, 128, 0, 0.767);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            background: var(--couleur-blanc);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zone-upload:hover {
+            border-color: var(--couleur-secondaire);
+            background-color: #FDF2F8;
+        }
+
+        .zone-upload.survol {
+            border-color: var(--couleur-secondaire);
+            background-color: #FDF2F8;
+        }
+
+        .input-fichier {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* === GROUPES DE CHAMPS === */
+        .groupe-champs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .champ-formulaire {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label-champ {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--couleur-grise-foncee);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-texte, .textarea-champ {
+            padding: 1rem 1.5rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-texte:focus, .textarea-champ:focus {
+            border-color: var(--couleur-principale);
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .textarea-champ {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .champ-whatsapp .input-texte:focus {
+            border-color: var(--couleur-verte);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .icone-whatsapp {
+            color: var(--couleur-verte);
+        }
+
+        .conteneur-bouton {
+            text-align: center;
+            padding-top: 2rem;
+        }
+
+        .bouton-soumettre {
+            background: linear-gradient(to right,#065F46, #10B981);
+            color: var(--couleur-blanc);
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 1.25rem 3rem;
+            border: none;
+            height: 70px;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            box-shadow: var(--ombre-forte);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+        i{
+padding: 10px;
+        }
+
+        .bouton-soumettre:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .bouton-soumettre:active {
+            transform: translateY(0);
+        }
+
+        .bouton-soumettre:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .texte-conditions {
+            font-size: 0.9rem;
+            color: #6B7280;
+            margin-top: 1rem;
+        }
+
+        .icone {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+        }
+
+        .rotation {
+            animation: tourner 1s linear infinite;
+        }
+
+        @keyframes tourner {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .conteneur-principal {
+                padding: 1rem;
+            }
+
+            .corps-formulaire {
+                padding: 2rem 1rem;
+            }
+
+            .conteneur-logo {
+                flex-direction: column;
+                text-align: center;
+            }
+            .bouton-soumettre{
+                width: 250px;
+                height: 55px;
+                padding: 5px;
+            }
+
+            .titre-principal {
+                font-size: 2rem;
+            }
+
+            .groupe-champs {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .message-succes {
+            background-color: #D1FAE5;
+            color: #065F46;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px
+             solid var(--couleur-verte);
+            margin-bottom: 1rem;
+        }
+
+        .message-erreur {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #EF4444;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="conteneur-principal">
+        <div class="carte-formulaire">
+            <!-- En-tête du formulaire -->
+            <div class="en-tete-formulaire">
+                <h1 class="titre-principal">🍕 Inscrivez votre Restaurant 🍔</h1>
+                <p class="sous-titre">Rejoignez notre plateforme et développez votre clientèle</p>
+            </div>
+
+            <form id="formulaire-inscription" method="post" action="boutique.php" class="corps-formulaire">
+                <!-- Section Logo -->
+                <div class="section-logo">
+                    <h2 class="titre-section">
+                        <svg class="icone-section" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Logo de votre salon
+                    </h2>
+                    
+                    <div class="conteneur-logo">
+                        <!-- Zone d'aperçu du logo -->
+                        <div class="zone-apercu-logo">
+                            <img id="apercu-logo" class="image-apercu image-cachee" alt="Aperçu du logo">
+                            <div id="placeholder-logo" class="placeholder-logo">
+                                <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px; margin: 0 auto 0.5rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p>Aperçu</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone de téléchargement -->
+                        <div class="conteneur-upload">
+                            <label class="label-champ">Téléchargez votre logo</label>
+                            <div class="zone-upload" id="zone-upload">
+                                <input type="file" id="fichier-logo" name="logo" accept="image/*" class="input-fichier">
+                                <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 32px; height: 32px; margin: 0 auto 0.5rem; color: green;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p><span style="color:green; font-weight: 600;">Cliquez ici</span> ou glissez votre image</p>
+                                <p style="font-size: 0.8rem; color: #9CA3AF; margin-top: 0.5rem;">PNG, JPG jusqu'à 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations principales -->
+                <div class="groupe-champs">
+                    <div class="champ-formulaire">
+                        <label class="label-champ">
+                            <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            Nom du Salon *
+                        </label>
+                        <input type="text" id="nom-salon" name="nom" placeholder="Brayan Beauty" required class="input-texte">
+                    </div>
+
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="adresse-salon">
+                            <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Adresse *
+                        </label>
+                        <input type="text" id="adresse-salon" name="adresse" placeholder="Yaoundé - Melen" required class="input-texte">
+                    </div>
+                </div>
+
+                <div class="section-formulaire champ-whatsapp">
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="whatsapp-salon">
+                            <svg class="icone icone-whatsapp" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488z"/>
+                            </svg>
+                            WhatsApp *
+                        </label>
+                        <input type="tel" id="whatsapp-salon" name="whatsapp" placeholder="+237 6XX XX XX XX" required class="input-texte">
+                    </div>
+                </div>
+
+                <!-- Services et Description -->
+                <div class="groupe-champs">
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="services-salon">
+                            <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Services proposés
+                        </label>
+                        <textarea id="services-salon" name="services" placeholder="Coiffure, Manucure, Pédicure, Maquillage..." class="textarea-champ"></textarea>
+                    </div>
+                     <div class="champ-formulaire">
+                        <label class="label-champ" for="services-salon">
+                            <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            description de votre salon
+                        </label>
+                        <textarea id="services-salon" name="description" placeholder="Coiffure, Manucure, Pédicure, Maquillage..." class="textarea-champ"></textarea>
+                    </div>
+
+                </div>
+                <div class="conteneur-bouton">
+                   
+                    <button class="bouton-soumettre"> <i class="fas fa-plus"></i>   Créer votre Boutique</button>
+                </div>
+                <br>
+                 <p class="text-sm text-gray-500 mt-3" style="text-align: center;">
+                        En vous inscrivant, vous acceptez nos conditions d'utilisation
+                    </p>
+            </form>
+        </div>
+    </div>
+    <script>
+        const placeholder=document.getElementById('placeholder-logo');
+     const   image=document.getElementById('fichier-logo');
+     const  appercu=document.getElementById('apercu-logo');
+        document.getElementById('fichier-logo').addEventListener('change',function(e){
+            e.preventDefault();
+            const file=e.target.files[0];
+            if(file && file.type.startsWith('image/')){
+                const reader=new FileReader
+                reader.onload=function(e){
+                    appercu.src=e.target.result;
+                    appercu.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+
+                };
+                                reader.readAsDataURL(file);
+
+            }
+
+        });
+        document.getElementById('formulaire-boutique').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const boutton= document.getElementById('bouton-soumettre');
+    const textoriginal= boutton.innerHTML;
+    boutton.disabled=true;
+    boutton.innerHTML= '<i class="fas fa-spinner fa-spin"></i>  Création en cours...';
+    document.querySelector('#zone-messages').innerHTML = '';
+    fetch('boutique.php',{
+        method:'POST',
+        body:new FormData(this),
+    })
+    .then(reponse=>reponse.json())
+    .then(reponse=>{
+        console.log(reponse);
+        const zonemessage=document.querySelector('#zone-messages');
+        if(reponse.success){
+            zonemessage.innerHTML=` <div class="message-succes">
+                    <strong>✅ ${response.message}</strong>
+                    <p>Redirection vers votre tableau de bord...</p>
+                </div>
+`;
+setTimeout(()=>{
+    window.location.href='ajout_produits.html';
+},2000);
+        }else {
+            let erreurHtml = '<div class="message-erreur">';
+            erreurHtml += '<strong>❌ Erreur</strong><br>';
+
+            if (response.message) {
+                erreurHtml += response.message;
+            }
+
+            if (response.errors && response.errors.length > 0) {
+                erreurHtml += '<ul style="margin-top: 10px; margin-left: 20px;">';
+                response.errors.forEach(error => {
+                    erreurHtml += `<li>${error}</li>`;
+                });
+                erreurHtml += '</ul>';
+            }
+
+      erreurHtml += '</div>';
+            zoneMessages.innerHTML = erreurHtml;
+
+            bouton.disabled = false;
+            bouton.innerHTML = texteOriginal;
+
+            window.scrollTo({
+                top: zoneMessages.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Erreur AJAX:', error);
+
+        const zoneMessages = document.getElementById('zone-messages');
+        zoneMessages.innerHTML = `
+            <div class="message-erreur">
+                <strong>❌ Erreur de communication</strong>
+                <p>Impossible de contacter le serveur.</p>
+            </div>
+        `;
+
+        bouton.disabled = false;
+        bouton.innerHTML = texteOriginal;
+    });
+
+    })
+    </script>
+</body>
+</html>

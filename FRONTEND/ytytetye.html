@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Complet : Importer de la Chine vers le Cameroun</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a365d;
+            --secondary: #d4a574;
+            --accent: #c53030;
+            --bg-light: #f7f7f5;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.7;
+            background: var(--bg-light);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        /* COUVERTURE */
+        .cover {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 120px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(255,255,255,0.03)" width="50" height="50"/></svg>');
+            opacity: 0.4;
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cover-badge {
+            display: inline-block;
+            background: var(--secondary);
+            color: var(--primary);
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 58px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            line-height: 1.15;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 22px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            font-weight: 300;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cover-features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            text-align: center;
+        }
+
+        .feature-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .feature-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        /* TABLE DES MATIÈRES */
+        .toc {
+            padding: 80px 60px;
+            background: #fafaf8;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            font-size: 18px;
+            margin-bottom: 50px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            padding: 20px 0;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .toc-item:hover {
+            padding-left: 15px;
+            border-color: var(--secondary);
+        }
+
+        .toc-chapter {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .toc-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--secondary);
+            font-weight: 7;}
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #1a472a;
+            --secondary: #d4af37;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: var(--dark);
+            background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+        .header {
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: var(--white);
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4af37 0%, #f1c40f 100%);
+            color: var(--dark);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(212,175,55,0.3);
+        }
+
+        section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 60px;
+            margin: 60px auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--primary);
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(135deg, #d4af37 0%, #f1c40f 100%);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            color: var(--primary);
+            margin: 40px 0 20px;
+            font-weight: 700;
+        }
+
+        p { margin: 20px 0; font-size: 1.1em; }
+
+        .info-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        .danger-box {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 5px solid #f44336;
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        .box-title {
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        ul, ol { margin: 20px 0 20px 40px; }
+        li { margin: 12px 0; font-size: 1.05em; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: var(--white);
+        }
+
+        th, td {
+            padding: 18px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9em;
+        }
+
+        tbody tr:hover { background: #f8f9fa; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-icon { font-size: 3em; margin-bottom: 15px; }
+        .card h4 { margin-top: 0; color: var(--primary); }
+
+        .step {
+            display: flex;
+            margin: 40px 0;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: var(--white);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-right: 25px;
+        }
+
+        .step-content { flex: 1; }
+
+        .footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 60px 20px 40px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2em; }
+            section { padding: 30px 20px; }
+            h2 { font-size: 1.8em; }
+            .card-grid { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Guide Complet d'Importation<br>Chine → Cameroun</h1>
+            <p class="subtitle">Le manuel professionnel pour réussir vos importations en 2026</p>
+            <div class="badge">Édition 2026 • Actualisé et Vérifié</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <section id="introduction">
+            <h2>1. Introduction au Commerce Chine-Cameroun</h2>
+            
+            <div class="info-box">
+                <div class="box-title">💡 Pourquoi la Chine ?</div>
+                <p>La Chine est le premier fournisseur du Cameroun avec une part de marché de 18,9%. Les importations camerounaises depuis la Chine ont augmenté de 82% entre 2017 et 2023.</p>
+            </div>
+
+            <h3>Les Avantages du Commerce avec la Chine</h3>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">💰</div>
+                    <h4>Prix Compétitifs</h4>
+                    <p>Produits jusqu'à 70% moins chers qu'en achat local grâce à la production de masse.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏭</div>
+                    <h4>Variété Immense</h4>
+                    <p>Accès à des millions de produits dans tous les secteurs d'activité.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎨</div>
+                    <h4>Personnalisation</h4>
+                    <p>Possibilité de créer vos propres produits avec votre marque (OEM/ODM).</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📦</div>
+                    <h4>Quantités Flexibles</h4>
+                    <p>De la petite commande test aux conteneurs complets.</p>
+                </div>
+            </div>
+
+            <h3>Principaux Produits Importés</h3>
+            <ul>
+                <li>Herbicides et produits agricoles (4,9%)</li>
+                <li>Pneumatiques pour autobus et camions (3,1%)</li>
+                <li>Carreaux et dalles en céramique (2,7%)</li>
+                <li>Produits en plastique et emballages (1,8%)</li>
+                <li>Produits électroniques et appareils</li>
+                <li>Textiles et vêtements</li>
+                <li>Matériaux de construction</li>
+            </ul>
+        </section>
+
+        <section id="plateformes">
+            <h2>2. Les Plateformes d'Achat en Ligne</h2>
+
+            <h3>2.1 Alibaba.com - Pour les Professionnels</h3>
+            
+            <div class="info-box">
+                <div class="box-title">✅ Alibaba : La Plateforme B2B</div>
+                <p><strong>Alibaba</strong> est la plus grande plateforme de commerce en gros au monde. Elle met directement en contact les acheteurs avec les fabricants chinois.</p>
+            </div>
+
+            <h4>Caractéristiques d'Alibaba :</h4>
+            <ul>
+                <li><strong>Modèle B2B (Business to Business)</strong> : Conçu pour les achats en gros</li>
+                <li><strong>MOQ (Minimum Order Quantity)</strong> : Quantité minimale entre 50 et 1000 pièces</li>
+                <li><strong>Prix Négociables</strong> : Négociation directe avec le fournisseur</li>
+                <li><strong>Personnalisation</strong> : Produits sur mesure avec votre logo</li>
+                <li><strong>Trade Assurance</strong> : Protection des paiements jusqu'à livraison</li>
+            </ul>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Créer un Compte</h4>
+                    <p>Rendez-vous sur <strong>www.alibaba.com</strong> et créez un compte gratuit. Remplissez votre profil professionnel avec le maximum de détails pour être pris au sérieux par les fournisseurs.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Rechercher des Produits</h4>
+                    <p>Utilisez la barre de recherche avec des mots-clés précis en anglais. Filtrez les résultats par :</p>
+                    <ul>
+                        <li><strong>Trade Assurance</strong> : Protection garantie</li>
+                        <li><strong>Verified Supplier</strong> : Fournisseurs vérifiés par Alibaba</li>
+                        <li><strong>Gold Supplier</strong> : Membres premium</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>2.2 AliExpress - Pour les Petites Quantités</h3>
+
+            <div class="info-box">
+                <div class="box-title">✅ AliExpress : La Plateforme B2C</div>
+                <p><strong>AliExpress</strong> est orienté vers le grand public. Idéal pour tester des produits avant de commander en gros.</p>
+            </div>
+
+            <h4>Caractéristiques d'AliExpress :</h4>
+            <ul>
+                <li><strong>Achat à l'unité</strong> : Pas de quantité minimale</li>
+                <li><strong>Livraison directe</strong> : Produits expédiés directement chez vous</li>
+                <li><strong>Protection Acheteur</strong> : Remboursement garanti si problème</li>
+                <li><strong>Prix fixes</strong> : Pas de négociation possible</li>
+                <li><strong>Idéal pour tester</strong> : Échantillons avant gros achat</li>
+            </ul>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ À Savoir</div>
+                <p>Les prix sur AliExpress sont plus élevés qu'Alibaba car ils incluent déjà la marge du revendeur. Utilisez AliExpress pour tester, puis passez à Alibaba pour les commandes en gros.</p>
+            </div>
+
+            <h3>2.3 Autres Plateformes</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plateforme</th>
+                        <th>Type</th>
+                        <th>Avantages</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>DHgate</strong></td>
+                        <td>B2B/B2C</td>
+                        <td>MOQ plus faibles qu'Alibaba</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Made-in-China</strong></td>
+                        <td>B2B</td>
+                        <td>Produits industriels</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Global Sources</strong></td>
+                        <td>B2B</td>
+                        <td>Fournisseurs vérifiés, premium</td>
+                    </tr>
+                    <tr>
+                        <td><strong>1688.com</strong></td>
+                        <td>B2B</td>
+                        <td>Version chinoise, prix les plus bas</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="statut">
+            <h2>3. Obtenir son Statut d'Importateur</h2>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Obligation Légale</div>
+                <p>Pour importer légalement au Cameroun, vous devez avoir le statut d'importateur-exportateur officiel. Les importations sans ce statut sont illégales.</p>
+            </div>
+
+            <h3>Documents Requis</h3>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Inscription au Registre du Commerce</h4>
+                    <p>Rendez-vous au Centre de Formalités de Création d'Entreprises (CFCE). Documents nécessaires :</p>
+                    <ul>
+                        <li>Carte nationale d'identité</li>
+                        <li>Certificat de domicile ou bail commercial</li>
+                        <li>Frais d'enregistrement (environ 50,000 FCFA)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Obtenir le Numéro de Contribuable</h4>
+                    <p>Inscrivez-vous à la Direction Générale des Impôts pour obtenir votre numéro de contribuable obligatoire pour les opérations douanières.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Carte Professionnelle d'Importateur</h4>
+                    <p>Une fois tous les documents obtenus, demandez votre carte professionnelle d'importateur-exportateur.</p>
+                </div>
+            </div>
+
+            <h3>Coûts de Mise en Conformité</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Coût</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Création d'entreprise</td>
+                        <td>50,000 - 150,000 FCFA</td>
+                    </tr>
+                    <tr>
+                        <td>Registre du commerce</td>
+                        <td>50,000 FCFA</td>
+                    </tr>
+                    <tr>
+                        <td>Carte de commerçant</td>
+                        <td>25,000 FCFA</td>
+                    </tr>
+                    <tr>
+                        <td>Carte professionnelle importateur</td>
+                        <td>100,000 FCFA</td>
+                    </tr>
+                    <tr>
+                        <td>Inscription GUCE</td>
+                        <td>50,000 FCFA</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOTAL ESTIMÉ</strong></td>
+                        <td><strong>275,000 - 375,000 FCFA</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="fournisseurs">
+            <h2>4. Trouver et Vérifier ses Fournisseurs</h2>
+
+            <div class="danger-box">
+                <div class="box-title">🚫 Danger : Les Arnaques Existent</div>
+                <p>Environ 15-20% des fournisseurs sur Alibaba sont peu fiables ou arnaqueurs. Une vérification rigoureuse est absolument essentielle avant tout paiement.</p>
+            </div>
+
+            <h3>Critères de Sélection d'un Bon Fournisseur</h3>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Vérifier les Certifications</h4>
+                    <p>Recherchez ces badges :</p>
+                    <ul>
+                        <li><strong>✓ Verified Supplier</strong> : Entreprise vérifiée</li>
+                        <li><strong>🏆 Gold Supplier</strong> : Membre payant avec historique</li>
+                        <li><strong>🛡️ Trade Assurance</strong> : Protection des paiements</li>
+                        <li><strong>⭐ Onsite Check</strong> : Usine inspectée</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Analyser l'Historique</h4>
+                    <ul>
+                        <li>Années sur Alibaba (minimum 3 ans)</li>
+                        <li>Taux de réponse (minimum 90%)</li>
+                        <li>Temps de réponse (moins de 24h)</li>
+                        <li>Avis clients (minimum 4.5/5)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Les Signaux d'Alerte</h3>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Fuyez Si Vous Voyez Ça :</div>
+                <ul>
+                    <li>🚩 Prix 50% moins cher que la concurrence</li>
+                    <li>🚩 Pression pour payer rapidement hors plateforme</li>
+                    <li>🚩 Demande de paiement par Western Union ou crypto</li>
+                    <li>🚩 Pas de Trade Assurance disponible</li>
+                    <li>🚩 Photos volées d'autres sites</li>
+                    <li>🚩 Communication uniquement par email personnel</li>
+                    <li>🚩 Refus de fournir des échantillons</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <div class="box-title">✅ Règle d'Or : Toujours Commander des Échantillons</div>
+                <p>Ne JAMAIS commander en gros sans avoir reçu et testé des échantillons physiques. Les échantillons coûtent entre 20 et 200 USD selon le produit.</p>
+            </div>
+        </section>
+
+        <section id="paiement">
+            <h2>5. Modes de Paiement Sécurisés</h2>
+
+            <div class="danger-box">
+                <div class="box-title">🚫 Règle Absolue de Sécurité</div>
+                <p>Ne JAMAIS payer en dehors de la plateforme pour une première commande. Utilisez toujours Trade Assurance sur Alibaba.</p>
+            </div>
+
+            <h3>Trade Assurance (Alibaba) - RECOMMANDÉ</h3>
+
+            <div class="info-box">
+                <div class="box-title">✅ Comment Fonctionne Trade Assurance ?</div>
+                <p>Trade Assurance est un service gratuit d'Alibaba qui protège votre paiement jusqu'à ce que vous confirmiez avoir reçu vos marchandises conformes.</p>
+            </div>
+
+            <h4>Avantages de Trade Assurance :</h4>
+            <ul>
+                <li>✅ Protection du paiement jusqu'à 100%</li>
+                <li>✅ Remboursement automatique en cas de non-livraison</li>
+                <li>✅ Garantie de qualité des produits</li>
+                <li>✅ Compensation pour retards de livraison</li>
+                <li>✅ Arbitrage par Alibaba en cas de litige</li>
+            </ul>
+
+            <h3>Autres Modes de Paiement</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mode de Paiement</th>
+                        <th>Sécurité</th>
+                        <th>Frais</th>
+                        <th>Quand l'Utiliser</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>PayPal</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>3-5%</td>
+                        <td>Échantillons et petites commandes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Carte Bancaire</strong></td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>2-3%</td>
+                        <td>Via Trade Assurance uniquement</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Virement Bancaire</strong></td>
+                        <td>⭐⭐</td>
+                        <td>20-50 USD</td>
+                        <td>Fournisseurs de confiance établis</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Western Union</strong></td>
+                        <td>⭐</td>
+                        <td>Variable</td>
+                        <td>À ÉVITER (risque élevé)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="transport">
+            <h2>6. Transport Maritime et Aérien</h2>
+
+            <h3>Transport Maritime - Le Plus Économique</h3>
+
+            <div class="info-box">
+                <div class="box-title">🚢 Fret Maritime</div>
+                <p>Le transport maritime représente 95% du trafic vers le Cameroun. C'est l'option la plus économique pour les gros volumes.</p>
+            </div>
+
+            <h4>Délais de Transit Maritime</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Port de Départ</th>
+                        <th>Port d'Arrivée</th>
+                        <th>Durée</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Shanghai</td>
+                        <td>Douala</td>
+                        <td>30-40 jours</td>
+                    </tr>
+                    <tr>
+                        <td>Shenzhen</td>
+                        <td>Douala</td>
+                        <td>28-38 jours</td>
+                    </tr>
+                    <tr>
+                        <td>Guangzhou</td>
+                        <td>Douala</td>
+                        <td>30-40 jours</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Types de Conteneurs</h4>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📦</div>
+                    <h4>FCL (Conteneur Complet)</h4>
+                    <p><strong>20 pieds</strong> : 33 m³, 28 tonnes max</p>
+                    <p><strong>40 pieds</strong> : 67 m³, 26 tonnes max</p>
+                    <p><strong>Prix</strong> : 2,500 - 4,500 USD</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📦</div>
+                    <h4>LCL (Groupage)</h4>
+                    <p>Partage du conteneur</p>
+                    <p><strong>Prix</strong> : 1-3 USD par kg ou m³</p>
+                    <p>Délai +5-10 jours</p>
+                </div>
+            </div>
+
+            <h3>Transport Aérien - Le Plus Rapide</h3>
+
+            <div class="info-box">
+                <div class="box-title">✈️ Fret Aérien</div>
+                <p>Le fret aérien est 5-8 fois plus cher que le maritime, mais 10 fois plus rapide.</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Critère</th>
+                        <th>Détails</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Durée totale</strong></td>
+                        <td>3-10 jours</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prix moyen</strong></td>
+                        <td>4-9 USD par kilogramme</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Poids minimum</strong></td>
+                        <td>50 kg (certains 20 kg)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Attention au Poids Volumétrique</div>
+                <p><strong>Formule</strong> : (L × l × H en cm) ÷ 6000 = Poids volumétrique en kg</p>
+                <p>Exemple : 100×60×40 cm pesant 10 kg sera facturé 40 kg !</p>
+            </div>
+
+            <h3>Incoterms - Termes de Livraison</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Incoterm</th>
+                        <th>Fournisseur Paie</th>
+                        <th>Vous Payez</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FOB</strong></td>
+                        <td>Transport local + chargement</td>
+                        <td>Fret + assurance + douanes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CIF</strong></td>
+                        <td>Transport complet + assurance</td>
+                        <td>Douanes + transport local</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DDP</strong></td>
+                        <td>Tout (livraison porte-à-porte)</td>
+                        <td>Rien (prix tout inclus)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="douanes">
+            <h2>7. Procédures Douanières au Cameroun</h2>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Étape Cruciale</div>
+                <p>Les douanes sont l'étape la plus complexe et coûteuse de l'importation. Une mauvaise préparation peut entraîner des surcoûts de 50-100%.</p>
+            </div>
+
+            <h3>Documents Douaniers Obligatoires</h3>
+
+            <ol>
+                <li><strong>Facture Commerciale</strong> : Détails de la transaction</li>
+                <li><strong>Liste de Colisage</strong> : Détail de tous les colis</li>
+                <li><strong>Connaissement (B/L)</strong> : Titre de transport</li>
+                <li><strong>Certificat BESC/ECTN</strong> : Obligatoire pour le maritime</li>
+                <li><strong>Certificat d'Origine</strong> : Pays de fabrication</li>
+                <li><strong>Certificat SGS</strong> : Si valeur ≥ 2 millions FCFA</li>
+            </ol>
+
+            <h3>Droits de Douane et Taxes</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Type de Produits</th>
+                        <th>Droits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Catégorie I</strong></td>
+                        <td>Biens de première nécessité</td>
+                        <td>0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Catégorie II</strong></td>
+                        <td>Matières premières, équipements</td>
+                        <td>10%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Catégorie III</strong></td>
+                        <td>Biens intermédiaires</td>
+                        <td>20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Catégorie IV</strong></td>
+                        <td>Biens de consommation</td>
+                        <td>30%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Calcul des Taxes</h3>
+
+            <div class="info-box">
+                <div class="box-title">✅ Formule de Calcul</div>
+                <ol>
+                    <li><strong>Valeur en Douane</strong> = FOB + Fret + Assurance</li>
+                    <li><strong>Droits de Douane</strong> = Valeur × Taux (0%, 10%, 20% ou 30%)</li>
+                    <li><strong>Base TVA</strong> = Valeur en Douane + Droits</li>
+                    <li><strong>TVA</strong> = Base TVA × 19.25%</li>
+                    <li><strong>Total</strong> = Droits + TVA + Frais dédouanement</li>
+                </ol>
+            </div>
+
+            <h4>Exemple Pratique</h4>
+
+            <div class="info-box">
+                <div class="box-title">📊 Cas : Import de Téléphones</div>
+                <p><strong>Données :</strong></p>
+                <ul>
+                    <li>Valeur FOB : 5,000,000 FCFA</li>
+                    <li>Fret + Assurance : 900,000 FCFA</li>
+                    <li>Catégorie IV = 30% de droits</li>
+                </ul>
+                
+                <p><strong>Calcul :</strong></p>
+                <ol>
+                    <li>Valeur en Douane = 5,900,000 FCFA</li>
+                    <li>Droits (30%) = 1,770,000 FCFA</li>
+                    <li>Base TVA = 7,670,000 FCFA</li>
+                    <li>TVA (19.25%) = 1,476,475 FCFA</li>
+                    <li>Frais = 200,000 FCFA</li>
+                </ol>
+                
+                <p><strong>TOTAL = 3,446,475 FCFA (58% du FOB !)</strong></p>
+            </div>
+
+            <h3>Produits Interdits et Restreints</h3>
+
+            <div class="danger-box">
+                <div class="box-title">🚫 Produits Totalement Interdits</div>
+                <ul>
+                    <li>Armes et munitions</li>
+                    <li>Stupéfiants et drogues</li>
+                    <li>Produits pornographiques</li>
+                    <li>Contrefaçons de marques</li>
+                    <li>Déchets toxiques</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Produits Nécessitant Autorisation</div>
+                <ul>
+                    <li>Médicaments (Ministère Santé)</li>
+                    <li>Produits alimentaires (certificat sanitaire)</li>
+                    <li>Produits chimiques</li>
+                    <li>Équipements télécommunication</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="produits">
+            <h2>8. Produits Rentables à Importer</h2>
+
+            <h3>Électronique et Technologie</h3>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <h4>Smartphones & Accessoires</h4>
+                    <p><strong>Marge :</strong> 30-60%</p>
+                    <p>Très forte demande. Privilégiez milieu de gamme (100-300 USD).</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h4>Ordinateurs & Tablettes</h4>
+                    <p><strong>Marge :</strong> 25-45%</p>
+                    <p>Marché en croissance. Cibler étudiants et professionnels.</p>
+                </div>
+            </div>
+
+            <h3>Mode et Vêtements</h3>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">👗</div>
+                    <h4>Vêtements Prêt-à-Porter</h4>
+                    <p><strong>Marge :</strong> 100-300%</p>
+                    <p>Marges exceptionnelles. Privilégier qualité moyenne-haute.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">👟</div>
+                    <h4>Chaussures</h4>
+                    <p><strong>Marge :</strong> 80-250%</p>
+                    <p>Sneakers, sandales. Toutes les tranches d'âge.</p>
+                </div>
+            </div>
+
+            <h3>Maison et Décoration</h3>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">🛋️</div>
+                    <h4>Meubles Compacts</h4>
+                    <p><strong>Marge :</strong> 50-120%</p>
+                    <p>Tables, chaises, étagères. Marché en plein essor.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💡</div>
+                    <h4>Luminaires LED</h4>
+                    <p><strong>Marge :</strong> 80-200%</p>
+                    <p>Économie d'énergie = argument de vente.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="couts">
+            <h2>9. Calculer vos Coûts Totaux</h2>
+
+            <div class="info-box">
+                <div class="box-title">💡 Règle d'Or de la Rentabilité</div>
+                <p>Pour être rentable, votre prix de vente doit être <strong>au minimum 2.5 fois votre coût total d'importation</strong>.</p>
+            </div>
+
+            <h3>Décomposition des Coûts</h3>
+
+            <h4>Coûts en Chine</h4>
+            <ul>
+                <li>Prix FOB produit : 100%</li>
+                <li>Échantillons : 50-300 USD</li>
+                <li>Inspection qualité : 0.5-1% FOB</li>
+                <li>Transport local : 100-500 USD</li>
+            </ul>
+
+            <h4>Coûts de Transport</h4>
+            <ul>
+                <li>Fret maritime (conteneur 20') : 2,500-4,500 USD</li>
+                <li>Fret maritime (LCL) : 80-150 USD/m³</li>
+                <li>Fret aérien : 4-9 USD/kg</li>
+                <li>Assurance : 1-2% valeur</li>
+                <li>Certificat BESC : 50-150 USD</li>
+            </ul>
+
+            <h4>Coûts au Cameroun</h4>
+            <ul>
+                <li>Droits de douane : 0-30%</li>
+                <li>TVA : 19.25%</li>
+                <li>Transitaire : 5-15% total</li>
+                <li>Manutention : 100,000-300,000 FCFA</li>
+                <li>Transport local : 50,000-200,000 FCFA</li>
+            </ul>
+
+            <h3>Capital de Démarrage Recommandé</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Niveau</th>
+                        <th>Capital</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Débutant</strong></td>
+                        <td>500,000 - 1,500,000 FCFA</td>
+                        <td>Test marché</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Intermédiaire</strong></td>
+                        <td>2,000,000 - 5,000,000 FCFA</td>
+                        <td>LCL, commandes moyennes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Avancé</strong></td>
+                        <td>5,000,000 - 15,000,000 FCFA</td>
+                        <td>Conteneurs complets</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Gestion du Cash Flow</div>
+                <p>Prévoyez 2-4 mois avant récupération de l'investissement :</p>
+                <ul>
+                    <li>30-40 jours : Production + expédition</li>
+                    <li>7-14 jours : Dédouanement</li>
+                    <li>30-90 jours : Vente progressive</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="erreurs">
+            <h2>10. Erreurs à Éviter Absolument</h2>
+
+            <div class="danger-box">
+                <div class="box-title">🚫 Les 10 Erreurs Fatales</div>
+                <p>Ces erreurs ont coûté des millions à de nombreux importateurs !</p>
+            </div>
+
+            <h3>Erreur #1 : Commander Sans Échantillons</h3>
+            <div class="warning-box">
+                <div class="box-title">💸 Perte : 50-100% de l'Investissement</div>
+                <p><strong>Solution :</strong> TOUJOURS commander 3-5 échantillons de différents fournisseurs. Coût : 100-300 USD. Économie potentielle : 5,000-10,000 USD.</p>
+            </div>
+
+            <h3>Erreur #2 : Payer Hors Plateforme</h3>
+            <div class="danger-box">
+                <div class="box-title">🚨 Risque d'Arnaque : 90%</div>
+                <p><strong>Solution :</strong> Première commande TOUJOURS via Trade Assurance ou PayPal. Jamais Western Union ou crypto.</p>
+            </div>
+
+            <h3>Erreur #3 : Sous-Estimer les Douanes</h3>
+            <div class="warning-box">
+                <div class="box-title">📊 Surcoût Moyen : 50-70%</div>
+                <p><strong>Solution :</strong> Multipliez le prix FOB par 2.5-3 pour obtenir le coût réel.</p>
+            </div>
+
+            <h3>Erreur #4 : Ignorer le Poids Volumétrique</h3>
+            <div class="warning-box">
+                <div class="box-title">✈️ Fret Aérien Surtout</div>
+                <p><strong>Solution :</strong> Calculez TOUJOURS : (L×l×h en cm) ÷ 6000. Demandez des cartons compacts.</p>
+            </div>
+
+            <h3>Erreur #5 : Négliger le BESC</h3>
+            <div class="danger-box">
+                <div class="box-title">🚢 Blocage au Port</div>
+                <p><strong>Solution :</strong> Demandez le BESC dès réception du Bill of Lading. Délai : 24-48h.</p>
+            </div>
+
+            <h3>Checklist Anti-Erreurs</h3>
+
+            <div class="info-box">
+                <div class="box-title">✅ Checklist Avant Commande</div>
+                <ol>
+                    <li>☐ Échantillons reçus et testés (min 3 fournisseurs)</li>
+                    <li>☐ Fournisseur vérifié (Trade Assurance)</li>
+                    <li>☐ Prix FOB négocié par écrit</li>
+                    <li>☐ Incoterm défini (FOB recommandé)</li>
+                    <li>☐ Calcul complet des coûts effectué</li>
+                    <li>☐ Marge minimum 150% assurée</li>
+                    <li>☐ Conformité réglementaire vérifiée</li>
+                    <li>☐ Paiement via Trade Assurance</li>
+                    <li>☐ Documents préparés</li>
+                    <li>☐ Transitaire contacté</li>
+                    <li>☐ Plan de vente établi</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="bonus">
+            <h2>Bonus : Conseils d'Experts</h2>
+
+            <h3>🎯 Stratégies de Croissance</h3>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h4>Réinvestir</h4>
+                    <p>60-70% profits dans stock, 30-40% trésorerie.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🤝</div>
+                    <h4>Paiements à Terme</h4>
+                    <p>Après 3-4 commandes, négociez 45-60 jours.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏷️</div>
+                    <h4>Votre Marque (OEM)</h4>
+                    <p>Après 6-12 mois, marges +30-50%.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <h4>Vendre en Ligne</h4>
+                    <p>Facebook/Instagram/WhatsApp = portée ×10.</p>
+                </div>
+            </div>
+
+            <h3>🌟 Mentalité du Succès</h3>
+
+            <div class="info-box">
+                <div class="box-title">✅ Les 5 Piliers</div>
+                <ol>
+                    <li><strong>Patience</strong> : Le premier conteneur prend du temps</li>
+                    <li><strong>Apprentissage</strong> : Chaque commande enseigne</li>
+                    <li><strong>Relations</strong> : Partenaires, pas transactions</li>
+                    <li><strong>Qualité > Prix</strong> : Client satisfait revient</li>
+                    <li><strong>Vision Long Terme</strong> : Business durable</li>
+                </ol>
+            </div>
+
+            <h3>💼 FAQ</h3>
+
+            <div class="step">
+                <div class="step-number">Q</div>
+                <div class="step-content">
+                    <h4>Combien de temps pour la première commande ?</h4>
+                    <p><strong>Réponse :</strong> Maritime : 45-70 jours. Aérien : 10-20 jours.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">Q</div>
+                <div class="step-content">
+                    <h4>Capital minimum pour commencer ?</h4>
+                    <p><strong>Réponse :</strong> Minimum viable : 500,000 FCFA. Recommandé : 1,500,000 - 3,000,000 FCFA.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">Q</div>
+                <div class="step-content">
+                    <h4>La qualité chinoise est-elle bonne ?</h4>
+                    <p><strong>Réponse :</strong> La Chine produit de tout, du bas au très haut de gamme (iPhone, Tesla). Tout dépend du prix et du fournisseur.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" style="background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%); color: var(--white);">
+            <h2 style="color: var(--white);">Conclusion : Votre Aventure Commence</h2>
+            
+            <p style="font-size: 1.2em; line-height: 1.8;">
+                Vous avez maintenant toutes les clés pour réussir dans l'importation depuis la Chine vers le Cameroun. Ce guide vous évite les erreurs coûteuses que font 80% des débutants.
+            </p>
+
+            <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 30px 0;">
+                <h3 style="color: #d4af37; margin-top: 0;">🎯 Plan d'Action en 7 Étapes</h3>
+                <ol style="font-size: 1.1em; line-height: 2;">
+                    <li><strong>Semaine 1-2 :</strong> Choisissez votre niche, étudiez le marché</li>
+                    <li><strong>Semaine 3 :</strong> Créez votre entreprise, inscrivez-vous au GUCE</li>
+                    <li><strong>Semaine 4 :</strong> Créez comptes Alibaba, contactez fournisseurs</li>
+                    <li><strong>Semaine 5-6 :</strong> Commandez échantillons, testez qualité</li>
+                    <li><strong>Semaine 7 :</strong> Négociez première commande, trouvez transitaire</li>
+                    <li><strong>Semaine 8 :</strong> Passez commande via Trade Assurance</li>
+                    <li><strong>Semaines 9-16 :</strong> Suivez expédition, dédouanement, VENDEZ !</li>
+                </ol>
+            </div>
+
+            <div style="text-align: center; margin: 50px 0;">
+                <p style="font-size: 1.4em; font-weight: 700; color: #d4af37; margin-bottom: 20px;">
+                    "Le meilleur moment était il y a 20 ans.<br>Le deuxième meilleur moment, c'est maintenant."
+                </p>
+                <p style="font-size: 1.2em;">
+                    Des milliers de Camerounais réussissent dans l'importation.<br>
+                    Pourquoi pas vous ?
+                </p>
+            </div>
+
+            <div style="background: var(--white); color: var(--dark); padding: 40px; border-radius: 15px; text-align: center;">
+                <h3 style="color: #1a472a; margin-bottom: 20px;">🚀 Passez à l'Action Maintenant</h3>
+                <p style="font-size: 1.1em; margin-bottom: 25px;">
+                    Ne laissez pas ce guide prendre la poussière. La connaissance sans action ne vaut rien.
+                </p>
+                <p style="font-size: 1.3em; font-weight: 700; color: #1a472a;">
+                    Le voyage de 1000 km commence par un premier pas.<br>
+                    Faites ce pas aujourd'hui.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="footer">
+        <h3>Guide Complet d'Importation Chine → Cameroun</h3>
+        <p style="font-size: 1.1em; margin: 20px 0;">Édition 2026 • Actualisé et Vérifié</p>
+        <p style="opacity: 0.8; margin: 20px 0;">
+            Ce guide a été créé pour vous aider à réussir dans l'importation.<br>
+            Informations basées sur sources vérifiées et expérience de professionnels.
+        </p>
+        <p style="font-size: 0.9em; opacity: 0.6; margin-top: 30px;">
+            © 2026 • Tous droits réservés<br>
+            Vérifiez toujours les réglementations en vigueur avant toute transaction.
+        </p>
+    </div>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Fade-in animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    entry.target.style.transition = 'opacity 0.6s, transform 0.6s';
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(section => observer.observe(section));
+
+        console.log('Guide d\'importation chargé avec succès! 🚀');
+    </script>
+</body>
+</html>

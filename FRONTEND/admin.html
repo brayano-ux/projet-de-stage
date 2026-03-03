@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <div class="brayan">
+            <h2>Bienvenue Brayano c'est toi le chef</h2>
+            <p>Brayano peut effectuer tous les actions qui'il veut car le site l'appartient</p>
+        </div>
+        <div class="password">
+            <h3> Cet action est effectuer pour verifier  si c'est vraiment Brayano</h3>
+            <input type="text" id="password" placeholder="Brayan Veuillez entrez votre mot de passe secret">
+            <p id="messerreur"></p>
+            <button id="valide">Validez</button>
+        </div>
+    </header>
+    <section>
+        <div class="menu" id="menu" style="display: none;">
+            <h3>Listes de Boutiques</h3>
+            <div class="boutique" id="boutique"></div>
+        </div>
+        <div class="mon revenu">
+            <div class="mes_boutique"> </div>
+            <div class="mon_chiffre_daffaires"></div>
+        </div>
+        <div class="acces_au_site" name="lien_du_site"></div>
+    </section>
+    <script>
+        function supprimerboutique(){
+            boutique=document.querySelector('.boutique');
+            div=document.createElement('div');
+            div.className='deco';
+            div.setAttribute('monid',id);
+            div.innerHTML=` Boutique :${nom}<br> Crer le :${date} <br> 
+            Elle ou il fait dans la vente de ${vente}<br>
+            <button class="supprimer" onclick="supprimer()">Supprimer</button>
+            <button class="Avertir" onclick="avertir()">Avertir</button>`;
+            div.appenChild(boutique);
+
+        }
+        function verifiermotdepasse(){
+            chance=3;
+            motdepasse=mamancherie123;
+            menu=document.getElementById('menu');
+            password=document.getElementById('password').value.trim();
+            if(!password){
+                alert('Veuillez Entrez le mot de passe');
+                return;
+            }
+            if(password==motdepasse){
+menu.style.display='block';
+return;
+            }
+            if(password!=motdepasse){
+                alert('mot de passe incorrect');
+                chance--;
+        }
+        if(chance==0){
+            alert('Votre compte est bloquer vous net pas brayan');
+        }
+        }
+        document.getElementById('valide').addEventListener('click',function(){
+            verifiermotdepasse();
+        })
+    </script>
+</body>
+</html>

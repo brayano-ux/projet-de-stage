@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Produit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #818CF8;
+            --primary-dark: #3730A3;
+            --success: #10B981;
+            --success-dark: #059669;
+            --error: #EF4444;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --bg-main: #F9FAFB;
+            --bg-card: #ffffff;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .conteneur-principal {
+            width: 100%;
+            max-width: 850px;
+        }
+
+        .carte-formulaire {
+            background: var(--bg-card);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .en-tete-formulaire {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .titre-principal {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .sous-titre {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .corps-formulaire {
+            padding: 3rem 2.5rem;
+        }
+
+        .section-logo {
+            background: #EEF2FF;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            border: 2px dashed var(--primary-light);
+            transition: all 0.3s ease;
+        }
+
+        .section-logo:hover {
+            border-color: var(--primary);
+            background: #E0E7FF;
+        }
+
+        .titre-section {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-dark);
+        }
+
+        .icone-section {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+        }
+
+        .conteneur-logo {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .zone-apercu-logo {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .zone-apercu-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .placeholder-logo {
+            text-align: center;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .conteneur-upload {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .label-champ {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .zone-upload {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .zone-upload:hover, .zone-upload.dragover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .input-fichier {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .groupe-champs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .champ-formulaire {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-texte, .textarea-champ {
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            width: 100%;
+            background: #F9FAFB;
+        }
+
+        .input-texte:focus, .textarea-champ:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .textarea-champ {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        .conteneur-bouton {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .bouton-soumettre {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 1.15rem;
+            padding: 1.25rem 4rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+
+        .bouton-soumettre:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .bouton-soumettre:disabled {
+            background: var(--text-muted);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Styles pour les messages d'erreur et succès */
+        .message-succes, .message-erreur {
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+
+        .message-succes {
+            background: #ECFDF5;
+            color: var(--success-dark);
+            border-left: 5px solid var(--success);
+        }
+
+        .message-erreur {
+            background: #FEF2F2;
+            color: #B91C1C;
+            border-left: 5px solid var(--error);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .corps-formulaire { padding: 2rem 1.5rem; }
+            .groupe-champs { grid-template-columns: 1fr; gap: 1.5rem; }
+            .conteneur-logo { flex-direction: column; text-align: center; }
+            .zone-apercu-logo { width: 100%; height: 200px; border-radius: 16px; }
+            .bouton-soumettre { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="conteneur-principal">
+        <div class="carte-formulaire">
+            <div class="en-tete-formulaire">
+                <h1 class="titre-principal"><i class="fas fa-box-open" style="margin-right: 10px;"></i>Ajoutez vos articles</h1>
+                <p class="sous-titre">Mettez en valeur vos produits pour attirer plus de clients</p>
+            </div>
+
+            <form id="formulaire-produit" method="post" action="ajouter_produit.php" class="corps-formulaire" enctype="multipart/form-data">
+                <div class="section-logo">
+                    <h2 class="titre-section">
+                        <svg class="icone-section" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Photo de votre article *
+                    </h2>
+
+                    <div class="conteneur-logo">
+                        <div class="zone-apercu-logo">
+                            <div id="apercu_image" class="placeholder-logo">
+                                <i class="fas fa-image fa-2x" style="color: #CBD5E1; margin-bottom: 8px;"></i>
+                                <p style="font-size: 0.9rem;">Aperçu</p>
+                            </div>
+                        </div>
+
+                        <div class="conteneur-upload">
+                            <div class="zone-upload" id="zone-upload">
+                                <input type="file" id="fichier-logo" name="logo" accept="image/*" class="input-fichier" required>
+                                <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 40px; height: 40px; margin: 0 auto 1rem; color: var(--primary);">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p><span style="color: var(--primary); font-weight: 700;">Cliquez ici</span> ou glissez votre image</p>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Formats : PNG, JPG, WebP (Max 5MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="groupe-champs">
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="nom-article">Nom de l'article *</label>
+                        <input type="text" id="nom-article" name="nom" placeholder="Ex: Chaussures de sport" required class="input-texte" minlength="3" maxlength="200">
+                    </div>
+
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="prix-article">Prix (FCFA) *</label>
+                        <input type="number" id="prix-article" name="prix" placeholder="Ex: 15000" required class="input-texte" min="1" step="1">
+                    </div>
+                </div>
+
+                <div class="groupe-champs">
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="localisation-article">Localisation / Ville *</label>
+                        <input type="text" id="localisation-article" name="localisation" placeholder="Ex: Douala, Akwa" required class="input-texte" maxlength="255">
+                    </div>
+
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="whatsapp-article">Numéro WhatsApp *</label>
+                        <input type="tel" id="whatsapp-article" name="whatsapp" placeholder="Ex: +237 6XX XX XX XX" required class="input-texte">
+                    </div>
+                </div>
+                
+                <div class="groupe-champs" style="grid-template-columns: 1fr;">
+                    <div class="champ-formulaire">
+                        <label class="label-champ" for="description-article">Description de l'article *</label>
+                        <textarea id="description-article" name="description" placeholder="Détaillez votre article : qualité, état, dimensions, couleurs disponibles..." class="textarea-champ" required minlength="10" maxlength="2000"></textarea>
+                    </div>
+                </div>
+
+                <div id="zone-messages"></div>
+
+                <div class="conteneur-bouton">
+                    <button type="submit" class="bouton-soumettre" id="bouton-soumettre">
+                        <i class="fas fa-paper-plane"></i>
+                        Publier l'article
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            const $zoneUpload = $('#zone-upload');
+            const $fichierLogo = $('#fichier-logo');
+            const $apercu = $('#apercu_image');
+            const $boutonSoumettre = $('#bouton-soumettre');
+            const $zoneMessages = $('#zone-messages');
+            const $formulaire = $('#formulaire-produit');
+
+            $fichierLogo.on('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => $apercu.html(`<img src="${ev.target.result}" alt="Aperçu du produit">`);
+                    reader.readAsDataURL(file);
+                } else {
+                    $apercu.html('<i class="fas fa-image fa-2x" style="color: #CBD5E1; margin-bottom: 8px;"></i><p style="font-size: 0.9rem;">Aperçu</p>');
+                }
+            });
+
+            $zoneUpload
+                .on('dragover', (e) => {
+                    e.preventDefault();
+                    $zoneUpload.addClass('dragover');
+                })
+                .on('dragleave drop', (e) => {
+                    e.preventDefault();
+                    $zoneUpload.removeClass('dragover');
+                })
+                .on('drop', (e) => {
+                    const files = e.originalEvent.dataTransfer.files;
+                    if (files.length) {
+                        $fichierLogo[0].files = files;
+                        $fichierLogo.trigger('change');
+                    }
+                })
+                .on('click', (e) => {
+                    if (!$(e.target).is('input')) $fichierLogo.click();
+                });
+
+            $formulaire.on('submit', (e) => {
+                e.preventDefault();
+                const texteOriginal = $boutonSoumettre.html();
+
+                $boutonSoumettre.prop('disabled', true).html('<i class="fas fa-circle-notch fa-spin"></i> Publication en cours...');
+                $zoneMessages.empty();
+
+                $.ajax({
+                    url: $formulaire.attr('action'),
+                    type: $formulaire.attr('method'),
+                    data: new FormData(e.target),
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: (response) => {
+                        if (response.success) {
+                            $zoneMessages.html(`
+                                <div class="message-succes">
+                                    <div style="font-size: 1.1rem; margin-bottom: 5px;">${response.message}</div>
+                                    <div style="font-size: 0.95rem; opacity: 0.9;">Redirection vers vos produits...</div>
+                                </div>
+                            `);
+                            setTimeout(() => window.location.href = response.redirect || 'mes_produits.php', 2000);
+                        } else {
+                            const erreursHTML = response.erreurs?.length 
+                                ? `<ul style="margin-top: 10px; margin-left: 20px;">${response.erreurs.map(err => `<li>${err}</li>`).join('')}</ul>` 
+                                : '';
+
+                            $zoneMessages.html(`
+                                <div class="message-erreur">
+                                    <div style="font-weight: 700; margin-bottom: 5px;">Le produit n'a pas pu être ajouté</div>
+                                    ${response.message ? `<div>${response.message}</div>` : ''}
+                                    ${erreursHTML}
+                                </div>
+                            `);
+                            
+                            $boutonSoumettre.prop('disabled', false).html(texteOriginal);
+                            $('html, body').animate({ scrollTop: $zoneMessages.offset().top - 100 }, 500);
+                        }
+                    },
+                    error: () => {
+                        $zoneMessages.html(`
+                            <div class="message-erreur">
+                                <div style="font-weight: 700; margin-bottom: 5px;">Erreur de connexion</div>
+                                <div>Impossible de joindre le serveur. Vérifiez votre connexion internet.</div>
+                            </div>
+                        `);
+                        $boutonSoumettre.prop('disabled', false).html(texteOriginal);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

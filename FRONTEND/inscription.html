@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - Creator Market</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+       /* background-image: url('https://static.vecteezy.com/system/resources/previews/000/964/116/non_2x/flat-design-login-screen-template-vector.jpg');
+            background-repeat: no-repeat; */
+      /* background: linear-gradient(135deg, #d0d1d6ff 0%, #ededeeff 100%); */
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      padding: 20px 0;
+    }
+    
+    .container-inscription {
+      position: relative;
+      left: 30%;
+      max-width: 500px;
+      margin: 0 ;
+    }
+    
+    .card-formulaire {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.98);
+      overflow: hidden;
+      animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .entete-carte {
+      background: linear-gradient(135deg, #667eea 0%, #667eea 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    
+    .entete-carte h4 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .entete-carte p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+    
+    .card-body {
+      padding: 35px;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    
+    .champ-saisie {
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .champ-saisie:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    
+    .champ-saisie.is-valid {
+      border-color: #28a745;
+      padding-right: calc(1.5em + 0.75rem);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .champ-saisie.is-invalid {
+      border-color: #dc3545;
+      padding-right: calc(1.5em + 0.75rem);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .conteneur-mot-de-passe {
+      position: relative;
+    }
+    
+    .conteneur-mot-de-passe .champ-saisie {
+      padding-right: 45px;
+    }
+    
+    .bouton-afficher-mdp {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+      transition: color 0.3s;
+      z-index: 10;
+      font-size: 1.1rem;
+    }
+    
+    .bouton-afficher-mdp:hover {
+      color: #667eea;
+    }
+    
+    .barre-force {
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 10px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .niveau-force {
+      height: 100%;
+      border-radius: 10px;
+      transition: all 0.4s ease;
+      width: 0%;
+    }
+    
+    .force-faible { 
+      background: linear-gradient(90deg, #dc3545, #e63946);
+      box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+    }
+    .force-moyenne { 
+      background: linear-gradient(90deg, #fd7e14, #ffa500);
+      box-shadow: 0 0 10px rgba(253, 126, 20, 0.5);
+    }
+    .force-forte { 
+      background: linear-gradient(90deg, #28a745, #20c997);
+      box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+    }
+    
+    .texte-force {
+      font-size: 0.85rem;
+      margin-top: 5px;
+      font-weight: 500;
+      display: block;
+    }
+    
+    .btn-principal {
+      background: linear-gradient(135deg, #1339e4 0%, #1339e4 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+      color: white;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-principal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-principal:hover:not(:disabled)::before {
+      left: 100%;
+    }
+    
+    .btn-principal:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-principal:active:not(:disabled) {
+      transform: translateY(-1px);
+    }
+    
+    .btn-principal:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .section-connexion {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 2px solid #e9ecef;
+    }
+    
+    .section-connexion a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .section-connexion a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 50%;
+      background: #764ba2;
+      transition: all 0.3s;
+      transform: translateX(-50%);
+    }
+    
+    .section-connexion a:hover {
+      color: #764ba2;
+    }
+    
+    .section-connexion a:hover::after {
+      width: 100%;
+    }
+    
+    .alert {
+      border-radius: 12px;
+      border: none;
+      animation: fadeInDown 0.3s ease;
+      font-weight: 500;
+    }
+    
+    @keyframes fadeInDown {
+      from { 
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .etape-verification {
+      display: none;
+      text-align: center;
+      padding: 30px 0;
+    }
+    
+    .icone-succes {
+      color: #28a745;
+      font-size: 5rem;
+      animation: scaleIn 0.5s ease;
+    }
+    
+    @keyframes scaleIn {
+      0% { 
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% { 
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
+      }
+    }
+    
+    .indicateur-etapes {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .cercle-etape {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .cercle-etape.active {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .cercle-etape.terminee {
+      background: rgba(255, 255, 255, 0.9);
+      color: #28a745;
+      transform: scale(1);
+    }
+    
+    .cercle-etape.inactive {
+      background: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .ligne-etape {
+      width: 50px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .ligne-etape.terminee {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .invalid-feedback {
+      display: none;
+      font-size: 0.875rem;
+      color: #dc3545;
+      margin-top: 0.25rem;
+    }
+    
+    .champ-saisie.is-invalid ~ .invalid-feedback {
+      display: block;
+    }
+    
+    @media (max-width: 576px) {
+      .card-body {
+        padding: 25px;
+      }
+      
+      .entete-carte {
+        padding: 20px;
+      }
+      
+      .entete-carte h4 {
+        font-size: 1.5rem;
+      }
+    }
+    .divise{
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div class="container container-inscription">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="card card-formulaire">
+          <div class="card-header entete-carte">
+            <div class="indicateur-etapes">
+              <div class="cercle-etape active" id="etape-1">1</div>
+              <div class="ligne-etape" id="ligne-1"></div>
+              <div class="cercle-etape inactive" id="etape-2">2</div>
+            </div>
+            <h4 id="titre-principal">
+              <i class="fas fa-user-plus me-2"></i>Créer un compte
+            </h4>
+            <p class="mb-0" id="sous-titre">Rejoignez Creator Market dès aujourd'hui</p>
+          </div>
+          
+          <div class="card-body">
+            <div id="etape-formulaire">
+              <form id="form-inscription" method="post" action="inscription.php">
+                <input type="hidden" name="csrf_token" id="csrf_token" value="">
+                <div class="mb-3">
+                  <label for="nom" class="form-label">
+                    <i class="fas fa-user me-2"></i>Nom d'utilisateur
+                  </label>
+                  <input 
+                    type="text" 
+                    name="nom"
+                    class="form-control champ-saisie" 
+                    id="nom" 
+                    placeholder="Choisissez un nom d'utilisateur"
+                    required
+                    autocomplete="username"
+                    minlength="3"
+                    maxlength="30"
+                  >
+                  <div class="invalid-feedback">
+                    Le nom d'utilisateur doit contenir entre 3 et 30 caractères.
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="email" class="form-label">
+                    <i class="fas fa-envelope me-2"></i>Adresse e-mail
+                  </label>
+                  <input 
+                    type="email" 
+                    name="email"
+                    class="form-control champ-saisie" 
+                    id="email" 
+                    placeholder="votre@email.com"
+                    required
+                    autocomplete="email"
+                  >
+                  <div class="invalid-feedback">
+                    Veuillez entrer une adresse e-mail valide.
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="passworde" class="form-label">
+                    <i class="fas fa-lock me-2"></i>Mot de passe
+                  </label>
+                  <div class="conteneur-mot-de-passe">
+                    <input 
+                      type="password" 
+                      name="passworde"
+                      class="form-control champ-saisie" 
+                      id="passworde" 
+                      placeholder="Créez un mot de passe sécurisé"
+                      required
+                      autocomplete="new-password"
+                      minlength="8"
+                    >
+                    <i class="fas fa-eye bouton-afficher-mdp" data-target="passworde"></i>
+                  </div>
+                  <div class="barre-force">
+                    <div class="niveau-force" id="force-mdp"></div>
+                  </div>
+                  <small class="text-muted texte-force" id="texte-force">
+                    Utilisez 8 caractères minimum avec majuscules, minuscules, chiffres et symboles
+                  </small>
+                  <div class="invalid-feedback">
+                    Le mot de passe doit contenir au moins 8 caractères.
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="nouveau_password" class="form-label">
+                    <i class="fas fa-lock me-2"></i>Confirmer le mot de passe
+                  </label>
+                  <div class="conteneur-mot-de-passe">
+                    <input 
+                      type="password"
+                      name="nouveau_password" 
+                      class="form-control champ-saisie" 
+                      id="nouveau_password" 
+                    placeholder="Confirmez votre mot de passe"
+                      required
+                      autocomplete="new-password"
+                    >
+                    <i class="fas fa-eye bouton-afficher-mdp" data-target="nouveau_password"></i>
+                  </div>
+                  <div class="invalid-feedback">
+                    Les mots de passe ne correspondent pas.
+                  </div>
+                </div>
+
+                <div id="zone-messages" class="mb-3"></div>
+
+                <button type="submit" class="btn btn-principal w-100" id="btn-soumettre">
+                  <i class="fas fa-user-plus me-2"></i>
+                  Créer mon compte
+                </button>
+              </form>
+            </div>
+
+            <div id="etape-confirmation" class="etape-verification">
+              <i class="fas fa-check-circle icone-succes"></i>
+              <h4 class="text-success mt-3 mb-3">Compte créé avec succès !</h4>
+              <p class="text-muted mb-4">
+                Bienvenue <strong id="nom-bienvenue"></strong> ! <br>
+                Votre compte Creator Market est maintenant actif.
+              </p>
+              <button class="btn btn-principal px-5" id="btn-continuer">
+                <i class="fas fa-arrow-right me-2"></i>
+                Accéder à mon compte
+              </button>
+            </div>
+
+            <div class="section-connexion" id="section-connexion">
+              <p class="mb-0 text-muted">
+                Vous avez déjà un compte ? 
+                <a href="connexion.html">Se connecter</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+   $(document).ready(function() {
+    $.get('get_csrf.php', function(data) {
+        if (data.csrf_token) {
+            $('#csrf_token').val(data.csrf_token);
+            console.log('Token CSRF chargé:', data.csrf_token);
+        }
+    });
+
+    let forceMotDePasse = 0;
+    
+    // Affichage/masquage mot de passe
+    $('.bouton-afficher-mdp').on('click', function() {
+        const target = $(this).data('target');
+        const input = $(`#${target}`);
+        const currentType = input.attr('type');
+        const newType = currentType === 'password' ? 'text' : 'password';
+        
+        input.attr('type', newType);
+        $(this).toggleClass('fa-eye fa-eye-slash');
+    });
+
+    // Force du mot de passe
+    function verifierForce(password) {
+        if (!password) {
+            forceMotDePasse = 0;
+            $('#force-mdp').css('width', '0%').removeClass();
+            $('#texte-force').text('Utilisez 8 caractères minimum');
+            return false;
+        }
+        
+        let force = 0;
+        if (password.length >= 8) force++;
+        if (password.match(/[a-z]/)) force++;
+        if (password.match(/[A-Z]/)) force++;
+        if (password.match(/[0-9]/)) force++;
+        if (password.match(/[^a-zA-Z0-9]/)) force++;
+
+        const barre = $('#force-mdp');
+        const texte = $('#texte-force');
+        
+        let largeur, classe, description;
+        
+        if (force <= 2) {
+            largeur = '33%';
+            classe = 'force-faible';
+            description = 'Faible';
+        } else if (force === 3 || force === 4) {
+            largeur = '66%';
+            classe = 'force-moyenne';
+            description = 'Moyen';
+        } else {
+            largeur = '100%';
+            classe = 'force-forte';
+            description = 'Fort';
+        }
+        
+        barre.css('width', largeur).removeClass().addClass('niveau-force ' + classe);
+        texte.text(`Force : ${description}`);
+        
+        forceMotDePasse = force;
+        return force >= 3;
+    }
+
+    $('#passworde').on('input', function() {
+        verifierForce($(this).val());
+    });
+
+    // Soumission AJAX du formulaire
+    $('#form-inscription').on('submit', function(e) {
+        e.preventDefault();
+        
+        const btnSoumettre = $('#btn-soumettre');
+        const texteOriginal = btnSoumettre.html();
+        
+        btnSoumettre.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>En cours...');
+$.ajax({
+    url: 'inscription.php',
+    type: 'POST',
+    data: $(this).serialize(),
+    dataType: 'json',
+    
+    success: function(response) {
+        console.log('Réponse du serveur:', response);
+        
+        if (response.success) {
+            // Afficher les infos de debug si présentes
+            if (response.debug && response.debug.length > 0) {
+                console.log('Debug:', response.debug);
+            }
+            
+            // Succès - rediriger
+            $('#etape-1').removeClass('active').addClass('terminee');
+            $('#ligne-1').addClass('terminee');
+            $('#etape-2').removeClass('inactive').addClass('active');
+            
+            $('#titre-principal').html('<i class="fas fa-check me-2"></i>Inscription réussie !');
+            $('#sous-titre').text('Votre compte a été créé avec succès');
+            $('#nom-bienvenue').text(response.user.nom);
+            
+            $('#etape-formulaire').slideUp(400, function() {
+                $('#etape-confirmation').slideDown(400);
+                $('#section-connexion').hide();
+            });
+            
+            // Redirection après 3 secondes
+            setTimeout(function() {
+                window.location.href = 'templates.html';
+            }, 3000);
+            
+        } else {
+            // Afficher les erreurs
+            let errorHtml = '<div class="alert alert-danger">';
+            
+            if (response.errors && response.errors.length > 0) {
+                errorHtml += '<ul class="mb-0">';
+                response.errors.forEach(function(error) {
+                    errorHtml += '<li>' + error + '</li>';
+                });
+                errorHtml += '</ul>';
+            } else if (response.message) {
+                errorHtml += response.message;
+            } else {
+                errorHtml += 'Une erreur est survenue';
+            }
+            
+            errorHtml += '</div>';
+            
+            $('#zone-messages').html(errorHtml);
+            
+            // Réactiver le bouton
+            btnSoumettre.prop('disabled', false).html(texteOriginal);
+            
+            // Scroll vers les erreurs
+            $('html, body').animate({
+                scrollTop: $('#zone-messages').offset().top - 100
+            }, 500);
+        }
+    },
+    
+    error: function(xhr, status, error) {
+        console.error('Erreur AJAX:', status, error);
+        
+        $('#zone-messages').html(`
+            <div class="alert alert-danger">
+                <strong>Erreur de communication avec le serveur</strong><br>
+                Vérifiez votre connexion internet ou réessayez plus tard.
+            </div>
+        `);
+        
+        btnSoumettre.prop('disabled', false).html(texteOriginal);
+    }
+});
+
+    });
+
+    // Bouton de continuation
+    $('#btn-continuer').on('click', function() {
+        $(this).prop('disabled', true).html('<span class="loader me-2"></span>Redirection...');
+        window.location.href = 'beauter.html';
+    });
+    
+    setTimeout(() => $('#nom').focus(), 500);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Produit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --couleur-principale: #EC4899;
+            --couleur-secondaire: #F97316;
+            --couleur-verte: #10B981;
+            --couleur-grise-claire: #F3F4F6;
+            --couleur-grise-foncee: #374151;
+            --couleur-blanc: #FFFFFF;
+            --ombre-legere: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --ombre-forte: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FDF2F8 0%, #FFFFFF 50%, #FFF7ED 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .conteneur-principal {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .boutique {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: var(--ombre-forte);
+        }
+
+        .boutique h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .ajout {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .carte-formulaire {
+            background: var(--couleur-blanc);
+            border-radius: 2rem;
+            box-shadow: var(--ombre-forte);
+            overflow: hidden;
+        }
+
+        .corps-formulaire {
+            padding: 3rem 2rem;
+        }
+
+        .section-image {
+            background: linear-gradient(135deg, #9CA3AF, #6B7280);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px dashed #374151;
+        }
+
+        .titre {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icone-section {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .image {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .apercu {
+            width: 120px;
+            height: 120px;
+            background: var(--couleur-blanc);
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #E5E7EB;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .image-apercu {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+
+        .image-cachee {
+            display: none;
+        }
+
+        .placeholder-logo {
+            text-align: center;
+            color: #9CA3AF;
+        }
+
+        .placeholder-logo .icone {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.5rem;
+        }
+
+        .conteneur-upload {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .label-champ {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .zone-upload {
+            position: relative;
+            border: 2px dashed #374151;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            background: var(--couleur-blanc);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zone-upload:hover {
+            border-color: var(--couleur-secondaire);
+            background-color: #f8f9fa;
+        }
+
+        .input-fichier {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .zone-upload .icone {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 0.5rem;
+            color: black;
+        }
+
+        .milieu {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .milieu label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--couleur-grise-foncee);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .milieu input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .milieu input:focus {
+            border-color: var(--couleur-principale);
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .button i {
+            font-size: 1.2rem;
+            color: var(--couleur-principale);
+        }
+
+        #vendre {
+            background: linear-gradient(135deg, var(--couleur-grise-foncee), #4B5563);
+            color: var(--couleur-blanc);
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 1.25rem 3rem;
+            border: none;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--ombre-forte);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #vendre:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(135deg, #4B5563, #374151);
+        }
+
+        #vendre:active {
+            transform: translateY(0);
+        }
+
+        .produits-ajoutes {
+            margin-top: 3rem;
+            background: var(--couleur-blanc);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--ombre-legere);
+        }
+
+        .produit-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .produit-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+        }
+
+        .produit-info {
+            flex: 1;
+        }
+
+        .produit-nom {
+            font-weight: 600;
+            color: var(--couleur-grise-foncee);
+        }
+
+        .produit-prix {
+            color: var(--couleur-verte);
+            font-weight: 600;
+        }
+
+        .bouton-dashboard {
+            background: linear-gradient(135deg, var(--couleur-verte), #059669);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .bouton-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .message-succes {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            color: #065F46;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border-left: 4px solid var(--couleur-verte);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .conteneur-principal {
+                padding: 1rem;
+            }
+
+            .corps-formulaire {
+                padding: 2rem 1rem;
+            }
+
+            .image {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .boutique h2 {
+                font-size: 1.5rem;
+            }
+
+            #vendre {
+                width: 100%;
+                padding: 1rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .boutique h2 {
+                font-size: 1.25rem;
+            }
+
+            .titre {
+                font-size: 1.25rem;
+            }
+
+            .apercu {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="conteneur-principal">
+        <header>
+            <div class="boutique">
+                <h2>Félicitation ! Votre Boutique a été créée avec Succès 😍</h2>
+                <p class="ajout">
+                    Ajoutez au moins deux (02) articles pour continuer
+                </p>
+            </div>
+        </header>
+
+        <div id="message-succes" class="message-succes hidden">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Produit ajouté avec succès !</strong>
+                <p>Votre produit a été ajouté à votre boutique.</p>
+            </div>
+        </div>
+
+        <section class="carte-formulaire">
+            <form id="formulaire-inscription" class="corps-formulaire">
+                <!-- Section Image -->
+                <div class="section-image">
+                    <h2 class="titre">
+                        <svg class="icone-section" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p>Image du produit</p> 
+                    </h2>
+                    
+                    <div class="image">
+                        <div class="apercu">
+                            <img id="image" class="image-apercu image-cachee" alt="Aperçu de l'image">
+                            <div id="placeholder-logo" class="placeholder-logo">
+                                <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p>Aperçu</p>
+                            </div>
+                        </div>
+                        
+                        <div class="conteneur-upload">
+                            <label class="label-champ">Importer votre image</label>
+                            <div class="zone-upload" id="zone-upload">
+                                <input type="file" id="fichier-logo" name="logo" accept="image/*" class="input-fichier">
+                                <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p style="color: #6B7280;"><span style="color:black; font-weight: 600;">Cliquez ici</span> ou glissez votre image</p>
+                                <p style="font-size: 0.8rem; color: #9CA3AF; margin-top: 0.5rem;">PNG, JPG jusqu'à 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="milieu">
+                    <div>
+                        <label for="nom">Entrez le nom du Produit *</label>
+                        <input type="text" id="nom" minlength="3" required placeholder="Ex: T-shirt élégant">
+                    </div>
+
+                    <div>
+                        <label for="prix">Entrez le prix du Produit *</label>
+                        <input type="number" id="prix" required placeholder="Ex: 15000" min="0">
+                    </div>
+
+                    <div>
+                        <label for="localisation">Entrez Votre Localisation *</label>
+                        <input type="text" id="localisation" required placeholder="Ex: Yaoundé, Cameroun">
+                    </div>
+
+                    <div>
+                        <label for="description">Entrez La description du Produit *</label>
+                        <input type="text" id="description" required placeholder="Décrivez votre produit...">
+                    </div>
+
+                    <div class="button">
+                        <button type="submit" id="vendre">
+                            <i class="fas fa-plus"></i>
+                            Vendre Votre Produit
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <div id="produits-ajoutes" class="produits-ajoutes hidden">
+            <h3>Produits ajoutés (<span id="compteur-produits">0</span>/2)</h3>
+            <div id="liste-produits"></div>
+            
+            <button id="aller-dashboard" class="bouton-dashboard hidden">
+                <i class="fas fa-tachometer-alt"></i>
+                Aller au Tableau de Bord
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let produitsAjoutes = [];
+        let imageActuelle = null;
+
+        // Références aux éléments DOM
+        const formulaire = document.getElementById('formulaire-inscription');
+        const fichierInput = document.getElementById('fichier-logo');
+        const imageApercu = document.getElementById('image');
+        const placeholder = document.getElementById('placeholder-logo');
+        const messageSucces = document.getElementById('message-succes');
+        const produitsSection = document.getElementById('produits-ajoutes');
+        const listeProduits = document.getElementById('liste-produits');
+        const compteurProduits = document.getElementById('compteur-produits');
+        const boutonDashboard = document.getElementById('aller-dashboard');
+
+        // Gestion de l'upload d'image
+        fichierInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                // Vérifier la taille (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('L\'image est trop grande. Taille maximum: 5MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageApercu.src = e.target.result;
+                    imageApercu.classList.remove('image-cachee');
+                    placeholder.classList.add('hidden');
+                    imageActuelle = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Gestion de la zone de drop
+        const zoneUpload = document.getElementById('zone-upload');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            zoneUpload.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            zoneUpload.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            zoneUpload.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            zoneUpload.style.borderColor = '#F97316';
+            zoneUpload.style.backgroundColor = '#f8f9fa';
+        }
+
+        function unhighlight() {
+            zoneUpload.style.borderColor = '#374151';
+            zoneUpload.style.backgroundColor = '#FFFFFF';
+        }
+
+        zoneUpload.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                fichierInput.files = files;
+                fichierInput.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Gestion du formulaire
+        formulaire.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Récupération des valeurs
+            const nom = document.getElementById('nom').value.trim();
+            const prix = document.getElementById('prix').value.trim();
+            const localisation = document.getElementById('localisation').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            // Validation
+            if (!nom || !prix || !localisation || !description) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            if (!imageActuelle) {
+                alert('Veuillez ajouter une image du produit');
+                return;
+            }
+
+            if (nom.length < 3) {
+                alert('Le nom du produit doit contenir au moins 3 caractères');
+                return;
+            }
+
+            if (parseFloat(prix) <= 0) {
+                alert('Le prix doit être supérieur à 0');
+                return;
+            }
+
+            // Ajouter le produit
+            ajouterProduit({
+                nom,
+                prix: parseFloat(prix),
+                localisation,
+                description,
+                image: imageActuelle
+            });
+
+            // Réinitialiser le formulaire
+            reinitialiserFormulaire();
+
+            // Afficher le message de succès
+            afficherMessageSucces();
+        });
+
+        function ajouterProduit(produit) {
+            produitsAjoutes.push(produit);
+            mettreAJourAffichageProduits();
+        }
+
+        function mettreAJourAffichageProduits() {
+            // Afficher la section des produits ajoutés
+            produitsSection.classList.remove('hidden');
+            
+            // Mettre à jour le compteur
+            compteurProduits.textContent = produitsAjoutes.length;
+
+            // Vider la liste actuelle
+            listeProduits.innerHTML = '';
+
+            // Ajouter chaque produit à la liste
+            produitsAjoutes.forEach((produit, index) => {
+                const produitElement = document.createElement('div');
+                produitElement.className = 'produit-item';
+                produitElement.innerHTML = `
+                    <img src="${produit.image}" alt="${produit.nom}" class="produit-image">
+                    <div class="produit-info">
+                        <div class="produit-nom">${produit.nom}</div>
+                        <div class="produit-prix">${produit.prix.toLocaleString()} FCFA</div>
+                        <div style="font-size: 0.9rem; color: #6B7280;">${produit.localisation}</div>
+                    </div>
+                    <button onclick="supprimerProduit(${index})" style="background: #ef4444; color: white; border: none; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                listeProduits.appendChild(produitElement);
+            });
+
+            // Afficher le bouton dashboard si au moins 2 produits
+            if (produitsAjoutes.length >= 2) {
+                boutonDashboard.classList.remove('hidden');
+            } else {
+                boutonDashboard.classList.add('hidden');
+            }
+        }
+
+        function supprimerProduit(index) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+                produitsAjoutes.splice(index, 1);
+                mettreAJourAffichageProduits();
+                
+                if (produitsAjoutes.length === 0) {
+                    produitsSection.classList.add('hidden');
+                }
+            }
+        }
+
+        function reinitialiserFormulaire() {
+            formulaire.reset();
+            imageApercu.classList.add('image-cachee');
+            placeholder.classList.remove('hidden');
+            imageActuelle = null;
+        }
+
+        function afficherMessageSucces() {
+            messageSucces.classList.remove('hidden');
+            setTimeout(() => {
+                messageSucces.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Redirection vers le dashboard
+        boutonDashboard.addEventListener('click', function() {
+            // Simulation de la redirection vers le dashboard
+            // Dans un vrai projet, cela serait: window.location.href = 'dashboard.html';
+            alert(`Félicitations ! Vous avez ajouté ${produitsAjoutes.length} produits. Redirection vers le tableau de bord...`);
+            
+            // Pour la démo, on simule le dashboard
+            simulerDashboard();
+        });
+
+        function simulerDashboard() {
+            // Cacher le formulaire et afficher un aperçu du dashboard
+            document.body.innerHTML = `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f8f9fa, #e9ecef); min-height: 100vh; padding: 20px;">
+                    <div style="max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #10B981, #059669); border-radius: 15px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="background: #ffffff; color: #10B981; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.5rem;">B</div>
+                                <h1>Ma Boutique</h1>
+                            </div>
+                            <button style="background: rgba(255,255,255,0.2); border: none; padding: 0.75rem 1.5rem; border-radius: 10px; color: white; cursor: pointer;">
+                                <i class="fas fa-eye"></i> Voir ma Boutique
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #EF4444, #DC2626); border-radius: 15px; color: white; margin-bottom: 2rem;">
+                            <h2 style="margin-bottom: 1rem;">🎉 Félicitations !</h2>
+                            <p style="font-size: 1.1rem; margin-bottom: 1rem;">Votre boutique est maintenant active avec ${produitsAjoutes.length} produits</p>
+                            <p>Vous pouvez maintenant commencer à recevoir des commandes !</p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                                <i class="fas fa-box" style="font-size: 2rem; color: #6366f1; margin-bottom: 1rem;"></i>
+                                <h3 style="color: #374151;">${produitsAjoutes.length}</h3>
+                                <p style="color: #6B7280;">Produits ajoutés</p>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                                <i class="fas fa-eye" style="font-size: 2rem; color: #10b981; margin-bottom: 1rem;"></i>
+                                <h3 style="color: #374151;">0</h3>
+                                <p style="color: #6B7280;">Vues aujourd'hui</p>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                                <i class="fas fa-shopping-cart" style="font-size: 2rem; color: #f59e0b; margin-bottom: 1rem;"></i>
+                                <h3 style="color: #374151;">0</h3>
+                                <p style="color: #6B7280;">Commandes</p>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                                <i class="fas fa-dollar-sign" style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                                <h3 style="color: #374151;">0 FCFA</h3>
+                                <p style="color: #6B7280;">Revenus</p>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 2rem; border-radius: 15px;">
+                            <h3 style="margin-bottom: 1rem; color: #374151;">Vos Produits</h3>
+                            <div style="display: grid; gap: 1rem;">
+                                ${produitsAjoutes.map(produit => `
+                                    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                        <img src="${produit.image}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                                        <div style="flex: 1;">
+                                            <h4 style="color: #374151; margin-bottom: 0.25rem;">${produit.nom}</h4>
+                                            <p style="color: #10b981; font-weight: 600;">${produit.prix.toLocaleString()} FCFA</p>
+                                            <p style="color: #6B7280; font-size: 0.9rem;">${produit.localisation}</p>
+                                        </div>
+                                        <span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem;">Actif</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

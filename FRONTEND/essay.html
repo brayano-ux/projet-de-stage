@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="point"></div>
+    <form action="">
+        <input type="text" id="nom">
+        <button type="submit" id="soummettre">Envoyer</button>
+    </form>
+    <script>
+        document.getElementById('soummettre').addEventListener('click',function()
+    {
+        point=document.getElementById('point');
+        NOM=document.getElementById('nom');
+        div=document.createElement('div');
+        div.className='bete';
+        div.innerHTML=`
+        NOM:${NOM}`;
+        point.appenChid(div);
+ })
+
+
+
+    </script>
+</body>
+</html>

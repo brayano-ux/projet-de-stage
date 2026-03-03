@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion Scolaire - Complet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none !important; }
+        .sidebar-link { transition: all 0.3s ease; }
+        .sidebar-link:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-link.active { background-color: rgba(59, 130, 246, 0.2); border-left: 4px solid #3b82f6; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-in { animation: slideIn 0.4s ease-out; }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .calendar-day { min-height: 80px; }
+        .calendar-day:hover { background-color: #f9fafb; }
+        @media print {
+            body * { visibility: hidden; }
+            #bulletinPrint, #bulletinPrint * { visibility: visible; }
+            #bulletinPrint { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .role-admin { background-color: #fee2e2; color: #dc2626; }
+        .role-teacher { background-color: #dbeafe; color: #1d4ed8; }
+        .role-secretary { background-color: #f0fdf4; color: #16a34a; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Écran de connexion -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-slide-in">
+            <div class="text-center mb-8">
+                <div class="bg-blue-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-graduation-cap text-white text-3xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800">Gestion Scolaire</h1>
+                <p class="text-gray-600 mt-2">Système complet de gestion d'établissement</p>
+            </div>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" value="admin@ecole.cm" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+                    <input type="password" id="loginPassword" value="admin123" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+                </button>
+            </form>
+            <div id="loginError" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm"></div>
+            <div class="mt-6 text-center text-sm text-gray-600">
+                <p>Comptes de test:</p>
+                <p>Admin: admin@ecole.cm / admin123</p>
+                <p>Secrétaire: secretaire@ecole.cm / secretaire123</p>
+                <p>Enseignant: enseignant@ecole.cm / enseignant123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application principale -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="toggleSidebar" class="lg:hidden text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-school text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800">Gestion Scolaire Pro</h1>
+                            <p class="text-xs text-gray-500" id="schoolName">Collège/Lycée Excellence</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600 hidden md:inline" id="userRole">Administrateur</span>
+                    <span id="userRoleBadge" class="role-badge role-admin">Admin</span>
+                    <button id="logoutBtn" class="flex items-center space-x-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="hidden sm:inline">Déconnexion</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="fixed lg:sticky top-16 lg:top-0 left-0 h-screen bg-white border-r border-gray-200 w-64 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 overflow-y-auto">
+                <nav class="p-4 space-y-2">
+                    <a href="#" data-section="dashboard" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a href="#" data-section="students" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-users w-5"></i>
+                        <span>Élèves</span>
+                    </a>
+                    <a href="#" data-section="grades" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-clipboard-list w-5"></i>
+                        <span>Notes</span>
+                    </a>
+                    <a href="#" data-section="attendance" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-calendar-check w-5"></i>
+                        <span>Assiduité</span>
+                    </a>
+                    <a href="#" data-section="reports" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-file-pdf w-5"></i>
+                        <span>Bulletins</span>
+                    </a>
+                    <a href="#" data-section="users" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-user-shield w-5"></i>
+                        <span>Utilisateurs</span>
+                    </a>
+                    <a href="#" data-section="settings" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
+                        <i class="fas fa-cog w-5"></i>
+                        <span>Paramètres</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Contenu principal -->
+            <main class="flex-1 p-6 overflow-y-auto" style="max-height: calc(100vh - 73px);">
+                <!-- Dashboard -->
+                <div id="dashboardSection" class="section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Tableau de bord</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Total Élèves</p>
+                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="totalStudents">0</h3>
+                                </div>
+                                <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Moyenne Générale</p>
+                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="avgGrade">--</h3>
+                                </div>
+                                <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-star text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Taux Présence</p>
+                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="attendanceRate">--</h3>
+                                </div>
+                                <div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Absences</p>
+                                    <h3 class="text-3xl font-bold text-red-600 mt-1" id="absencesCount">0</h3>
+                                </div>
+                                <div class="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Répartition par classe</h3>
+                            <canvas id="classChart"></canvas>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Évolution des moyennes</h3>
+                            <canvas id="gradeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestion des élèves -->
+                <div id="studentsSection" class="section hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Élèves</h2>
+                        <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
+                            <i class="fas fa-plus mr-2"></i>Nouveau élève
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <input type="text" id="searchStudent" placeholder="Rechercher un élève..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <select id="filterClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Toutes les classes</option>
+                                <option value="6ème">6ème</option>
+                                <option value="5ème">5ème</option>
+                                <option value="4ème">4ème</option>
+                                <option value="3ème">3ème</option>
+                                <option value="2nde">2nde</option>
+                                <option value="1ère">1ère</option>
+                                <option value="Tle">Terminale</option>
+                            </select>
+                            <select id="filterSex" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tous</option>
+                                <option value="M">Garçons</option>
+                                <option value="F">Filles</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="exportCSV" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm">
+                                <i class="fas fa-file-csv mr-2"></i>Export CSV
+                            </button>
+                            <button id="exportExcel" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition text-sm">
+                                <i class="fas fa-file-excel mr-2"></i>Export Excel
+                            </button>
+                            <button id="importCSV" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition text-sm">
+                                <i class="fas fa-file-import mr-2"></i>Import CSV
+                            </button>
+                            <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matricule</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom complet</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Classe</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sexe</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Chargement...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div id="gradesSection" class="section hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Gestion des Notes</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                        <select id="gradeClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner une classe</option>
+                            <option value="6ème">6ème</option>
+                            <option value="5ème">5ème</option>
+                            <option value="4ème">4ème</option>
+                            <option value="3ème">3ème</option>
+                            <option value="2nde">2nde</option>
+                            <option value="1ère">1ère</option>
+                            <option value="Tle">Terminale</option>
+                        </select>
+                        <select id="gradeTrimester" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner un trimestre</option>
+                            <option value="1">Trimestre 1</option>
+                            <option value="2">Trimestre 2</option>
+                            <option value="3">Trimestre 3</option>
+                        </select>
+                        <select id="gradeSubject" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner une matière</option>
+                            <option value="Mathématiques">Mathématiques</option>
+                            <option value="Français">Français</option>
+                            <option value="Anglais">Anglais</option>
+                            <option value="SVT">SVT</option>
+                            <option value="Histoire-Géo">Histoire-Géo</option>
+                            <option value="Physique-Chimie">Physique-Chimie</option>
+                            <option value="EPS">EPS</option>
+                        </select>
+                    </div>
+
+                    <div id="gradesStudentsList" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <p class="text-gray-500 text-center">Sélectionnez une classe, un trimestre et une matière</p>
+                    </div>
+                </div>
+
+                <!-- Assiduité -->
+                <div id="attendanceSection" class="section hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Suivi de l'Assiduité</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <select id="attendanceClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner une classe</option>
+                            <option value="6ème">6ème</option>
+                            <option value="5ème">5ème</option>
+                            <option value="4ème">4ème</option>
+                            <option value="3ème">3ème</option>
+                            <option value="2nde">2nde</option>
+                            <option value="1ère">1ère</option>
+                            <option value="Tle">Terminale</option>
+                        </select>
+                        <input type="date" id="attendanceDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div id="attendanceList" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                        <p class="text-gray-500 text-center">Sélectionnez une classe et une date</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-semibold mb-4">Statistiques d'assiduité</h3>
+                        <div id="attendanceStats" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-green-50 rounded-lg">
+                                <p class="text-green-600 text-2xl font-bold" id="presentCount">0</p>
+                                <p class="text-sm text-gray-600">Présents</p>
+                            </div>
+                            <div class="text-center p-4 bg-red-50 rounded-lg">
+                                <p class="text-red-600 text-2xl font-bold" id="absentCount">0</p>
+                                <p class="text-sm text-gray-600">Absents</p>
+                            </div>
+                            <div class="text-center p-4 bg-orange-50 rounded-lg">
+                                <p class="text-orange-600 text-2xl font-bold" id="lateCount">0</p>
+                                <p class="text-sm text-gray-600">Retards</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulletins -->
+                <div id="reportsSection" class="section hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Bulletins Scolaires</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <select id="bulletinClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner une classe</option>
+                            <option value="6ème">6ème</option>
+                            <option value="5ème">5ème</option>
+                            <option value="4ème">4ème</option>
+                            <option value="3ème">3ème</option>
+                            <option value="2nde">2nde</option>
+                            <option value="1ère">1ère</option>
+                            <option value="Tle">Terminale</option>
+                        </select>
+                        <select id="bulletinTrimester" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner un trimestre</option>
+                            <option value="1">Trimestre 1</option>
+                            <option value="2">Trimestre 2</option>
+                            <option value="3">Trimestre 3</option>
+                        </select>
+                        <button id="generateBulletins" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition">
+                            <i class="fas fa-file-pdf mr-2"></i>Générer les bulletins
+                        </button>
+                    </div>
+
+                    <div id="bulletinsList" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <p class="text-gray-500 text-center">Sélectionnez une classe et un trimestre</p>
+                    </div>
+                </div>
+
+                <!-- Gestion des utilisateurs -->
+                <div id="usersSection" class="section hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Utilisateurs</h2>
+                        <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
+                            <i class="fas fa-user-plus mr-2"></i>Nouvel utilisateur
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rôle</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date création</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Chargement...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paramètres -->
+                <div id="settingsSection" class="section hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Paramètres du Système</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold mb-4">Informations de l'établissement</h3>
+                            <form id="schoolInfoForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'établissement</label>
+                                    <input type="text" id="schoolNameInput" value="Collège/Lycée Excellence" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Devise</label>
+                                    <input type="text" id="schoolMotto" value="Excellence et Discipline" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                                    <input type="text" id="schoolAddress" value="Douala, Cameroun" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                                    <input type="tel" id="schoolPhone" value="+237 6XX XXX XXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold mb-4">Gestion des matières</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                    <span>Mathématiques (Coef: 4)</span>
+                                    <button class="text-blue-600"><i class="fas fa-edit"></i></button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                    <span>Français (Coef: 3)</span>
+                                    <button class="text-blue-600"><i class="fas fa-edit"></i></button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                    <span>Anglais (Coef: 2)</span>
+                                    <button class="text-blue-600"><i class="fas fa-edit"></i></button>
+                                </div>
+                            </div>
+                            <button class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une matière
+                            </button>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold mb-4">Sauvegarde des données</h3>
+                            <p class="text-sm text-gray-600 mb-4">Exportez toutes les données du système</p>
+                            <button id="backupData" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition">
+                                <i class="fas fa-download mr-2"></i>Télécharger la sauvegarde
+                            </button>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold mb-4">Rapport complet</h3>
+                            <p class="text-sm text-gray-600 mb-4">Générer un rapport complet de l'établissement</p>
+                            <button onclick="exportCompleteReport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition">
+                                <i class="fas fa-chart-bar mr-2"></i>Générer rapport
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal ajout/modification élève -->
+    <div id="studentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-bold text-gray-800" id="studentModalTitle">Nouvel Élève</h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="studentForm" class="p-6 space-y-4">
+                <input type="hidden" id="studentId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+                        <input type="text" name="lastName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prénoms *</label>
+                        <input type="text" name="firstName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sexe *</label>
+                        <select name="sex" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance *</label>
+                        <input type="date" name="birthDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Lieu de naissance</label>
+                        <input type="text" name="birthPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Classe *</label>
+                        <select name="class" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionner</option>
+                            <option value="6ème">6ème</option>
+                            <option value="5ème">5ème</option>
+                            <option value="4ème">4ème</option>
+                            <option value="3ème">3ème</option>
+                            <option value="2nde">2nde</option>
+                            <option value="1ère">1ère</option>
+                            <option value="Tle">Terminale</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Série/Option</label>
+                        <input type="text" name="series" placeholder="Ex: A, C, D..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Contact Parent *</label>
+                        <input type="tel" name="parentPhone" required placeholder="Ex: 6XXXXXXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom du parent</label>
+                        <input type="text" name="parentName" placeholder="Nom complet" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email parent</label>
+                        <input type="email" name="parentEmail" placeholder="email@exemple.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                        <input type="text" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button type="button" id="cancelBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Annuler</button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal ajout/modification utilisateur -->
+    <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-bold text-gray-800" id="userModalTitle">Nouvel Utilisateur</h3>
+                <button id="closeUserModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="userForm" class="p-6 space-y-4">
+                <input type="hidden" id="userId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet *</label>
+                    <input type="text" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                    <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rôle *</label>
+                    <select name="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Sélectionner</option>
+                        <option value="admin">Administrateur</option>
+                        <option value="teacher">Enseignant</option>
+                        <option value="secretary">Secrétaire</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe *</label>
+                    <input type="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button type="button" id="cancelUserBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Annuler</button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-8 flex flex-col items-center">
+            <div class="loading-spinner mb-4"></div>
+            <p class="text-gray-700 font-medium">Chargement...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, updateDoc, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAigx8KtDCEulSWjpu17fnYsrqK7C9o3R8",
+            authDomain: "petit-jobs-express.firebaseapp.com",
+            projectId: "petit-jobs-express",
+            storageBucket: "petit-jobs-express.appspot.com",
+            messagingSenderId: "446118780236",
+            appId: "1:446118780236:web:08c3a87d56bcd67399c3e9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+        let currentUserRole = null;
+        let students = [];
+        let grades = [];
+        let attendance = [];
+        let users = [];
+        let schoolSettings = {
+            name: "Collège/Lycée Excellence",
+            motto: "Excellence et Discipline",
+            address: "Douala, Cameroun",
+            phone: "+237 6XX XXX XXX"
+        };
+
+        const subjects = [
+            { name: "Mathématiques", coef: 4 },
+            { name: "Français", coef: 3 },
+            { name: "Anglais", coef: 2 },
+            { name: "SVT", coef: 2 },
+            { name: "Histoire-Géo", coef: 2 },
+            { name: "Physique-Chimie", coef: 3 },
+            { name: "EPS", coef: 1 }
+        ];
+
+        // ==================== AUTHENTIFICATION ====================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserRole();
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                initApp();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        });
+
+        async function loadUserRole() {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userDoc.exists()) {
+                    currentUserRole = userDoc.data().role;
+                    document.getElementById('userRole').textContent = getRoleDisplayName(currentUserRole);
+                    document.getElementById('userRoleBadge').textContent = getRoleDisplayName(currentUserRole);
+                    document.getElementById('userRoleBadge').className = `role-badge role-${currentUserRole}`;
+                    updateUIForRole();
+                } else {
+                    // Si l'utilisateur n'a pas de rôle défini, on le crée comme admin par défaut
+                    currentUserRole = 'admin';
+                    await setDoc(doc(db, 'users', currentUser.uid), {
+                        uid: currentUser.uid,
+                        email: currentUser.email,
+                        fullName: currentUser.email.split('@')[0],
+                        role: 'admin',
+                        createdAt: new Date().toISOString()
+                    });
+                    document.getElementById('userRole').textContent = getRoleDisplayName(currentUserRole);
+                    document.getElementById('userRoleBadge').textContent = getRoleDisplayName(currentUserRole);
+                    document.getElementById('userRoleBadge').className = `role-badge role-${currentUserRole}`;
+                    updateUIForRole();
+                }
+            } catch (error) {
+                console.error('Erreur chargement rôle:', error);
+            }
+        }
+
+        function getRoleDisplayName(role) {
+            const roles = {
+                'admin': 'Administrateur',
+                'teacher': 'Enseignant',
+                'secretary': 'Secrétaire'
+            };
+            return roles[role] || role;
+        }
+
+        function updateUIForRole() {
+            // Cacher les sections selon le rôle
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Afficher le tableau de bord par défaut
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            
+            // Mettre à jour les liens de navigation
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.section === 'dashboard') {
+                    link.classList.add('active');
+                }
+                
+                // Cacher les liens selon le rôle
+                if (currentUserRole === 'teacher') {
+                    if (['users', 'settings'].includes(link.dataset.section)) {
+                        link.style.display = 'none';
+                    }
+                } else if (currentUserRole === 'secretary') {
+                    if (['users', 'settings', 'grades', 'attendance'].includes(link.dataset.section)) {
+                        link.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Cacher les boutons selon le rôle
+            if (currentUserRole === 'teacher' || currentUserRole === 'secretary') {
+                document.getElementById('addStudentBtn').style.display = 'none';
+            }
+            
+            if (currentUserRole === 'teacher') {
+                document.getElementById('addUserBtn').style.display = 'none';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                // Si le compte n'existe pas, on le crée
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+                        
+                        // Déterminer le rôle basé sur l'email
+                        let role = 'teacher';
+                        if (email.includes('admin')) role = 'admin';
+                        if (email.includes('secretaire')) role = 'secretary';
+                        
+                        await setDoc(doc(db, 'users', user.uid), {
+                            uid: user.uid,
+                            email: user.email,
+                            fullName: user.email.split('@')[0],
+                            role: role,
+                            createdAt: new Date().toISOString()
+                        });
+                        
+                        showNotification('Compte créé avec succès', 'success');
+                    } catch (createError) {
+                        errorDiv.textContent = 'Erreur de connexion';
+                        errorDiv.classList.remove('hidden');
+                    }
+                } else {
+                    errorDiv.textContent = 'Email ou mot de passe incorrect';
+                    errorDiv.classList.remove('hidden');
+                }
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        // ==================== NAVIGATION ====================
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                
+                // Vérifier les permissions
+                if (currentUserRole === 'teacher' && ['users', 'settings'].includes(section)) {
+                    showNotification('Accès non autorisé', 'error');
+                    return;
+                }
+                
+                if (currentUserRole === 'secretary' && ['users', 'settings', 'grades', 'attendance'].includes(section)) {
+                    showNotification('Accès non autorisé', 'error');
+                    return;
+                }
+                
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+                document.getElementById(section + 'Section').classList.remove('hidden');
+                
+                // Charger les données spécifiques
+                if (section === 'dashboard') loadDashboard();
+                if (section === 'students') loadStudents();
+                if (section === 'users') loadUsers();
+            });
+        });
+
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        });
+
+        // ==================== INITIALISATION ====================
+        async function initApp() {
+            await loadStudents();
+            await loadUsers();
+            await loadDashboard();
+            setTodayDate();
+        }
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = today;
+        }
+
+        // ==================== GÉNÉRATION MATRICULE ====================
+        function generateMatricule() {
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `${year}-${random}`;
+        }
+
+        // ==================== DASHBOARD ====================
+        async function loadDashboard() {
+            showLoading();
+            
+            // Total élèves
+            const totalStudents = students.length;
+            document.getElementById('totalStudents').textContent = totalStudents;
+
+            // Calculer moyenne générale
+            const gradesSnapshot = await getDocs(collection(db, 'grades'));
+            let totalGrade = 0;
+            let gradeCount = 0;
+            gradesSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.average) {
+                    totalGrade += data.average;
+                    gradeCount++;
+                }
+            });
+            const avgGrade = gradeCount > 0 ? (totalGrade / gradeCount).toFixed(2) : '--';
+            document.getElementById('avgGrade').textContent = avgGrade;
+
+            // Taux de présence
+            const attendanceSnapshot = await getDocs(collection(db, 'attendance'));
+            let presentCount = 0;
+            let totalAttendance = 0;
+            attendanceSnapshot.forEach(doc => {
+                const data = doc.data();
+                totalAttendance++;
+                if (data.status === 'present') presentCount++;
+            });
+            const attendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) + '%' : '--';
+            document.getElementById('attendanceRate').textContent = attendanceRate;
+
+            // Absences
+            const absencesCount = totalAttendance - presentCount;
+            document.getElementById('absencesCount').textContent = absencesCount;
+
+            // Graphique répartition par classe
+            const classDistribution = {};
+            students.forEach(student => {
+                classDistribution[student.class] = (classDistribution[student.class] || 0) + 1;
+            });
+
+            const ctx1 = document.getElementById('classChart');
+            if (window.classChartInstance) window.classChartInstance.destroy();
+            window.classChartInstance = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(classDistribution),
+                    datasets: [{
+                        data: Object.values(classDistribution),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+
+            // Graphique évolution des moyennes
+            const ctx2 = document.getElementById('gradeChart');
+            if (window.gradeChartInstance) window.gradeChartInstance.destroy();
+            window.gradeChartInstance = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Trimestre 1', 'Trimestre 2', 'Trimestre 3'],
+                    datasets: [{
+                        label: 'Moyenne générale',
+                        data: [12.5, 13.2, parseFloat(avgGrade) || 14.1],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 20 }
+                    }
+                }
+            });
+
+            hideLoading();
+        }
+
+        // ==================== GESTION DES ÉLÈVES ====================
+        async function loadStudents() {
+            showLoading();
+            try {
+                const q = query(collection(db, 'students'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                students = [];
+                snapshot.forEach(doc => {
+                    students.push({ id: doc.id, ...doc.data() });
+                });
+                renderStudents(students);
+            } catch (error) {
+                console.error('Erreur chargement élèves:', error);
+            }
+            hideLoading();
+        }
+
+        function renderStudents(data) {
+            const tbody = document.getElementById('studentTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Aucun élève trouvé</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(student => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${student.matricule}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${student.lastName} ${student.firstName}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${student.class}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">
+                        ${student.sex === 'M' ? '<span class="text-blue-600">M</span>' : '<span class="text-pink-600">F</span>'}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${student.parentPhone}</td>
+                    <td class="px-6 py-4 text-sm text-right space-x-2">
+                        <button onclick="viewStudent('${student.id}')" class="text-blue-600 hover:text-blue-800" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${currentUserRole === 'admin' || currentUserRole === 'secretary' ? `
+                        <button onclick="editStudent('${student.id}')" class="text-green-600 hover:text-green-800" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteStudent('${student.id}')" class="text-red-600 hover:text-red-800" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Filtrage des élèves
+        function filterStudents() {
+            const search = document.getElementById('searchStudent').value.toLowerCase();
+            const classFilter = document.getElementById('filterClass').value;
+            const sexFilter = document.getElementById('filterSex').value;
+
+            let filtered = students.filter(student => {
+                const matchSearch = !search || 
+                    student.lastName.toLowerCase().includes(search) ||
+                    student.firstName.toLowerCase().includes(search) ||
+                    student.matricule.toLowerCase().includes(search);
+                const matchClass = !classFilter || student.class === classFilter;
+                const matchSex = !sexFilter || student.sex === sexFilter;
+                return matchSearch && matchClass && matchSex;
+            });
+
+            renderStudents(filtered);
+        }
+
+        document.getElementById('searchStudent').addEventListener('input', filterStudents);
+        document.getElementById('filterClass').addEventListener('change', filterStudents);
+        document.getElementById('filterSex').addEventListener('change', filterStudents);
+
+        // Modal élève
+        const modal = document.getElementById('studentModal');
+        document.getElementById('addStudentBtn').addEventListener('click', () => {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'secretary') {
+                showNotification('Accès non autorisé', 'error');
+                return;
+            }
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentId').value = '';
+            document.getElementById('studentModalTitle').textContent = 'Nouvel Élève';
+            modal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.add('hidden'));
+        document.getElementById('cancelBtn').addEventListener('click', () => modal.classList.add('hidden'));
+
+        // Soumettre formulaire élève
+        document.getElementById('studentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading();
+
+            const formData = new FormData(e.target);
+            const studentId = document.getElementById('studentId').value;
+            
+            const studentData = {
+                matricule: studentId ? students.find(s => s.id === studentId).matricule : generateMatricule(),
+                lastName: formData.get('lastName'),
+                firstName: formData.get('firstName'),
+                sex: formData.get('sex'),
+                birthDate: formData.get('birthDate'),
+                birthPlace: formData.get('birthPlace') || '',
+                class: formData.get('class'),
+                series: formData.get('series') || '',
+                parentPhone: formData.get('parentPhone'),
+                parentName: formData.get('parentName') || '',
+                parentEmail: formData.get('parentEmail') || '',
+                address: formData.get('address') || '',
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                if (studentId) {
+                    // Modification
+                    await updateDoc(doc(db, 'students', studentId), studentData);
+                    showNotification('Élève modifié avec succès', 'success');
+                } else {
+                    // Création
+                    studentData.createdAt = new Date().toISOString();
+                    studentData.createdBy = currentUser.email;
+                    await addDoc(collection(db, 'students'), studentData);
+                    showNotification('Élève enregistré avec succès', 'success');
+                }
+                modal.classList.add('hidden');
+                await loadStudents();
+                await loadDashboard();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de l\'enregistrement', 'error');
+            }
+
+            hideLoading();
+        });
+
+        // Voir élève
+        window.viewStudent = (id) => {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+            
+            const details = `
+                <strong>Matricule:</strong> ${student.matricule}<br>
+                <strong>Nom complet:</strong> ${student.lastName} ${student.firstName}<br>
+                <strong>Sexe:</strong> ${student.sex === 'M' ? 'Masculin' : 'Féminin'}<br>
+                <strong>Date de naissance:</strong> ${student.birthDate}<br>
+                <strong>Lieu de naissance:</strong> ${student.birthPlace || 'Non renseigné'}<br>
+                <strong>Classe:</strong> ${student.class} ${student.series || ''}<br>
+                <strong>Contact parent:</strong> ${student.parentPhone}<br>
+                <strong>Nom parent:</strong> ${student.parentName || 'Non renseigné'}<br>
+                <strong>Email parent:</strong> ${student.parentEmail || 'Non renseigné'}<br>
+                <strong>Adresse:</strong> ${student.address || 'Non renseigné'}
+            `;
+            
+            showModal('Détails de l\'élève', details);
+        };
+
+        // Modifier élève
+        window.editStudent = (id) => {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'secretary') {
+                showNotification('Accès non autorisé', 'error');
+                return;
+            }
+            
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+            
+            document.getElementById('studentId').value = id;
+            document.getElementById('studentModalTitle').textContent = 'Modifier l\'élève';
+            document.querySelector('[name="lastName"]').value = student.lastName;
+            document.querySelector('[name="firstName"]').value = student.firstName;
+            document.querySelector('[name="sex"]').value = student.sex;
+            document.querySelector('[name="birthDate"]').value = student.birthDate;
+            document.querySelector('[name="birthPlace"]').value = student.birthPlace || '';
+            document.querySelector('[name="class"]').value = student.class;
+            document.querySelector('[name="series"]').value = student.series || '';
+            document.querySelector('[name="parentPhone"]').value = student.parentPhone;
+            document.querySelector('[name="parentName"]').value = student.parentName || '';
+            document.querySelector('[name="parentEmail"]').value = student.parentEmail || '';
+            document.querySelector('[name="address"]').value = student.address || '';
+            
+            modal.classList.remove('hidden');
+        };
+
+        // Supprimer élève
+        window.deleteStudent = async (id) => {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'secretary') {
+                showNotification('Accès non autorisé', 'error');
+                return;
+            }
+            
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet élève ? Cette action est irréversible.')) return;
+
+            showLoading();
+            try {
+                await deleteDoc(doc(db, 'students', id));
+                await loadStudents();
+                await loadDashboard();
+                showNotification('Élève supprimé avec succès', 'success');
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                showNotification('Erreur lors de la suppression', 'error');
+            }
+            hideLoading();
+        };
+
+        // ==================== GESTION DES UTILISATEURS ====================
+        async function loadUsers() {
+            if (currentUserRole !== 'admin') return;
+            
+            showLoading();
+            try {
+                const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                users = [];
+                snapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+                renderUsers(users);
+            } catch (error) {
+                console.error('Erreur chargement utilisateurs:', error);
+            }
+            hideLoading();
+        }
+
+        function renderUsers(data) {
+            const tbody = document.getElementById('usersTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Aucun utilisateur trouvé</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(user => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${user.fullName}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${user.email}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="role-badge role-${user.role}">${getRoleDisplayName(user.role)}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${new Date(user.createdAt).toLocaleDateString('fr-FR')}</td>
+                    <td class="px-6 py-4 text-sm text-right space-x-2">
+                        <button onclick="editUser('${user.id}')" class="text-green-600 hover:text-green-800" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${user.id !== currentUser.uid ? `
+                        <button onclick="deleteUser('${user.id}')" class="text-red-600 hover:text-red-800" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Modal utilisateur
+        const userModal = document.getElementById('userModal');
+        document.getElementById('addUserBtn').addEventListener('click', () => {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('userModalTitle').textContent = 'Nouvel Utilisateur';
+            userModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeUserModal').addEventListener('click', () => userModal.classList.add('hidden'));
+        document.getElementById('cancelUserBtn').addEventListener('click', () => userModal.classList.add('hidden'));
+
+        // Soumettre formulaire utilisateur
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading();
+
+            const formData = new FormData(e.target);
+            const userId = document.getElementById('userId').value;
+            
+            const userData = {
+                fullName: formData.get('fullName'),
+                email: formData.get('email'),
+                role: formData.get('role'),
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                if (userId) {
+                    // Modification
+                    await updateDoc(doc(db, 'users', userId), userData);
+                    showNotification('Utilisateur modifié avec succès', 'success');
+                } else {
+                    // Création
+                    userData.createdAt = new Date().toISOString();
+                    
+                    // Créer l'utilisateur dans Firebase Auth
+                    const password = formData.get('password');
+                    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
+                    const newUser = userCredential.user;
+                    
+                    // Ajouter les données supplémentaires dans Firestore
+                    userData.uid = newUser.uid;
+                    await setDoc(doc(db, 'users', newUser.uid), userData);
+                    
+                    showNotification('Utilisateur créé avec succès', 'success');
+                }
+                userModal.classList.add('hidden');
+                await loadUsers();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de l\'enregistrement', 'error');
+            }
+
+            hideLoading();
+        });
+
+        // Modifier utilisateur
+        window.editUser = (id) => {
+            const user = users.find(u => u.id === id);
+            if (!user) return;
+            
+            document.getElementById('userId').value = id;
+            document.getElementById('userModalTitle').textContent = 'Modifier l\'utilisateur';
+            document.querySelector('[name="fullName"]').value = user.fullName;
+            document.querySelector('[name="email"]').value = user.email;
+            document.querySelector('[name="role"]').value = user.role;
+            document.querySelector('[name="password"]').required = false;
+            
+            userModal.classList.remove('hidden');
+        };
+
+        // Supprimer utilisateur
+        window.deleteUser = async (id) => {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')) return;
+
+            showLoading();
+            try {
+                await deleteDoc(doc(db, 'users', id));
+                await loadUsers();
+                showNotification('Utilisateur supprimé avec succès', 'success');
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                showNotification('Erreur lors de la suppression', 'error');
+            }
+            hideLoading();
+        };
+
+        // ==================== GESTION DES NOTES ====================
+        async function loadGradesForClass(className, trimester, subject) {
+            if (!className || !trimester || !subject) return;
+
+            showLoading();
+            const classStudents = students.filter(s => s.class === className);
+            
+            if (classStudents.length === 0) {
+                document.getElementById('gradesStudentsList').innerHTML = '<p class="text-gray-500 text-center">Aucun élève dans cette classe</p>';
+                hideLoading();
+                return;
+            }
+
+            // Charger les notes existantes
+            const gradesSnapshot = await getDocs(collection(db, 'grades'));
+            const existingGrades = {};
+            gradesSnapshot.forEach(doc => {
+                const data = doc.data();
+                const key = `${data.studentId}-${data.trimester}-${data.subject}`;
+                existingGrades[key] = { id: doc.id, ...data };
+            });
+
+            let html = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">${subject} - Trimestre ${trimester} - ${className}</h3>
+                        <button id="saveAllGrades" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-save mr-2"></i>Enregistrer tout
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Élève</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500">Contrôle /20</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500">Devoir /20</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500">Examen /20</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500">Moyenne</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+            `;
+
+            classStudents.forEach(student => {
+                const key = `${student.id}-${trimester}-${subject}`;
+                const grade = existingGrades[key] || { control: '', homework: '', exam: '', average: '' };
+                
+                html += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm">${student.lastName} ${student.firstName}</td>
+                        <td class="px-4 py-3">
+                            <input type="number" step="0.5" min="0" max="20" 
+                                   class="w-20 px-2 py-1 border rounded text-center grade-input" 
+                                   data-student="${student.id}" data-type="control" 
+                                   value="${grade.control}" placeholder="--">
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="number" step="0.5" min="0" max="20" 
+                                   class="w-20 px-2 py-1 border rounded text-center grade-input" 
+                                   data-student="${student.id}" data-type="homework" 
+                                   value="${grade.homework}" placeholder="--">
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="number" step="0.5" min="0" max="20" 
+                                   class="w-20 px-2 py-1 border rounded text-center grade-input" 
+                                   data-student="${student.id}" data-type="exam" 
+                                   value="${grade.exam}" placeholder="--">
+                        </td>
+                        <td class="px-4 py-3 text-center font-semibold text-blue-600" id="avg-${student.id}">
+                            ${grade.average || '--'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            `;
+
+            document.getElementById('gradesStudentsList').innerHTML = html;
+
+            // Calcul automatique des moyennes
+            document.querySelectorAll('.grade-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const studentId = e.target.dataset.student;
+                    const inputs = document.querySelectorAll(`[data-student="${studentId}"]`);
+                    const control = parseFloat(inputs[0].value) || 0;
+                    const homework = parseFloat(inputs[1].value) || 0;
+                    const exam = parseFloat(inputs[2].value) || 0;
+                    
+                    // Pondération: contrôle 20%, devoir 30%, examen 50%
+                    const average = ((control * 0.2) + (homework * 0.3) + (exam * 0.5)).toFixed(2);
+                    document.getElementById(`avg-${studentId}`).textContent = average;
+                });
+            });
+
+            // Sauvegarder toutes les notes
+            document.getElementById('saveAllGrades').addEventListener('click', async () => {
+                showLoading();
+                let saved = 0;
+
+                for (const student of classStudents) {
+                    const inputs = document.querySelectorAll(`[data-student="${student.id}"]`);
+                    const control = parseFloat(inputs[0].value);
+                    const homework = parseFloat(inputs[1].value);
+                    const exam = parseFloat(inputs[2].value);
+
+                    if (!control && !homework && !exam) continue;
+
+                    const average = ((control || 0) * 0.2 + (homework || 0) * 0.3 + (exam || 0) * 0.5).toFixed(2);
+                    
+                    const gradeData = {
+                        studentId: student.id,
+                        studentName: `${student.lastName} ${student.firstName}`,
+                        class: className,
+                        trimester: trimester,
+                        subject: subject,
+                        control: control || 0,
+                        homework: homework || 0,
+                        exam: exam || 0,
+                        average: parseFloat(average),
+                        updatedAt: new Date().toISOString(),
+                        updatedBy: currentUser.email
+                    };
+
+                    try {
+                        const key = `${student.id}-${trimester}-${subject}`;
+                        const existing = existingGrades[key];
+                        
+                        if (existing) {
+                            await updateDoc(doc(db, 'grades', existing.id), gradeData);
+                        } else {
+                            await addDoc(collection(db, 'grades'), gradeData);
+                        }
+                        saved++;
+                    } catch (error) {
+                        console.error('Erreur sauvegarde note:', error);
+                    }
+                }
+
+                hideLoading();
+                showNotification(`${saved} notes enregistrées avec succès`, 'success');
+                await loadDashboard();
+            });
+
+            hideLoading();
+        }
+
+        document.getElementById('gradeClass').addEventListener('change', () => {
+            const className = document.getElementById('gradeClass').value;
+            const trimester = document.getElementById('gradeTrimester').value;
+            const subject = document.getElementById('gradeSubject').value;
+            loadGradesForClass(className, trimester, subject);
+        });
+
+        document.getElementById('gradeTrimester').addEventListener('change', () => {
+            const className = document.getElementById('gradeClass').value;
+            const trimester = document.getElementById('gradeTrimester').value;
+            const subject = document.getElementById('gradeSubject').value;
+            loadGradesForClass(className, trimester, subject);
+        });
+
+        document.getElementById('gradeSubject').addEventListener('change', () => {
+            const className = document.getElementById('gradeClass').value;
+            const trimester = document.getElementById('gradeTrimester').value;
+            const subject = document.getElementById('gradeSubject').value;
+            loadGradesForClass(className, trimester, subject);
+        });
+
+        // ==================== GESTION DE L'ASSIDUITÉ ====================
+        async function loadAttendanceForClass(className, date) {
+            if (!className || !date) return;
+
+            showLoading();
+            const classStudents = students.filter(s => s.class === className);
+            
+            if (classStudents.length === 0) {
+                document.getElementById('attendanceList').innerHTML = '<p class="text-gray-500 text-center">Aucun élève dans cette classe</p>';
+                hideLoading();
+                return;
+            }
+
+            // Charger l'assiduité existante
+            const attendanceSnapshot = await getDocs(query(
+                collection(db, 'attendance'), 
+                where('date', '==', date),
+                where('class', '==', className)
+            ));
+            
+            const existingAttendance = {};
+            attendanceSnapshot.forEach(doc => {
+                const data = doc.data();
+                const key = `${data.studentId}-${data.date}`;
+                existingAttendance[key] = { id: doc.id, ...data };
+            });
+
+            let html = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">${className} - ${new Date(date).toLocaleDateString('fr-FR')}</h3>
+                        <button id="saveAttendance" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-save mr-2"></i>Enregistrer
+                        </button>
+                    </div>
+                    <div class="space-y-2">
+            `;
+
+            classStudents.forEach(student => {
+                const key = `${student.id}-${date}`;
+                const attendance = existingAttendance[key] || { status: 'present', hours: 0 }; // Par défaut présent
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="font-medium">${student.lastName} ${student.firstName}</span>
+                        <div class="flex space-x-2">
+                            <button class="attendance-btn px-4 py-2 rounded ${attendance.status === 'present' ? 'bg-green-600 text-white' : 'bg-gray-200'}" 
+                                    data-student="${student.id}" data-status="present">
+                                <i class="fas fa-check mr-1"></i>Présent
+                            </button>
+                            <button class="attendance-btn px-4 py-2 rounded ${attendance.status === 'absent' ? 'bg-red-600 text-white' : 'bg-gray-200'}" 
+                                    data-student="${student.id}" data-status="absent">
+                                <i class="fas fa-times mr-1"></i>Absent
+                            </button>
+                            <button class="attendance-btn px-4 py-2 rounded ${attendance.status === 'late' ? 'bg-orange-600 text-white' : 'bg-gray-200'}" 
+                                    data-student="${student.id}" data-status="late">
+                                <i class="fas fa-clock mr-1"></i>Retard
+                            </button>
+                            <input type="number" min="0" value="${attendance.hours || 0}" data-student="${student.id}" data-type="hours" class="w-16 px-2 py-1 border rounded text-center" placeholder="Hrs">
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div></div>';
+            document.getElementById('attendanceList').innerHTML = html;
+
+            // Gestion des clics sur les boutons
+            document.querySelectorAll('.attendance-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const studentId = e.currentTarget.dataset.student;
+                    const status = e.currentTarget.dataset.status;
+                    
+                    // Réinitialiser tous les boutons de cet élève
+                    document.querySelectorAll(`[data-student="${studentId}"]`).forEach(b => {
+                        b.classList.remove('bg-green-600', 'bg-red-600', 'bg-orange-600', 'text-white');
+                        b.classList.add('bg-gray-200');
+                    });
+                    
+                    // Activer le bouton cliqué
+                    e.currentTarget.classList.remove('bg-gray-200');
+                    if (status === 'present') e.currentTarget.classList.add('bg-green-600', 'text-white');
+                    if (status === 'absent') e.currentTarget.classList.add('bg-red-600', 'text-white');
+                    if (status === 'late') e.currentTarget.classList.add('bg-orange-600', 'text-white');
+                });
+            });
+
+            // Sauvegarder l'assiduité
+            document.getElementById('saveAttendance').addEventListener('click', async () => {
+                showLoading();
+                let saved = 0;
+
+                for (const student of classStudents) {
+                    const buttons = document.querySelectorAll(`[data-student="${student.id}"]`);
+                    let status = 'present';
+                    
+                    buttons.forEach(btn => {
+                        if (btn.classList.contains('bg-green-600')) status = 'present';
+                        if (btn.classList.contains('bg-red-600')) status = 'absent';
+                        if (btn.classList.contains('bg-orange-600')) status = 'late';
+                    });
+
+                    const hoursInput = document.querySelector(`[data-student="${student.id}"][data-type="hours"]`);
+                    let hours = parseInt(hoursInput.value) || 0;
+                    if (status === 'present') hours = 0;
+
+                    const attendanceData = {
+                        studentId: student.id,
+                        studentName: `${student.lastName} ${student.firstName}`,
+                        class: className,
+                        date: date,
+                        status: status,
+                        hours: hours,
+                        updatedAt: new Date().toISOString(),
+                        updatedBy: currentUser.email
+                    };
+
+                    try {
+                        const key = `${student.id}-${date}`;
+                        const existing = existingAttendance[key];
+                        
+                        if (existing) {
+                            await updateDoc(doc(db, 'attendance', existing.id), attendanceData);
+                        } else {
+                            await addDoc(collection(db, 'attendance'), attendanceData);
+                        }
+                        saved++;
+                    } catch (error) {
+                        console.error('Erreur sauvegarde assiduité:', error);
+                    }
+                }
+
+                hideLoading();
+                showNotification(`Assiduité enregistrée pour ${saved} élèves`, 'success');
+                await loadAttendanceStats(className, date);
+                await loadDashboard();
+            });
+
+            await loadAttendanceStats(className, date);
+            hideLoading();
+        }
+
+        async function loadAttendanceStats(className, date) {
+            const classStudents = students.filter(s => s.class === className);
+            const attendanceSnapshot = await getDocs(query(collection(db, 'attendance'), where('date', '==', date), where('class', '==', className)));
+            
+            let present = 0, absent = 0, late = 0;
+            attendanceSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.status === 'present') present++;
+                if (data.status === 'absent') absent++;
+                if (data.status === 'late') late++;
+            });
+
+            document.getElementById('presentCount').textContent = present;
+            document.getElementById('absentCount').textContent = absent;
+            document.getElementById('lateCount').textContent = late;
+        }
+
+        document.getElementById('attendanceClass').addEventListener('change', () => {
+            const className = document.getElementById('attendanceClass').value;
+            const date = document.getElementById('attendanceDate').value;
+            loadAttendanceForClass(className, date);
+        });
+
+        document.getElementById('attendanceDate').addEventListener('change', () => {
+            const className = document.getElementById('attendanceClass').value;
+            const date = document.getElementById('attendanceDate').value;
+            loadAttendanceForClass(className, date);
+        });
+
+        // ==================== GÉNÉRATION DES BULLETINS ====================
+        async function generateBulletinsForClass(className, trimester) {
+            if (!className || !trimester) {
+                showNotification('Sélectionnez une classe et un trimestre', 'warning');
+                return;
+            }
+
+            showLoading();
+            const classStudents = students.filter(s => s.class === className);
+            
+            if (classStudents.length === 0) {
+                showNotification('Aucun élève dans cette classe', 'warning');
+                hideLoading();
+                return;
+            }
+
+            // Charger toutes les notes du trimestre
+            const gradesSnapshot = await getDocs(query(
+                collection(db, 'grades'),
+                where('class', '==', className),
+                where('trimester', '==', trimester)
+            ));
+
+            const studentGrades = {};
+            gradesSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (!studentGrades[data.studentId]) {
+                    studentGrades[data.studentId] = [];
+                }
+                studentGrades[data.studentId].push(data);
+            });
+
+            // Charger l'assiduité du trimestre
+            const startDate = getTrimesterStartDate(trimester);
+            const endDate = getTrimesterEndDate(trimester);
+            
+            const attendanceSnapshot = await getDocs(query(
+                collection(db, 'attendance'),
+                where('class', '==', className),
+                where('date', '>=', startDate),
+                where('date', '<=', endDate)
+            ));
+
+            const studentAbsences = {};
+            attendanceSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (!studentAbsences[data.studentId]) {
+                    studentAbsences[data.studentId] = { hours: 0, late: 0 };
+                }
+                if (data.status === 'absent') studentAbsences[data.studentId].hours += data.hours;
+                if (data.status === 'late') studentAbsences[data.studentId].late++;
+            });
+
+            // Calculer les moyennes générales et classements
+            const rankings = [];
+            classStudents.forEach(student => {
+                const grades = studentGrades[student.id] || [];
+                if (grades.length === 0) return;
+
+                let totalWeighted = 0;
+                let totalCoef = 0;
+
+                grades.forEach(grade => {
+                    const subject = subjects.find(s => s.name === grade.subject);
+                    const coef = subject ? subject.coef : 1;
+                    totalWeighted += grade.average * coef;
+                    totalCoef += coef;
+                });
+
+                const generalAverage = totalCoef > 0 ? (totalWeighted / totalCoef).toFixed(2) : 0;
+                rankings.push({ 
+                    studentId: student.id, 
+                    name: `${student.lastName} ${student.firstName}`,
+                    average: parseFloat(generalAverage)
+                });
+            });
+
+            // Trier pour le classement
+            rankings.sort((a, b) => b.average - a.average);
+            rankings.forEach((r, index) => r.rank = index + 1);
+
+            // Obtenir les statistiques de classe
+            const classAverages = rankings.map(r => r.average);
+            const classMax = Math.max(...classAverages);
+            const classMin = Math.min(...classAverages);
+            const classAvg = classAverages.reduce((a, b) => a + b, 0) / classAverages.length;
+
+            // Générer les bulletins
+            let html = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Bulletins - ${className} - Trimestre ${trimester}</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">
+            `;
+
+            for (const student of classStudents) {
+                const grades = studentGrades[student.id] || [];
+                const ranking = rankings.find(r => r.studentId === student.id);
+                const absences = studentAbsences[student.id] || { hours: 0, late: 0 };
+                
+                if (!ranking) continue;
+
+                html += `
+                    <div class="bg-white border rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold text-lg">${student.lastName} ${student.firstName}</h4>
+                                <p class="text-sm text-gray-600">Matricule: ${student.matricule}</p>
+                            </div>
+                            <button onclick="downloadBulletin('${student.id}', '${trimester}')" 
+                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-file-pdf mr-2"></i>Télécharger PDF
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                            <div>
+                                <span class="text-sm text-gray-600">Moyenne générale:</span>
+                                <span class="font-bold text-lg ml-2 ${ranking.average >= 10 ? 'text-green-600' : 'text-red-600'}">
+                                    ${ranking.average}/20
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Classement:</span>
+                                <span class="font-bold text-lg ml-2">${ranking.rank}/${rankings.length}</span>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Absences:</span>
+                                <span class="font-bold text-lg ml-2">${absences.hours} hrs</span>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Retards:</span>
+                                <span class="font-bold text-lg ml-2">${absences.late}</span>
+                            </div>
+                        </div>
+                        <div class="text-sm">
+                            <strong>Matières:</strong> ${grades.length} | 
+                            <strong>Moyenne classe:</strong> ${classAvg.toFixed(2)}/20 | 
+                            <strong>Meilleure moyenne:</strong> ${classMax.toFixed(2)}/20 | 
+                            <strong>Plus basse:</strong> ${classMin.toFixed(2)}/20
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div></div>';
+            document.getElementById('bulletinsList').innerHTML = html;
+            hideLoading();
+        }
+
+        function getTrimesterStartDate(trimester) {
+            const year = new Date().getFullYear();
+            if (trimester === '1') return `${year}-09-01`;
+            if (trimester === '2') return `${year}-12-01`;
+            if (trimester === '3') return `${year}-03-01`;
+            return `${year}-09-01`;
+        }
+
+        function getTrimesterEndDate(trimester) {
+            const year = new Date().getFullYear();
+            if (trimester === '1') return `${year}-11-30`;
+            if (trimester === '2') return `${year + 1}-02-28`;
+            if (trimester === '3') return `${year + 1}-06-30`;
+            return `${year + 1}-06-30`;
+        }
+
+        window.downloadBulletin = async (studentId, trimester) => {
+            showLoading();
+            
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            // Charger les notes
+            const gradesSnapshot = await getDocs(query(
+                collection(db, 'grades'),
+                where('studentId', '==', studentId),
+                where('trimester', '==', trimester)
+            ));
+
+            const grades = [];
+            gradesSnapshot.forEach(doc => grades.push(doc.data()));
+
+            // Charger l'assiduité du trimestre
+            const startDate = getTrimesterStartDate(trimester);
+            const endDate = getTrimesterEndDate(trimester);
+            
+            const attendanceSnapshot = await getDocs(query(
+                collection(db, 'attendance'),
+                where('studentId', '==', studentId),
+                where('date', '>=', startDate),
+                where('date', '<=', endDate)
+            ));
+
+            let totalAbsenceHours = 0, late = 0;
+            attendanceSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.status === 'absent') totalAbsenceHours += data.hours;
+                if (data.status === 'late') late++;
+            });
+
+            // Calculer moyenne générale
+            let totalWeighted = 0;
+            let totalCoef = 0;
+            grades.forEach(grade => {
+                const subject = subjects.find(s => s.name === grade.subject);
+                const coef = subject ? subject.coef : 1;
+                totalWeighted += grade.average * coef;
+                totalCoef += coef;
+            });
+            const generalAverage = totalCoef > 0 ? (totalWeighted / totalCoef).toFixed(2) : 0;
+
+            // Calculer les statistiques de classe
+            const classStudents = students.filter(s => s.class === student.class);
+            const classGradesSnapshot = await getDocs(query(
+                collection(db, 'grades'),
+                where('class', '==', student.class),
+                where('trimester', '==', trimester)
+            ));
+
+            const studentAverages = {};
+            classGradesSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (!studentAverages[data.studentId]) {
+                    studentAverages[data.studentId] = { total: 0, coef: 0 };
+                }
+                const subject = subjects.find(s => s.name === data.subject);
+                const coef = subject ? subject.coef : 1;
+                studentAverages[data.studentId].total += data.average * coef;
+                studentAverages[data.studentId].coef += coef;
+            });
+
+            const averages = Object.values(studentAverages).map(s => s.total / s.coef);
+            const classMax = Math.max(...averages);
+            const classMin = Math.min(...averages);
+            const classAvg = averages.reduce((a, b) => a + b, 0) / averages.length;
+
+            // Déterminer le rang
+            const sortedAverages = averages.sort((a, b) => b - a);
+            const rank = sortedAverages.indexOf(parseFloat(generalAverage)) + 1;
+
+            // Matières à efforts
+            const effortSubjects = grades.filter(g => g.average < 10).map(g => g.subject).join(', ');
+
+            // Générer PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // En-tête
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text(schoolSettings.name, 105, 20, { align: 'center' });
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(schoolSettings.motto, 105, 27, { align: 'center' });
+            doc.text(schoolSettings.address, 105, 32, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('BULLETIN SCOLAIRE', 105, 45, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`Trimestre ${trimester} - Année ${new Date().getFullYear()}`, 105, 52, { align: 'center' });
+
+            // Informations élève
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Nom: ${student.lastName} ${student.firstName}`, 20, 65);
+            doc.text(`Matricule: ${student.matricule}`, 20, 72);
+            doc.text(`Classe: ${student.class} ${student.series || ''}`, 20, 79);
+            doc.text(`Sexe: ${student.sex === 'M' ? 'Masculin' : 'Féminin'}`, 120, 65);
+            doc.text(`Né(e) le: ${student.birthDate}`, 120, 72);
+            doc.text(`Absences: ${totalAbsenceHours} hrs | Retards: ${late}`, 120, 79);
+
+            // Tableau des notes
+            const tableData = grades.map(g => {
+                const subject = subjects.find(s => s.name === g.subject);
+                const coef = subject ? subject.coef : 1;
+                return [
+                    g.subject,
+                    g.control.toFixed(1),
+                    g.homework.toFixed(1),
+                    g.exam.toFixed(1),
+                    g.average.toFixed(2),
+                    coef,
+                    (g.average * coef).toFixed(2)
+                ];
+            });
+
+            doc.autoTable({
+                head: [['Matière', 'Contrôle', 'Devoir', 'Examen', 'Moyenne', 'Coef', 'Total']],
+                body: tableData,
+                startY: 90,
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [59, 130, 246], fontStyle: 'bold' },
+                columnStyles: {
+                    0: { cellWidth: 50 },
+                    1: { halign: 'center' },
+                    2: { halign: 'center' },
+                    3: { halign: 'center' },
+                    4: { halign: 'center', fontStyle: 'bold' },
+                    5: { halign: 'center' },
+                    6: { halign: 'center' }
+                }
+            });
+
+            const finalY = doc.lastAutoTable.finalY + 10;
+
+            // Statistiques
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Moyenne Générale: ${generalAverage}/20`, 20, finalY);
+            doc.text(`Rang: ${rank}/${classStudents.length}`, 20, finalY + 8);
+            doc.text(`Moyenne de classe: ${classAvg.toFixed(2)}/20`, 20, finalY + 16);
+            doc.text(`Meilleure moyenne: ${classMax.toFixed(2)}/20`, 20, finalY + 24);
+            doc.text(`Plus basse moyenne: ${classMin.toFixed(2)}/20`, 20, finalY + 32);
+            doc.text(`Matières à efforts: ${effortSubjects || 'Aucune'}`, 20, finalY + 40);
+            
+            // Appréciation
+            let appreciation = '';
+            let efforts = '';
+            
+            if (generalAverage >= 16) {
+                appreciation = 'Très bien - Félicitations';
+                efforts = 'Excellent travail, continuez ainsi';
+            } else if (generalAverage >= 14) {
+                appreciation = 'Bien - Encouragements';
+                efforts = 'Bon travail, peut encore progresser';
+            } else if (generalAverage >= 12) {
+                appreciation = 'Assez bien - Continuez';
+                efforts = 'Satisfaisant, doit fournir plus d\'efforts';
+            } else if (generalAverage >= 10) {
+                appreciation = 'Passable - Peut mieux faire';
+                efforts = 'Doit redoubler d\'efforts pour progresser';
+            } else {
+                appreciation = 'Insuffisant - Redoubler d\'efforts';
+                efforts = 'Travail insuffisant, nécessite un soutien';
+            }
+
+            doc.setFontSize(10);
+            doc.text(`Appréciation: ${appreciation}`, 20, finalY + 50);
+            doc.text(`Efforts à fournir: ${efforts}`, 20, finalY + 57);
+
+            // Signature
+            doc.text('Le Directeur', 150, finalY + 75);
+            doc.text('_________________', 145, finalY + 85);
+
+            // Footer
+            doc.setFontSize(8);
+            doc.text(`Bulletin généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 105, 280, { align: 'center' });
+
+            doc.save(`Bulletin_${student.lastName}_${student.firstName}_T${trimester}.pdf`);
+            
+            hideLoading();
+            showNotification('Bulletin téléchargé avec succès', 'success');
+        };
+
+        document.getElementById('generateBulletins').addEventListener('click', () => {
+            const className = document.getElementById('bulletinClass').value;
+            const trimester = document.getElementById('bulletinTrimester').value;
+            generateBulletinsForClass(className, trimester);
+        });
+
+        // ==================== PARAMÈTRES ====================
+        document.getElementById('schoolInfoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading();
+
+            schoolSettings = {
+                name: document.getElementById('schoolNameInput').value,
+                motto: document.getElementById('schoolMotto').value,
+                address: document.getElementById('schoolAddress').value,
+                phone: document.getElementById('schoolPhone').value
+            };
+
+            try {
+                await setDoc(doc(db, 'settings', 'school'), schoolSettings);
+                document.getElementById('schoolName').textContent = schoolSettings.name;
+                showNotification('Paramètres enregistrés avec succès', 'success');
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de l\'enregistrement', 'error');
+            }
+
+            hideLoading();
+        });
+
+        document.getElementById('backupData').addEventListener('click', async () => {
+            showLoading();
+            
+            const backup = {
+                students: students,
+                grades: [],
+                attendance: [],
+                settings: schoolSettings,
+                date: new Date().toISOString()
+            };
+
+            // Charger toutes les données
+            const gradesSnapshot = await getDocs(collection(db, 'grades'));
+            gradesSnapshot.forEach(doc => backup.grades.push(doc.data()));
+
+            const attendanceSnapshot = await getDocs(collection(db, 'attendance'));
+            attendanceSnapshot.forEach(doc => backup.attendance.push(doc.data()));
+
+            const json = JSON.stringify(backup, null, 2);
+            downloadFile(json, `sauvegarde_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+
+            hideLoading();
+            showNotification('Sauvegarde téléchargée avec succès', 'success');
+        });
+
+        // ==================== FONCTIONS UTILITAIRES ====================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-orange-500',
+                info: 'bg-blue-500'
+            };
+
+            const icons = {
+                success: 'check-circle',
+                error: 'exclamation-circle',
+                warning: 'exclamation-triangle',
+                info: 'info-circle'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-${icons[type]}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 4000);
+        }
+
+        function showModal(title, content) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+                    <h3 class="text-xl font-bold mb-4">${title}</h3>
+                    <div class="text-sm text-gray-700 mb-6">${content}</div>
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
+                        Fermer
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+
+        // ==================== DONNÉES DE DÉMONSTRATION ====================
+        async function createDemoData() {
+            if (students.length > 0) return; // Ne pas recréer si déjà existant
+
+            showLoading();
+            const demoStudents = [
+                { lastName: "NGONO", firstName: "Paul", sex: "M", birthDate: "2008-05-15", class: "3ème", series: "", parentPhone: "677123456", birthPlace: "Douala" },
+                { lastName: "MBARGA", firstName: "Marie", sex: "F", birthDate: "2008-03-22", class: "3ème", series: "", parentPhone: "699234567", birthPlace: "Yaoundé" },
+                { lastName: "FOTSO", firstName: "Jacques", sex: "M", birthDate: "2007-11-08", class: "2nde", series: "C", parentPhone: "655345678", birthPlace: "Bafoussam" },
+                { lastName: "KAMENI", firstName: "Sarah", sex: "F", birthDate: "2007-09-14", class: "2nde", series: "A", parentPhone: "678456789", birthPlace: "Douala" },
+                { lastName: "EKANI", firstName: "Thomas", sex: "M", birthDate: "2006-07-25", class: "1ère", series: "D", parentPhone: "690567890", birthPlace: "Limbé" },
+                { lastName: "NJOH", firstName: "Grace", sex: "F", birthDate: "2006-04-12", class: "1ère", series: "C", parentPhone: "677678901", birthPlace: "Douala" },
+                { lastName: "BIYA", firstName: "Albert", sex: "M", birthDate: "2005-12-30", class: "Tle", series: "D", parentPhone: "699789012", birthPlace: "Kribi" },
+                { lastName: "EWANE", firstName: "Claudine", sex: "F", birthDate: "2005-10-18", class: "Tle", series: "A", parentPhone: "655890123", birthPlace: "Édéa" }
+            ];
+
+            for (const student of demoStudents) {
+                const studentData = {
+                    ...student,
+                    matricule: generateMatricule(),
+                    parentName: `Parent de ${student.firstName}`,
+                    parentEmail: `parent.${student.lastName.toLowerCase()}@email.cm`,
+                    address: `Quartier ${student.birthPlace}`,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.email
+                };
+
+                try {
+                    const docRef = await addDoc(collection(db, 'students'), studentData);
+                    
+                    // Ajouter quelques notes de démonstration
+                    const demoSubjects = ["Mathématiques", "Français", "Anglais"];
+                    for (const subject of demoSubjects) {
+                        const gradeData = {
+                            studentId: docRef.id,
+                            studentName: `${student.lastName} ${student.firstName}`,
+                            class: student.class,
+                            trimester: "1",
+                            subject: subject,
+                            control: Math.floor(Math.random() * 10) + 8,
+                            homework: Math.floor(Math.random() * 10) + 8,
+                            exam: Math.floor(Math.random() * 10) + 8,
+                            average: 0,
+                            updatedAt: new Date().toISOString(),
+                            updatedBy: currentUser.email
+                        };
+                        gradeData.average = parseFloat(
+                            ((gradeData.control * 0.2) + (gradeData.homework * 0.3) + (gradeData.exam * 0.5)).toFixed(2)
+                        );
+                        await addDoc(collection(db, 'grades'), gradeData);
+                    }
+
+                    // Ajouter de l'assiduité
+                    const today = new Date();
+                    for (let i = 0; i < 5; i++) {
+                        const date = new Date(today);
+                        date.setDate(date.getDate() - i);
+                        const statuses = ['present', 'present', 'present', 'absent', 'late'];
+                        const status = statuses[Math.floor(Math.random() * statuses.length)];
+                        const hours = (status === 'absent' || status === 'late') ? Math.floor(Math.random() * 8) + 1 : 0;
+                        const attendanceData = {
+                            studentId: docRef.id,
+                            studentName: `${student.lastName} ${student.firstName}`,
+                            class: student.class,
+                            date: date.toISOString().split('T')[0],
+                            status: status,
+                            hours: hours,
+                            updatedAt: new Date().toISOString(),
+                            updatedBy: currentUser.email
+                        };
+                        await addDoc(collection(db, 'attendance'), attendanceData);
+                    }
+                } catch (error) {
+                    console.error('Erreur création donnée démo:', error);
+                }
+            }
+
+            await loadStudents();
+            await loadDashboard();
+            hideLoading();
+            showNotification('Données de démonstration créées avec succès!', 'success');
+        }
+
+        // Créer données de démo au premier lancement
+        setTimeout(() => {
+            if (currentUser && students.length === 0) {
+                if (confirm('Aucun élève détecté. Voulez-vous créer des données de démonstration?')) {
+                    createDemoData();
+                }
+            }
+        }, 2000);
+
+        // ==================== RACCOURCIS CLAVIER ====================
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K : Recherche rapide
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchStudent').focus();
+            }
+            
+            // Échap : Fermer modales
+            if (e.key === 'Escape') {
+                document.getElementById('studentModal').classList.add('hidden');
+                document.getElementById('userModal').classList.add('hidden');
+            }
+        });
+
+        // ==================== CHARGER LES PARAMÈTRES ====================
+        async function loadSettings() {
+            try {
+                const settingsDoc = await getDoc(doc(db, 'settings', 'school'));
+                if (settingsDoc.exists()) {
+                    schoolSettings = settingsDoc.data();
+                    document.getElementById('schoolName').textContent = schoolSettings.name;
+                    document.getElementById('schoolNameInput').value = schoolSettings.name;
+                    document.getElementById('schoolMotto').value = schoolSettings.motto;
+                    document.getElementById('schoolAddress').value = schoolSettings.address;
+                    document.getElementById('schoolPhone').value = schoolSettings.phone;
+                }
+            } catch (error) {
+                console.error('Erreur chargement paramètres:', error);
+            }
+        }
+
+        loadSettings();
+
+        // ==================== STATISTIQUES AVANCÉES ====================
+        async function calculateAdvancedStats() {
+            // Top 5 élèves par moyenne
+            const gradesSnapshot = await getDocs(collection(db, 'grades'));
+            const studentAverages = {};
+            
+            gradesSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (!studentAverages[data.studentId]) {
+                    studentAverages[data.studentId] = {
+                        name: data.studentName,
+                        grades: [],
+                        total: 0
+                    };
+                }
+                studentAverages[data.studentId].grades.push(data.average);
+            });
+
+            Object.keys(studentAverages).forEach(studentId => {
+                const avg = studentAverages[studentId].grades.reduce((a, b) => a + b, 0) / studentAverages[studentId].grades.length;
+                studentAverages[studentId].average = avg;
+            });
+
+            return studentAverages;
+        }
+
+        // ==================== EXPORT RAPPORT COMPLET ====================
+        window.exportCompleteReport = async () => {
+            showLoading();
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Page de garde
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text(schoolSettings.name, 105, 40, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.text('RAPPORT GÉNÉRAL', 105, 60, { align: 'center' });
+            doc.text(`Année Scolaire ${new Date().getFullYear()}`, 105, 70, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 105, 90, { align: 'center' });
+            
+            // Statistiques générales
+            doc.addPage();
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('STATISTIQUES GÉNÉRALES', 20, 20);
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Total élèves: ${students.length}`, 20, 35);
+            doc.text(`Moyenne générale: ${document.getElementById('avgGrade').textContent}`, 20, 45);
+            doc.text(`Taux de présence: ${document.getElementById('attendanceRate').textContent}`, 20, 55);
+            
+            // Répartition par classe
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Répartition par classe:', 20, 75);
+            
+            const classDistribution = {};
+            students.forEach(s => {
+                classDistribution[s.class] = (classDistribution[s.class] || 0) + 1;
+            });
+            
+            let y = 90;
+            Object.entries(classDistribution).forEach(([classe, count]) => {
+                doc.setFont(undefined, 'normal');
+                doc.text(`${classe}: ${count} élèves`, 30, y);
+                y += 10;
+            });
+
+            doc.save(`rapport_general_${new Date().toISOString().split('T')[0]}.pdf`);
+            
+            hideLoading();
+            showNotification('Rapport complet généré avec succès', 'success');
+        };
+
+        console.log('🎓 Système de Gestion Scolaire initialisé avec succès!');
+        console.log('📊 Fonctionnalités disponibles:');
+        console.log('   ✓ Gestion complète des élèves');
+        console.log('   ✓ Saisie et calcul des notes');
+        console.log('   ✓ Suivi de l\'assiduité');
+        console.log('   ✓ Génération de bulletins PDF');
+        console.log('   ✓ Export CSV/Excel');
+        console.log('   ✓ Import en masse');
+        console.log('   ✓ Statistiques et graphiques');
+        console.log('   ✓ Sauvegarde complète des données');
+        console.log('   ✓ Gestion des rôles utilisateurs');
+        console.log('   ✓ Bulletins améliorés avec statistiques de classe');
+    </script>
+</body>
+</html>
