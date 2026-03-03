@@ -113,9 +113,7 @@ try {
     
     $stmt->execute([$nom, $email, $hash]);
     $user_id = $pdo->lastInsertId();
-    
-    // On retire la vérification de boutique ici, car c'est un nouveau compte
-    
+        
     // Initialisation de la session
     $_SESSION['user_id'] = $user_id;
     $_SESSION['role'] = 'vendeur';
