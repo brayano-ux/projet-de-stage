@@ -119,12 +119,9 @@ try {
     $_SESSION['role'] = 'vendeur';
     $_SESSION['user_nom'] = $nom;
     $_SESSION['user_email'] = $email;
-    $_SESSION['has_boutique'] = false; // Forcément false pour un nouveau
+    $_SESSION['has_boutique'] = false; 
     $_SESSION['boutique_id'] = null;
-    
-    // On renouvelle le token pour la prochaine page
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    
     $response['success'] = true;
     $response['message'] = 'Inscription réussie !';
     $response['user'] = [

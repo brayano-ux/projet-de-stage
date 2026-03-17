@@ -518,7 +518,6 @@
 
     let forceMotDePasse = 0;
     
-    // Affichage/masquage mot de passe
     $('.bouton-afficher-mdp').on('click', function() {
         const target = $(this).data('target');
         const input = $(`#${target}`);
@@ -578,10 +577,8 @@
     // Soumission AJAX du formulaire
     $('#form-inscription').on('submit', function(e) {
         e.preventDefault();
-        
         const btnSoumettre = $('#btn-soumettre');
         const texteOriginal = btnSoumettre.html();
-        
         btnSoumettre.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>En cours...');
 $.ajax({
     url: 'inscription.php',
@@ -593,12 +590,10 @@ $.ajax({
         console.log('Réponse du serveur:', response);
         
         if (response.success) {
-            // Afficher les infos de debug si présentes
             if (response.debug && response.debug.length > 0) {
                 console.log('Debug:', response.debug);
             }
             
-            // Succès - rediriger
             $('#etape-1').removeClass('active').addClass('terminee');
             $('#ligne-1').addClass('terminee');
             $('#etape-2').removeClass('inactive').addClass('active');
@@ -612,10 +607,10 @@ $.ajax({
                 $('#section-connexion').hide();
             });
             
-            // Redirection après 3 secondes
+            // Redirection après 5 secondes
             setTimeout(function() {
                 window.location.href = 'templates.html';
-            }, 3000);
+            }, 5000);
             
         } else {
             // Afficher les erreurs
@@ -639,9 +634,7 @@ $.ajax({
             
             // Réactiver le bouton
             btnSoumettre.prop('disabled', false).html(texteOriginal);
-            
-            // Scroll vers les erreurs
-            $('html, body').animate({
+                        $('html, body').animate({
                 scrollTop: $('#zone-messages').offset().top - 100
             }, 500);
         }

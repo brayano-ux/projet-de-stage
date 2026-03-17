@@ -14,7 +14,7 @@ $pdo = new PDO(
 
 $stmt = $pdo->prepare("
     SELECT logo, nom, date_creation
-    FROM boutique
+    FROM boutiques
     WHERE utilisateur_id = ?
     LIMIT 1
 ");
@@ -56,7 +56,6 @@ $stats = [
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Dark Mode Variables (Default) */
         [data-theme="dark"] {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
@@ -84,7 +83,6 @@ $stats = [
             --overlay-border: rgba(255, 255, 255, 0.08);
         }
 
-        /* Light Mode Variables */
         [data-theme="light"] {
             --bg-primary: #ffffff;
             --bg-secondary: #f8fafc;

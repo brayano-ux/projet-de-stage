@@ -2,6 +2,10 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
+// Générer le token s'il n'existe pas encore
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 function reponseJSON($success, $message, $data = []) {
     echo json_encode(array_merge([
         'success' => $success,
@@ -218,5 +222,7 @@ function redimensionnerImage($chemin, $largeur_max, $hauteur_max) {
         imagedestroy($image_redim);
     }
     return true;
+    error_log("SESSION token: " . ($_SESSION['csrf_token'] ?? 'VIDE'));
+error_log("POST token: " . ($_POST['csrf_token'] ?? 'VIDE'));
 }
 ?>

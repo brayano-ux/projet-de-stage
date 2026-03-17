@@ -14,8 +14,8 @@ $pdo = new PDO(
 $stmt = $pdo->prepare("
     SELECT *
     FROM produits p
-    INNER JOIN boutique b ON p.boutique_id = b.id
-    INNER JOIN utilisateur u ON b.utilisateur_id = u.id
+    INNER JOIN boutiques b ON p.boutique_id = b.id
+    INNER JOIN utilisateurs u ON b.utilisateur_id = u.id
     WHERE p.statut = 'disponible'
     ORDER BY p.date_ajout DESC
 ");
@@ -31,6 +31,7 @@ $produits= $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Beauty Innova - Salon de beauté à Yaoundé</title>
     <!-- google fonts -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link href="//fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="//fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,700&display=swap" rel="stylesheet">
      <!-- Font Awesome -->

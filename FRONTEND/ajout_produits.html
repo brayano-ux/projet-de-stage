@@ -364,97 +364,132 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
-        $(document).ready(() => {
-            const $zoneUpload = $('#zone-upload');
-            const $fichierLogo = $('#fichier-logo');
-            const $apercu = $('#apercu_image');
-            const $boutonSoumettre = $('#bouton-soumettre');
-            const $zoneMessages = $('#zone-messages');
-            const $formulaire = $('#formulaire-produit');
+    document.addEventListener('DOMContentLoaded', () => {
+    const zoneUpload = document.getElementById('zone-upload');
+    const fichierLogo = document.getElementById('fichier-logo');
+    const apercu = document.getElementById('apercu_image');
+    const boutonSoumettre = document.getElementById('bouton-soumettre');
+    const zoneMessages = document.getElementById('zone-messages');
+    const formulaire = document.getElementById('formulaire-produit');
 
-            $fichierLogo.on('change', (e) => {
-                const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => $apercu.html(`<img src="${ev.target.result}" alt="Aperçu du produit">`);
-                    reader.readAsDataURL(file);
-                } else {
-                    $apercu.html('<i class="fas fa-image fa-2x" style="color: #CBD5E1; margin-bottom: 8px;"></i><p style="font-size: 0.9rem;">Aperçu</p>');
-                }
-            });
+    // Aperçu image
+    fichierLogo.addEventListener('change', (e) => {
+        const file = e.target.files[0];
 
-            $zoneUpload
-                .on('dragover', (e) => {
-                    e.preventDefault();
-                    $zoneUpload.addClass('dragover');
-                })
-                .on('dragleave drop', (e) => {
-                    e.preventDefault();
-                    $zoneUpload.removeClass('dragover');
-                })
-                .on('drop', (e) => {
-                    const files = e.originalEvent.dataTransfer.files;
-                    if (files.length) {
-                        $fichierLogo[0].files = files;
-                        $fichierLogo.trigger('change');
-                    }
-                })
-                .on('click', (e) => {
-                    if (!$(e.target).is('input')) $fichierLogo.click();
-                });
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                apercu.innerHTML = `<img src="${ev.target.result}" alt="Aperçu du produit">`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            apercu.innerHTML = `
+                <i class="fas fa-image fa-2x" style="color: #CBD5E1; margin-bottom: 8px;"></i>
+                <p style="font-size: 0.9rem;">Aperçu</p>
+            `;
+        }
+    });
 
-            $formulaire.on('submit', (e) => {
-                e.preventDefault();
-                const texteOriginal = $boutonSoumettre.html();
+    // Drag & Drop
+    zoneUpload.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zoneUpload.classList.add('dragover');
+    });
 
-                $boutonSoumettre.prop('disabled', true).html('<i class="fas fa-circle-notch fa-spin"></i> Publication en cours...');
-                $zoneMessages.empty();
-
-                $.ajax({
-                    url: $formulaire.attr('action'),
-                    type: $formulaire.attr('method'),
-                    data: new FormData(e.target),
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                    success: (response) => {
-                        if (response.success) {
-                            $zoneMessages.html(`
-                                <div class="message-succes">
-                                    <div style="font-size: 1.1rem; margin-bottom: 5px;">${response.message}</div>
-                                    <div style="font-size: 0.95rem; opacity: 0.9;">Redirection vers vos produits...</div>
-                                </div>
-                            `);
-                            setTimeout(() => window.location.href = response.redirect || 'mes_produits.php', 2000);
-                        } else {
-                            const erreursHTML = response.erreurs?.length 
-                                ? `<ul style="margin-top: 10px; margin-left: 20px;">${response.erreurs.map(err => `<li>${err}</li>`).join('')}</ul>` 
-                                : '';
-
-                            $zoneMessages.html(`
-                                <div class="message-erreur">
-                                    <div style="font-weight: 700; margin-bottom: 5px;">Le produit n'a pas pu être ajouté</div>
-                                    ${response.message ? `<div>${response.message}</div>` : ''}
-                                    ${erreursHTML}
-                                </div>
-                            `);
-                            
-                            $boutonSoumettre.prop('disabled', false).html(texteOriginal);
-                            $('html, body').animate({ scrollTop: $zoneMessages.offset().top - 100 }, 500);
-                        }
-                    },
-                    error: () => {
-                        $zoneMessages.html(`
-                            <div class="message-erreur">
-                                <div style="font-weight: 700; margin-bottom: 5px;">Erreur de connexion</div>
-                                <div>Impossible de joindre le serveur. Vérifiez votre connexion internet.</div>
-                            </div>
-                        `);
-                        $boutonSoumettre.prop('disabled', false).html(texteOriginal);
-                    }
-                });
-            });
+    ['dragleave', 'drop'].forEach(eventType => {
+        zoneUpload.addEventListener(eventType, (e) => {
+            e.preventDefault();
+            zoneUpload.classList.remove('dragover');
         });
+    });
+
+    zoneUpload.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fichierLogo.files = files;
+            fichierLogo.dispatchEvent(new Event('change'));
+        }
+    });
+
+    zoneUpload.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'INPUT') {
+            fichierLogo.click();
+        }
+    });
+
+    // Soumission AJAX
+    formulaire.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const texteOriginal = boutonSoumettre.innerHTML;
+
+        boutonSoumettre.disabled = true;
+        boutonSoumettre.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Publication en cours...`;
+        zoneMessages.innerHTML = '';
+
+        try {
+            const response = await fetch(formulaire.action, {
+                method: formulaire.method,
+                body: new FormData(formulaire)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                zoneMessages.innerHTML = `
+                    <div class="message-succes">
+                        <div style="font-size: 1.1rem; margin-bottom: 5px;">${data.message}</div>
+                        <div style="font-size: 0.95rem; opacity: 0.9;">Redirection vers vos produits...</div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    window.location.href = data.redirect || 'DASHBOARD.php';
+                }, 2000);
+
+            } else {
+                let erreursHTML = '';
+
+                if (data.erreurs && data.erreurs.length) {
+                    erreursHTML = `
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            ${data.erreurs.map(err => `<li>${err}</li>`).join('')}
+                        </ul>
+                    `;
+                }
+
+                zoneMessages.innerHTML = `
+                    <div class="message-erreur">
+                        <div style="font-weight: 700; margin-bottom: 5px;">
+                            Le produit n'a pas pu être ajouté
+                        </div>
+                        ${data.message ? `<div>${data.message}</div>` : ''}
+                        ${erreursHTML}
+                    </div>
+                `;
+
+                boutonSoumettre.disabled = false;
+                boutonSoumettre.innerHTML = texteOriginal;
+
+                window.scrollTo({
+                    top: zoneMessages.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+
+        } catch (error) {
+            zoneMessages.innerHTML = `
+                <div class="message-erreur">
+                    <div style="font-weight: 700; margin-bottom: 5px;">Erreur de connexion</div>
+                    <div>Impossible de joindre le serveur. Vérifiez votre connexion internet.</div>
+                </div>
+            `;
+
+            boutonSoumettre.disabled = false;
+            boutonSoumettre.innerHTML = texteOriginal;
+        }
+    });
+});
     </script>
 </body>
 </html>
