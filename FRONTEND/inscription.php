@@ -2,10 +2,7 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-$response = [
-    'success' => false,
-    'errors' => []
-];
+$response = ['success' => false,'errors' => []];
 
 try {
     $pdo = new PDO(
@@ -34,7 +31,7 @@ try {
 
     $errors = [];
     
-    if (empty($csrf_token) || !hash_equals($_SESSION['csrf_token'], $csrf_token)) {
+    if (empty($csrf_token) || $csrf_token !== $_SESSION['csrf_token']) {
         $errors[] = "Erreur de sécurité. Veuillez recharger la page.";
     }
     
@@ -67,6 +64,7 @@ try {
         $errors[] = "Le mot de passe doit contenir au moins un chiffre";
     }
     
+    // Validation confirmation
     if ($password !== $confirm) {
         $errors[] = "Les mots de passe ne correspondent pas";
     }
@@ -77,24 +75,7 @@ try {
         exit;
     }
     
-    // VÉRIFIER SI LA TABLE utilisateurs EXISTE (au pluriel)
-    $tableExists = $pdo->query("SHOW TABLES LIKE 'utilisateurs'")->fetch();
-    
-    if (!$tableExists) {
-        $pdo->exec("
-            CREATE TABLE utilisateurs (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nom VARCHAR(100) NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                role VARCHAR(50) DEFAULT 'vendeur',
-                mot_de_passe VARCHAR(255) NOT NULL,
-                statut VARCHAR(50) DEFAULT 'actif',
-                date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        ");
-    }
-
-    // Verifie si email existe deja dans la table utilisateurs
+    // Verifie si email existe deja
     $stmt = $pdo->prepare("SELECT id FROM utilisateurs WHERE email = ?");
     $stmt->execute([$email]);
     
@@ -103,6 +84,10 @@ try {
         echo json_encode($response);
         exit;
     }
+    
+    // VÉRIFIER SI LA TABLE EXISTE, SINON LA CRÉER
+    $tableExists = $pdo->query("SHOW TABLES LIKE 'utilisateur'")->fetch();
+    
     
     // INSÉRER LE NOUVEL UTILISATEUR
     $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -113,15 +98,22 @@ try {
     
     $stmt->execute([$nom, $email, $hash]);
     $user_id = $pdo->lastInsertId();
-        
-    // Initialisation de la session
+    
+    // VÉRIFIER SI L'UTILISATEUR A UNE BOUTIQUE
+    $stmt = $pdo->prepare("SELECT id FROM boutiques WHERE utilisateur_id = ?");
+    $stmt->execute([$user_id]);
+    $boutique = $stmt->fetch();
+    
+    // session
     $_SESSION['user_id'] = $user_id;
     $_SESSION['role'] = 'vendeur';
     $_SESSION['user_nom'] = $nom;
     $_SESSION['user_email'] = $email;
-    $_SESSION['has_boutique'] = false; 
-    $_SESSION['boutique_id'] = null;
+    $_SESSION['has_boutique'] = $boutique ? true : false;
+    $_SESSION['boutique_id'] = $boutique ? $boutique['id'] : null;
+    
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    
     $response['success'] = true;
     $response['message'] = 'Inscription réussie !';
     $response['user'] = [
@@ -129,18 +121,20 @@ try {
         'nom' => $nom,
         'email' => $email,
         'role' => 'vendeur',
-        'has_boutique' => false
+        'has_boutique' => $_SESSION['has_boutique']
     ];
     
-    $response['redirect'] = 'creer_boutique.php';
+    // Redirection suggérée
+    $response['redirect'] = $_SESSION['has_boutique'] ? 'dashboard.php' : 'creer_boutique.php';
     
 } catch (PDOException $e) {
-    $response['errors'][] = "Erreur base de données. Veuillez réessayer.";
+    $response['errors'][] = "Erreur base de données : " . $e->getMessage();
     error_log("Erreur PDO inscription: " . $e->getMessage());
 } catch (Exception $e) {
     $response['errors'][] = $e->getMessage();
 }
 
+// ENVOYER LA RÉPONSE
 echo json_encode($response);
 exit;
 ?>

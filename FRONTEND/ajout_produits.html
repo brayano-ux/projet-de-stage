@@ -5,491 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter un Produit</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-light: #818CF8;
-            --primary-dark: #3730A3;
-            --success: #10B981;
-            --success-dark: #059669;
-            --error: #EF4444;
-            --text-main: #1F2937;
-            --text-muted: #6B7280;
-            --bg-main: #F9FAFB;
-            --bg-card: #ffffff;
-            --border-color: #E5E7EB;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-main);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2rem 1rem;
-            display: flex;
-            justify-content: center;
-        }
-
-        .conteneur-principal {
-            width: 100%;
-            max-width: 850px;
-        }
-
-        .carte-formulaire {
-            background: var(--bg-card);
-            border-radius: 24px;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .en-tete-formulaire {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            padding: 3rem 2rem;
-            text-align: center;
-            color: white;
-            position: relative;
-        }
-
-        .titre-principal {
-            font-size: 2.25rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
-        }
-
-        .sous-titre {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .corps-formulaire {
-            padding: 3rem 2.5rem;
-        }
-
-        .section-logo {
-            background: #EEF2FF;
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2.5rem;
-            border: 2px dashed var(--primary-light);
-            transition: all 0.3s ease;
-        }
-
-        .section-logo:hover {
-            border-color: var(--primary);
-            background: #E0E7FF;
-        }
-
-        .titre-section {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            color: var(--primary-dark);
-        }
-
-        .icone-section {
-            width: 24px;
-            height: 24px;
-            margin-right: 12px;
-        }
-
-        .conteneur-logo {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .zone-apercu-logo {
-            width: 140px;
-            height: 140px;
-            background: white;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--border-color);
-            overflow: hidden;
-            flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .zone-apercu-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .placeholder-logo {
-            text-align: center;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .conteneur-upload {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .label-champ {
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-            display: block;
-            font-size: 0.95rem;
-        }
-
-        .zone-upload {
-            position: relative;
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .zone-upload:hover, .zone-upload.dragover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .input-fichier {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .groupe-champs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .champ-formulaire {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-texte, .textarea-champ {
-            padding: 1rem 1.25rem;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            width: 100%;
-            background: #F9FAFB;
-        }
-
-        .input-texte:focus, .textarea-champ:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-        }
-
-        .textarea-champ {
-            resize: vertical;
-            min-height: 140px;
-        }
-
-        .conteneur-bouton {
-            text-align: center;
-            margin-top: 3rem;
-        }
-
-        .bouton-soumettre {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            font-weight: 700;
-            font-size: 1.15rem;
-            padding: 1.25rem 4rem;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
-        }
-
-        .bouton-soumettre:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
-        }
-
-        .bouton-soumettre:disabled {
-            background: var(--text-muted);
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        /* Styles pour les messages d'erreur et succès */
-        .message-succes, .message-erreur {
-            padding: 1.25rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
-        }
-
-        .message-succes {
-            background: #ECFDF5;
-            color: var(--success-dark);
-            border-left: 5px solid var(--success);
-        }
-
-        .message-erreur {
-            background: #FEF2F2;
-            color: #B91C1C;
-            border-left: 5px solid var(--error);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .corps-formulaire { padding: 2rem 1.5rem; }
-            .groupe-champs { grid-template-columns: 1fr; gap: 1.5rem; }
-            .conteneur-logo { flex-direction: column; text-align: center; }
-            .zone-apercu-logo { width: 100%; height: 200px; border-radius: 16px; }
-            .bouton-soumettre { max-width: 100%; }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/css/formulaire_article.css">
 </head>
 <body>
-    <div class="conteneur-principal">
-        <div class="carte-formulaire">
-            <div class="en-tete-formulaire">
-                <h1 class="titre-principal"><i class="fas fa-box-open" style="margin-right: 10px;"></i>Ajoutez vos articles</h1>
-                <p class="sous-titre">Mettez en valeur vos produits pour attirer plus de clients</p>
+
+<div class="page">
+
+    <!-- En-tête -->
+    <div class="entete">
+        <div class="entete-inner">
+            <div class="entete-icone"><i class="fas fa-plus"></i></div>
+            <div class="entete-texte">
+                <h1>Ajoutez vos articles</h1>
+                <p>Rejoignez notre <a href="#" target="_blank"><i class="fab fa-whatsapp"></i> groupe WhatsApp</a> pour augmenter vos ventes</p>
             </div>
-
-            <form id="formulaire-produit" method="post" action="ajouter_produit.php" class="corps-formulaire" enctype="multipart/form-data">
-                <div class="section-logo">
-                    <h2 class="titre-section">
-                        <svg class="icone-section" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        Photo de votre article *
-                    </h2>
-
-                    <div class="conteneur-logo">
-                        <div class="zone-apercu-logo">
-                            <div id="apercu_image" class="placeholder-logo">
-                                <i class="fas fa-image fa-2x" style="color: #CBD5E1; margin-bottom: 8px;"></i>
-                                <p style="font-size: 0.9rem;">Aperçu</p>
-                            </div>
-                        </div>
-
-                        <div class="conteneur-upload">
-                            <div class="zone-upload" id="zone-upload">
-                                <input type="file" id="fichier-logo" name="logo" accept="image/*" class="input-fichier" required>
-                                <svg class="icone" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 40px; height: 40px; margin: 0 auto 1rem; color: var(--primary);">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                </svg>
-                                <p><span style="color: var(--primary); font-weight: 700;">Cliquez ici</span> ou glissez votre image</p>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Formats : PNG, JPG, WebP (Max 5MB)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="groupe-champs">
-                    <div class="champ-formulaire">
-                        <label class="label-champ" for="nom-article">Nom de l'article *</label>
-                        <input type="text" id="nom-article" name="nom" placeholder="Ex: Chaussures de sport" required class="input-texte" minlength="3" maxlength="200">
-                    </div>
-
-                    <div class="champ-formulaire">
-                        <label class="label-champ" for="prix-article">Prix (FCFA) *</label>
-                        <input type="number" id="prix-article" name="prix" placeholder="Ex: 15000" required class="input-texte" min="1" step="1">
-                    </div>
-                </div>
-
-                <div class="groupe-champs">
-                    <div class="champ-formulaire">
-                        <label class="label-champ" for="localisation-article">Localisation / Ville *</label>
-                        <input type="text" id="localisation-article" name="localisation" placeholder="Ex: Douala, Akwa" required class="input-texte" maxlength="255">
-                    </div>
-
-                    <div class="champ-formulaire">
-                        <label class="label-champ" for="whatsapp-article">Numéro WhatsApp *</label>
-                        <input type="tel" id="whatsapp-article" name="whatsapp" placeholder="Ex: +237 6XX XX XX XX" required class="input-texte">
-                    </div>
-                </div>
-                
-                <div class="groupe-champs" style="grid-template-columns: 1fr;">
-                    <div class="champ-formulaire">
-                        <label class="label-champ" for="description-article">Description de l'article *</label>
-                        <textarea id="description-article" name="description" placeholder="Détaillez votre article : qualité, état, dimensions, couleurs disponibles..." class="textarea-champ" required minlength="10" maxlength="2000"></textarea>
-                    </div>
-                </div>
-
-                <div id="zone-messages"></div>
-
-                <div class="conteneur-bouton">
-                    <button type="submit" class="bouton-soumettre" id="bouton-soumettre">
-                        <i class="fas fa-paper-plane"></i>
-                        Publier l'article
-                    </button>
-                </div>
-            </form>
+            <div class="entete-badge">LocalShop</div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const zoneUpload = document.getElementById('zone-upload');
-    const fichierLogo = document.getElementById('fichier-logo');
-    const apercu = document.getElementById('apercu_image');
-    const boutonSoumettre = document.getElementById('bouton-soumettre');
-    const zoneMessages = document.getElementById('zone-messages');
-    const formulaire = document.getElementById('formulaire-produit');
+    <!-- Formulaire -->
+    <div class="carte">
+        <form id="formulaire-produit" method="post" action="ajouter_produit.php" class="formulaire" enctype="multipart/form-data">
 
-    // Aperçu image
-    fichierLogo.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                apercu.innerHTML = `<img src="${ev.target.result}" alt="Aperçu du produit">`;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            apercu.innerHTML = `
-                <i class="fas fa-image fa-2x" style="color: #CBD5E1; margin-bottom: 8px;"></i>
-                <p style="font-size: 0.9rem;">Aperçu</p>
-            `;
-        }
-    });
-
-    // Drag & Drop
-    zoneUpload.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        zoneUpload.classList.add('dragover');
-    });
-
-    ['dragleave', 'drop'].forEach(eventType => {
-        zoneUpload.addEventListener(eventType, (e) => {
-            e.preventDefault();
-            zoneUpload.classList.remove('dragover');
-        });
-    });
-
-    zoneUpload.addEventListener('drop', (e) => {
-        const files = e.dataTransfer.files;
-        if (files.length) {
-            fichierLogo.files = files;
-            fichierLogo.dispatchEvent(new Event('change'));
-        }
-    });
-
-    zoneUpload.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'INPUT') {
-            fichierLogo.click();
-        }
-    });
-
-    // Soumission AJAX
-    formulaire.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const texteOriginal = boutonSoumettre.innerHTML;
-
-        boutonSoumettre.disabled = true;
-        boutonSoumettre.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Publication en cours...`;
-        zoneMessages.innerHTML = '';
-
-        try {
-            const response = await fetch(formulaire.action, {
-                method: formulaire.method,
-                body: new FormData(formulaire)
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                zoneMessages.innerHTML = `
-                    <div class="message-succes">
-                        <div style="font-size: 1.1rem; margin-bottom: 5px;">${data.message}</div>
-                        <div style="font-size: 0.95rem; opacity: 0.9;">Redirection vers vos produits...</div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    window.location.href = data.redirect || 'DASHBOARD.php';
-                }, 2000);
-
-            } else {
-                let erreursHTML = '';
-
-                if (data.erreurs && data.erreurs.length) {
-                    erreursHTML = `
-                        <ul style="margin-top: 10px; margin-left: 20px;">
-                            ${data.erreurs.map(err => `<li>${err}</li>`).join('')}
-                        </ul>
-                    `;
-                }
-
-                zoneMessages.innerHTML = `
-                    <div class="message-erreur">
-                        <div style="font-weight: 700; margin-bottom: 5px;">
-                            Le produit n'a pas pu être ajouté
-                        </div>
-                        ${data.message ? `<div>${data.message}</div>` : ''}
-                        ${erreursHTML}
-                    </div>
-                `;
-
-                boutonSoumettre.disabled = false;
-                boutonSoumettre.innerHTML = texteOriginal;
-
-                window.scrollTo({
-                    top: zoneMessages.offsetTop - 100,
-                    behavior: 'smooth'
-                });
-            }
-
-        } catch (error) {
-            zoneMessages.innerHTML = `
-                <div class="message-erreur">
-                    <div style="font-weight: 700; margin-bottom: 5px;">Erreur de connexion</div>
-                    <div>Impossible de joindre le serveur. Vérifiez votre connexion internet.</div>
+            <!-- Image -->
+            <div class="section-image">
+                <div class="section-titre">
+                    <span class="titre-icone"><i class="fas fa-camera"></i></span>
+                    Image de l'article
                 </div>
-            `;
+                <div class="conteneur-image">
+                    <div class="apercu-wrap" id="apercu-wrap">
+                        <div class="apercu-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Aperçu</span>
+                        </div>
+                    </div>
+                    <div class="zone-upload" id="zone-upload">
+                        <input type="file" id="fichier-image" name="logo" accept="image/*" required>
+                        <div class="upload-icone"><i class="fas fa-cloud-arrow-up"></i></div>
+                        <p class="upload-texte"><strong>Cliquez ici</strong> ou glissez votre image</p>
+                        <p class="upload-meta">PNG, JPG, WebP — max 5 Mo</p>
+                    </div>
+                </div>
+            </div>
 
-            boutonSoumettre.disabled = false;
-            boutonSoumettre.innerHTML = texteOriginal;
-        }
-    });
-});
-    </script>
+            <!-- Infos produit -->
+            <div class="sep">
+                <div class="sep-ligne"></div>
+                <span class="sep-label"><i class="fas fa-tag"></i>&nbsp; Informations produit</span>
+                <div class="sep-ligne"></div>
+            </div>
+
+            <div class="grille grille-2">
+                <div class="champ">
+                    <label class="champ-label" for="nom-article">
+                        <i class="fas fa-box"></i> Nom de l'article <span class="requis">*</span>
+                    </label>
+                    <input type="text" id="nom-article" name="nom" class="champ-input"
+                        placeholder="Ex : Sac à main en cuir" required minlength="3" maxlength="200">
+                </div>
+                <div class="champ">
+                    <label class="champ-label" for="prix-article">
+                        <i class="fas fa-coins"></i> Prix (FCFA) <span class="requis">*</span>
+                    </label>
+                    <input type="number" id="prix-article" name="prix" class="champ-input"
+                        placeholder="Ex : 15000" required min="1">
+                </div>
+            </div>
+
+            <div class="grille grille-1">
+                <div class="champ">
+                    <label class="champ-label" for="description-article">
+                        <i class="fas fa-align-left"></i> Description <span class="requis">*</span>
+                    </label>
+                    <textarea id="description-article" name="description" class="champ-textarea"
+                        placeholder="Qualité, état, matière, dimensions, couleurs disponibles..."
+                        required minlength="10" maxlength="2000"></textarea>
+                </div>
+            </div>
+
+            <!-- Localisation & Contact -->
+            <div class="sep" style="margin-top:0.25rem;">
+                <div class="sep-ligne"></div>
+                <span class="sep-label"><i class="fas fa-location-dot"></i>&nbsp; Localisation &amp; contact</span>
+                <div class="sep-ligne"></div>
+            </div>
+
+            <div class="grille grille-2">
+                <div class="champ">
+                    <label class="champ-label" for="localisation">
+                        <i class="fas fa-map-marker-alt"></i> Localisation <span class="requis">*</span>
+                    </label>
+                    <input type="text" id="localisation" name="localisation" class="champ-input"
+                        placeholder="Ex : Douala, Akwa" required>
+                </div>
+                <div class="champ">
+                    <label class="champ-label" for="whatsapp">
+                        <i class="fab fa-whatsapp"></i> WhatsApp <span class="requis">*</span>
+                    </label>
+                    <input type="tel" id="whatsapp" name="whatsapp" class="champ-input"
+                        placeholder="+237 6XX XX XX XX" required>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="zone-messages"></div>
+
+            <!-- Bouton -->
+            <div class="bouton-wrap">
+                <button type="submit" class="bouton" id="bouton-soumettre">
+                    <i class="fas fa-plus"></i> Ajouter le produit
+                </button>
+            </div>
+        </form>
+
+        <div class="pied">
+            En publiant, vous acceptez nos <a href="condition.html">conditions d'utilisation</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="src/js/formulaire_article.js">
+</script>
 </body>
 </html>

@@ -2,227 +2,266 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-// Générer le token s'il n'existe pas encore
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-function reponseJSON($success, $message, $data = []) {
-    echo json_encode(array_merge([
-        'success' => $success,
-        'message' => $message
-    ], $data));
-    exit;
-}
+$response = ['success' => false, 'message' => '', 'errors' => []];
 
 try {
-    // 1. CONNEXION PDO
+
+    // ─── Vérification méthode HTTP ────────────────────────────────────────────
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Méthode non autorisée');
+    }
+
+    // ─── Vérification session utilisateur ────────────────────────────────────
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'vendeur') {
+        throw new Exception('Accès refusé. Veuillez vous connecter en tant que vendeur.');
+    }
+
+    // ─── Vérification CSRF ────────────────────────────────────────────────────
+    if (
+        !isset($_POST['csrf_token']) ||
+        !isset($_SESSION['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        throw new Exception('Token de sécurité invalide. Veuillez recharger la page.');
+    }
+
+    // ─── Connexion PDO ────────────────────────────────────────────────────────
     $pdo = new PDO(
-        'mysql:host=localhost;port=3307;dbname=projet_de_stage;charset=utf8mb4',
-        'root',
-        '',
+        "mysql:host=localhost;port=3307;dbname=projet_de_stage;charset=utf8mb4",
+        "root",
+        "",
         [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
+            PDO::ATTR_EMULATE_PREPARES   => false
         ]
     );
 
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        reponseJSON(false, 'Méthode non autorisée');
+    // ─── Création automatique de la table si elle n'existe pas ───────────────
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS boutiques (
+            id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            utilisateur_id  INT UNSIGNED NOT NULL,
+            nom             VARCHAR(200)  NOT NULL,
+            adresse         VARCHAR(500)  NOT NULL,
+            whatsapp        VARCHAR(30)   NOT NULL,
+            services        VARCHAR(255)  DEFAULT NULL,
+            description     TEXT          DEFAULT NULL,
+            logo            VARCHAR(300)  DEFAULT NULL,
+            date_creation   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_utilisateur (utilisateur_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $user_id = (int) $_SESSION['user_id'];
+
+    // ─── Vérifier si l'utilisateur a déjà une boutique ───────────────────────
+    $check = $pdo->prepare("SELECT id FROM boutiques WHERE utilisateur_id = ? LIMIT 1");
+    $check->execute([$user_id]);
+    if ($check->fetch()) {
+        $response['errors'][] = "Vous avez déjà créé une boutique.";
+        echo json_encode($response);
+        exit;
     }
 
-    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) ||
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        reponseJSON(false, 'Token de sécurité invalide');
-    }
-
-    // 2. CRÉATION DE LA TABLE EN PREMIER (Avant toute requête SELECT)
-    $tableExists = $pdo->query("SHOW TABLES LIKE 'boutiques'")->fetch();
-    if (!$tableExists) {
-        $pdo->exec("
-            CREATE TABLE boutiques (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                utilisateur_id INT NOT NULL,
-                nom VARCHAR(100) NOT NULL,
-                adresse VARCHAR(255) NOT NULL,
-                whatsapp VARCHAR(20) NOT NULL,
-                services TEXT,
-                description TEXT,
-                logo VARCHAR(255),
-                date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        ");
-    }
-
-    // 3. RÉCUPÉRATION ET VALIDATION DES DONNÉES
-    $nom = trim($_POST['nom'] ?? '');
-    $adresse = trim($_POST['adresse'] ?? '');
-    $whatsapp = trim($_POST['whatsapp'] ?? '');
-    $services = trim($_POST['services'] ?? '');
+    // ─── Récupération et nettoyage des champs POST ────────────────────────────
+    $nom         = trim($_POST['nom']         ?? '');
+    $adresse     = trim($_POST['adresse']     ?? '');
+    $whatsapp    = trim($_POST['whatsapp']    ?? '');
+    $services    = trim($_POST['services']    ?? '');   // ← Lieu/Ville
     $description = trim($_POST['description'] ?? '');
-    $date_creation = date('Y-m-d H:i:s');
 
-    if (empty($nom) || empty($adresse) || empty($whatsapp)) {
-        reponseJSON(false, 'Tous les champs obligatoires doivent être remplis');
+    // ─── Validation des champs ────────────────────────────────────────────────
+    $errors = [];
+
+    if (empty($nom)) {
+        $errors[] = "Le nom de la boutique est obligatoire.";
+    } elseif (strlen($nom) < 3) {
+        $errors[] = "Le nom doit contenir au moins 3 caractères.";
+    } elseif (strlen($nom) > 200) {
+        $errors[] = "Le nom ne peut pas dépasser 200 caractères.";
     }
 
-    if (strlen($nom) > 100) {
-        reponseJSON(false, 'Le nom de la boutique est trop long (max 100 caractères)');
+    if (empty($adresse)) {
+        $errors[] = "L'adresse est obligatoire.";
+    } elseif (strlen($adresse) > 500) {
+        $errors[] = "L'adresse ne peut pas dépasser 500 caractères.";
     }
 
-    if (strlen($adresse) > 255) {
-        reponseJSON(false, 'L\'adresse est trop longue (max 255 caractères)');
+    if (empty($whatsapp)) {
+        $errors[] = "Le numéro WhatsApp est obligatoire.";
+    } else {
+        // Nettoyage et validation format camerounais ou international
+        $whatsappClean = preg_replace('/[\s\-\(\)]/', '', $whatsapp);
+        if (!preg_match('/^\+?[0-9]{8,20}$/', $whatsappClean)) {
+            $errors[] = "Format de numéro WhatsApp invalide. Exemple : +237 6XX XX XX XX";
+        } else {
+            // Normalisation préfixe +237 si numéro camerounais sans indicatif
+            if (!str_starts_with($whatsappClean, '+')) {
+                if (str_starts_with($whatsappClean, '237')) {
+                    $whatsappClean = '+' . $whatsappClean;
+                } elseif (str_starts_with($whatsappClean, '6') && strlen($whatsappClean) === 9) {
+                    $whatsappClean = '+237' . $whatsappClean;
+                }
+            }
+            $whatsapp = $whatsappClean;
+        }
     }
 
-    $whatsapp = preg_replace('/\s+/', '', $whatsapp); 
-
-    if (!preg_match('/^(\+?237)?6[0-9]{8}$/', $whatsapp)) {
-        reponseJSON(false, 'Numéro WhatsApp invalide. Format attendu: +237 6XX XX XX XX');
+    if (!empty($services) && strlen($services) > 255) {
+        $errors[] = "Le lieu ne peut pas dépasser 255 caractères.";
     }
 
-    if (!str_starts_with($whatsapp, '+')) {
-        $whatsapp = (!str_starts_with($whatsapp, '237')) ? '+237' . $whatsapp : '+' . $whatsapp;
+    if (!empty($description) && strlen($description) > 2000) {
+        $errors[] = "La description ne peut pas dépasser 2000 caractères.";
     }
 
-    // 4. VÉRIFICATION SI LA BOUTIQUE EXISTE (Maintenant que la table existe, ça va marcher !)
-    $stmt = $pdo->prepare('SELECT id FROM boutiques WHERE nom = ? OR whatsapp = ?');
-    $stmt->execute([$nom, $whatsapp]);
-    if ($stmt->fetch()) {
-        reponseJSON(false, 'Une boutique avec ce nom ou ce numéro WhatsApp existe déjà');
+    if (!empty($errors)) {
+        $response['errors'] = $errors;
+        echo json_encode($response);
+        exit;
     }
 
-    // 5. GESTION DE L'UPLOAD DE L'IMAGE
-    $image_url = null;
+    // ─── Gestion de l'upload du logo ─────────────────────────────────────────
+    $logoPath = null;
 
     if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
 
-        $taille_max = 5 * 1024 * 1024; // 5MB
-        if ($_FILES['logo']['size'] > $taille_max) {
-            reponseJSON(false, 'Le logo est trop volumineux (maximum 5MB)');
+        $maxSize      = 5 * 1024 * 1024; // 5 MB
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $mimeToExt    = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+        ];
+
+        // Vérification taille
+        if ($_FILES['logo']['size'] > $maxSize) {
+            $errors[] = "L'image est trop grande. Maximum : 5 Mo.";
         }
 
-        $types_autorises = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $_FILES['logo']['tmp_name']);
+        // Vérification type MIME réel (pas le nom du fichier)
+        $finfo    = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $_FILES['logo']['tmp_name']);
         finfo_close($finfo);
 
-        if (!in_array($mime_type, $types_autorises)) {
-            reponseJSON(false, 'Format d\'image non autorisé. Utilisez JPG, PNG, GIF ou WebP');
+        if (!in_array($mimeType, $allowedMimes)) {
+            $errors[] = "Format non autorisé. Formats acceptés : JPEG, PNG, GIF, WebP.";
         }
 
-        $dossier_upload = __DIR__ . '/uploads/';
-        if (!is_dir($dossier_upload)) {
-            if (!mkdir($dossier_upload, 0755, true)) {
-                reponseJSON(false, 'Impossible de créer le dossier de téléchargement');
+        // Vérification que c'est bien une vraie image (détection de contenu)
+        if (empty($errors) && !getimagesize($_FILES['logo']['tmp_name'])) {
+            $errors[] = "Le fichier n'est pas une image valide.";
+        }
+
+        if (empty($errors)) {
+            $uploadDir = __DIR__ . '/uploads/';
+
+            // Créer le dossier uploads si inexistant
+            if (!is_dir($uploadDir)) {
+                if (!mkdir($uploadDir, 0755, true)) {
+                    throw new Exception("Impossible de créer le dossier d'upload.");
+                }
             }
+
+            // Créer .htaccess de sécurité pour bloquer l'exécution PHP dans /uploads
+            $htaccessPath = $uploadDir . '.htaccess';
+            if (!file_exists($htaccessPath)) {
+                file_put_contents(
+                    $htaccessPath,
+                    "php_flag engine off\nAddType application/octet-stream .php .php3 .php4 .php5 .phtml .phar"
+                );
+            }
+
+            // Extension dérivée depuis le MIME réel (pas le nom du fichier)
+            $extension  = $mimeToExt[$mimeType];
+            $uniqueName = 'logo_' . uniqid('', true) . '_' . time() . '.' . $extension;
+            $fullPath   = $uploadDir . $uniqueName;
+            $logoPath   = 'uploads/' . $uniqueName;
+
+            if (!move_uploaded_file($_FILES['logo']['tmp_name'], $fullPath)) {
+                throw new Exception("Erreur lors du déplacement du fichier uploadé.");
+            }
+
+            chmod($fullPath, 0644);
         }
 
-        $extension = strtolower(pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION));
-        $nom_fichier = uniqid('logo_', true) . '.' . $extension;
-        $chemin_final = $dossier_upload . $nom_fichier;
-
-        if (move_uploaded_file($_FILES['logo']['tmp_name'], $chemin_final)) {
-            $image_url = 'uploads/' . $nom_fichier;
-            redimensionnerImage($chemin_final, 800, 800);
-        } else {
-            reponseJSON(false, 'Erreur lors du téléchargement du logo');
-        }
+    } elseif (isset($_FILES['logo']) && $_FILES['logo']['error'] !== UPLOAD_ERR_NO_FILE) {
+        // Erreur PHP lors de l'upload
+        $uploadErrors = [
+            UPLOAD_ERR_INI_SIZE   => "Le fichier dépasse la limite autorisée par le serveur.",
+            UPLOAD_ERR_FORM_SIZE  => "Le fichier dépasse la limite du formulaire.",
+            UPLOAD_ERR_PARTIAL    => "Le fichier n'a été que partiellement téléchargé.",
+            UPLOAD_ERR_NO_TMP_DIR => "Dossier temporaire introuvable.",
+            UPLOAD_ERR_CANT_WRITE => "Impossible d'écrire le fichier sur le disque.",
+            UPLOAD_ERR_EXTENSION  => "Upload bloqué par une extension PHP.",
+        ];
+        $errors[] = $uploadErrors[$_FILES['logo']['error']] ?? "Erreur inconnue lors du téléchargement.";
     }
 
-    $utilisateur_id = $_SESSION['user_id'] ?? null;
-
-    if (!$utilisateur_id) {
-        reponseJSON(false, 'Utilisateur non identifié. Veuillez vous connecter.');
+    if (!empty($errors)) {
+        $response['errors'] = $errors;
+        echo json_encode($response);
+        exit;
     }
 
-    // 6. INSERTION DANS LA BASE DE DONNÉES
-    $stmt = $pdo->prepare('
-        INSERT INTO boutiques (utilisateur_id, nom, adresse, whatsapp, services, description, logo, date_creation)
-        VALUES (:utilisateur_id, :nom, :adresse, :whatsapp, :services, :description, :logo, :date_creation)
-    ');
+    // ─── Insertion en base dans une transaction ───────────────────────────────
+    $pdo->beginTransaction();
 
-    $resultat = $stmt->execute([
-        ':utilisateur_id' => $utilisateur_id,
-        ':nom' => $nom,
-        ':adresse' => $adresse,
-        ':whatsapp' => $whatsapp,
-        ':services' => $services,
-        ':description' => $description,
-        ':logo' => $image_url,
-        ':date_creation' => $date_creation
-    ]);
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO boutiques
+                (utilisateur_id, nom, adresse, whatsapp, services, description, logo, date_creation)
+            VALUES
+                (?, ?, ?, ?, ?, ?, ?, NOW())
+        ");
 
-    if ($resultat) {
-        $boutique_id = $pdo->lastInsertId();
-
-        // Mise à jour de la session
-        $_SESSION['boutique_id'] = $boutique_id;
-        $_SESSION['boutique_nom'] = $nom;
-        $_SESSION['has_boutique'] = true;
-
-        reponseJSON(true, 'Votre boutique a été enregistrée avec succès ! Redirection...', [
-            'boutique_id' => $boutique_id
+        $stmt->execute([
+            $user_id,       // utilisateur_id
+            $nom,           // nom
+            $adresse,       // adresse
+            $whatsapp,      // whatsapp (normalisé)
+            $services,      // services / lieu
+            $description,   // description
+            $logoPath       // logo (chemin relatif ou null)
         ]);
-    } else {
-        reponseJSON(false, 'Erreur lors de l\'enregistrement de la boutique');
+
+        $boutique_id = (int) $pdo->lastInsertId();
+        $pdo->commit();
+
+        // Invalider le token CSRF après usage réussi (one-time token)
+        unset($_SESSION['csrf_token']);
+
+        // Mettre à jour la session
+        $_SESSION['has_boutique'] = true;
+        $_SESSION['boutique_id']  = $boutique_id;
+
+        $response['success']     = true;
+        $response['message']     = 'Votre boutique a été créée avec succès !';
+        $response['boutique_id'] = $boutique_id;
+        $response['redirect']    = 'ajout_produits.php';
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+
+        // Supprimer le logo uploadé si l'insertion a échoué
+        if ($logoPath && file_exists(__DIR__ . '/' . $logoPath)) {
+            unlink(__DIR__ . '/' . $logoPath);
+        }
+
+        throw $e;
     }
 
 } catch (PDOException $e) {
-    error_log('Erreur PDO: ' . $e->getMessage());
-    reponseJSON(false, 'Erreur de base de données. Veuillez réessayer plus tard');
+    error_log("[boutique.php] Erreur PDO : " . $e->getMessage());
+    $response['message'] = "Erreur base de données. Veuillez réessayer.";
+
 } catch (Exception $e) {
-    error_log('Erreur: ' . $e->getMessage());
-    reponseJSON(false, 'Une erreur est survenue. Veuillez réessayer');
+    error_log("[boutique.php] Erreur : " . $e->getMessage());
+    $response['message'] = $e->getMessage();
 }
 
-// Fonction redimensionnerImage
-function redimensionnerImage($chemin, $largeur_max, $hauteur_max) {
-    list($largeur_orig, $hauteur_orig, $type) = getimagesize($chemin);
-    $ratio = min($largeur_max / $largeur_orig, $hauteur_max / $hauteur_orig);
-
-    if ($ratio < 1) {
-        $nouvelle_largeur = (int)($largeur_orig * $ratio);
-        $nouvelle_hauteur = (int)($hauteur_orig * $ratio);
-        $image_redim = imagecreatetruecolor($nouvelle_largeur, $nouvelle_hauteur);
-
-        switch ($type) {
-            case IMAGETYPE_JPEG:
-                $image_source = imagecreatefromjpeg($chemin);
-                break;
-            case IMAGETYPE_PNG:
-                $image_source = imagecreatefrompng($chemin);
-                imagealphablending($image_redim, false);
-                imagesavealpha($image_redim, true);
-                break;
-            case IMAGETYPE_GIF:
-                $image_source = imagecreatefromgif($chemin);
-                break;
-            default:
-                return false;
-        }
-
-        imagecopyresampled($image_redim, $image_source, 0, 0, 0, 0,
-            $nouvelle_largeur, $nouvelle_hauteur, $largeur_orig, $hauteur_orig);
-
-        switch ($type) {
-            case IMAGETYPE_JPEG:
-                imagejpeg($image_redim, $chemin, 85);
-                break;
-            case IMAGETYPE_PNG:
-                imagepng($image_redim, $chemin, 8);
-                break;
-            case IMAGETYPE_GIF:
-                imagegif($image_redim, $chemin);
-                break;
-        }
-
-        imagedestroy($image_source);
-        imagedestroy($image_redim);
-    }
-    return true;
-    error_log("SESSION token: " . ($_SESSION['csrf_token'] ?? 'VIDE'));
-error_log("POST token: " . ($_POST['csrf_token'] ?? 'VIDE'));
-}
+echo json_encode($response);
+exit;
 ?>

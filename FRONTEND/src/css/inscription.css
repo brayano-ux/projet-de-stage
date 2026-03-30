@@ -1,0 +1,351 @@
+ body {
+       /* background-image: url('https://static.vecteezy.com/system/resources/previews/000/964/116/non_2x/flat-design-login-screen-template-vector.jpg');
+            background-repeat: no-repeat; */
+      /* background: linear-gradient(135deg, #d0d1d6ff 0%, #ededeeff 100%); */
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      padding: 20px 0;
+    }
+    
+    .container-inscription {
+      position: relative;
+      left: 30%;
+      max-width: 500px;
+      margin: 0 ;
+    }
+    
+    .card-formulaire {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.98);
+      overflow: hidden;
+      animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .entete-carte {
+      background: linear-gradient(135deg, #667eea 0%, #667eea 100%);
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+    
+    .entete-carte h4 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .entete-carte p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+    
+    .card-body {
+      padding: 35px;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    
+    .champ-saisie {
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .champ-saisie:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    
+    .champ-saisie.is-valid {
+      border-color: #28a745;
+      padding-right: calc(1.5em + 0.75rem);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .champ-saisie.is-invalid {
+      border-color: #dc3545;
+      padding-right: calc(1.5em + 0.75rem);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .conteneur-mot-de-passe {
+      position: relative;
+    }
+    
+    .conteneur-mot-de-passe .champ-saisie {
+      padding-right: 45px;
+    }
+    
+    .bouton-afficher-mdp {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+      transition: color 0.3s;
+      z-index: 10;
+      font-size: 1.1rem;
+    }
+    
+    .bouton-afficher-mdp:hover {
+      color: #667eea;
+    }
+    
+    .barre-force {
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 10px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .niveau-force {
+      height: 100%;
+      border-radius: 10px;
+      transition: all 0.4s ease;
+      width: 0%;
+    }
+    
+    .force-faible { 
+      background: linear-gradient(90deg, #dc3545, #e63946);
+      box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+    }
+    .force-moyenne { 
+      background: linear-gradient(90deg, #fd7e14, #ffa500);
+      box-shadow: 0 0 10px rgba(253, 126, 20, 0.5);
+    }
+    .force-forte { 
+      background: linear-gradient(90deg, #28a745, #20c997);
+      box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+    }
+    
+    .texte-force {
+      font-size: 0.85rem;
+      margin-top: 5px;
+      font-weight: 500;
+      display: block;
+    }
+    
+    .btn-principal {
+      background: linear-gradient(135deg, #1339e4 0%, #1339e4 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+      color: white;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-principal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-principal:hover:not(:disabled)::before {
+      left: 100%;
+    }
+    
+    .btn-principal:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-principal:active:not(:disabled) {
+      transform: translateY(-1px);
+    }
+    
+    .btn-principal:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .section-connexion {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 2px solid #e9ecef;
+    }
+    
+    .section-connexion a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .section-connexion a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 50%;
+      background: #764ba2;
+      transition: all 0.3s;
+      transform: translateX(-50%);
+    }
+    
+    .section-connexion a:hover {
+      color: #764ba2;
+    }
+    
+    .section-connexion a:hover::after {
+      width: 100%;
+    }
+    
+    .alert {
+      border-radius: 12px;
+      border: none;
+      animation: fadeInDown 0.3s ease;
+      font-weight: 500;
+    }
+    
+    @keyframes fadeInDown {
+      from { 
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .etape-verification {
+      display: none;
+      text-align: center;
+      padding: 30px 0;
+    }
+    
+    .icone-succes {
+      color: #28a745;
+      font-size: 5rem;
+      animation: scaleIn 0.5s ease;
+    }
+    
+    @keyframes scaleIn {
+      0% { 
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% { 
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
+      }
+    }
+    
+    .indicateur-etapes {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .cercle-etape {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .cercle-etape.active {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .cercle-etape.terminee {
+      background: rgba(255, 255, 255, 0.9);
+      color: #28a745;
+      transform: scale(1);
+    }
+    
+    .cercle-etape.inactive {
+      background: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .ligne-etape {
+      width: 50px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .ligne-etape.terminee {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .invalid-feedback {
+      display: none;
+      font-size: 0.875rem;
+      color: #dc3545;
+      margin-top: 0.25rem;
+    }
+    
+    .champ-saisie.is-invalid ~ .invalid-feedback {
+      display: block;
+    }
+    
+    @media (max-width: 576px) {
+      .card-body {
+        padding: 25px;
+      }
+      
+      .entete-carte {
+        padding: 20px;
+      }
+      
+      .entete-carte h4 {
+        font-size: 1.5rem;
+      }
+    }
+    .divise{
+      display: flex;
+    }

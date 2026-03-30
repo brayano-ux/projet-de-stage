@@ -4,9 +4,8 @@ session_start();
 $message = '';
 $type = ''; 
 if(isset($_POST['submit'])){
-    $nom = $_POST['nom'];
+    $email = $_POST['email'] ??'';
     $password = $_POST['password'];
-
     try{
         $pdo = new PDO(
             'mysql:host=localhost;port=3307;dbname=projet_de_stage;charset=utf8mb4',
@@ -18,18 +17,18 @@ if(isset($_POST['submit'])){
             ]
         );
 
-        $stmt = $pdo->prepare("SELECT * FROM utilisateur WHERE nom = :nom");
-        $stmt->bindParam(':nom', $nom);
+        $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE email = :email");
+        $stmt->bindParam(':email', $email);
         $stmt->execute();
         $user = $stmt->fetch();
 
         
         if($user && password_verify($password, $user['mot_de_passe'])){
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_nom'] = $user['nom'];
+            $_SESSION['user_email'] = $user['email'];
             $message = "Connexion réussie !";
             $type = "succes";
-            header("location: dashbord.php");
+            header("location: dashboard.php");
             exit; 
         } else {
             $message = "Nom d'utilisateur ou mot de passe incorrect.";
@@ -108,10 +107,10 @@ if(isset($_POST['submit'])){
                                     <i class="fas fa-user text-secondary"></i>
                                 </span>
                                 <input 
-                                    type="text" 
+                                    type="email" 
                                     class="form-control border-start-0" 
                                     placeholder="Entrez votre username"
-                                    name="nom"
+                                    name="email"
                                 >
                             </div>
                         </div>

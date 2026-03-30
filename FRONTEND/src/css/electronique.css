@@ -1,0 +1,317 @@
+ :root {
+            --couleur-principale: #EC4899;
+            --couleur-secondaire: #F97316;
+            --couleur-verte: #10B981;
+            --couleur-grise-claire: #F3F4F6;
+            --couleur-grise-foncee: #374151;
+            --couleur-blanc: #FFFFFF;
+            --ombre-legere: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --ombre-forte: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FDF2F8 0%, #FFFFFF 50%, #FFF7ED 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .conteneur-principal {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .carte-formulaire {
+            background: var(--couleur-blanc);
+            border-radius: 2rem;
+            box-shadow: var(--ombre-forte);
+            overflow: hidden;
+        }
+
+        .en-tete-formulaire {
+            background: linear-gradient(to right,#4e3de6,#4c91ff);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--couleur-blanc);
+        }
+
+        .titre-principal {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .sous-titre {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .corps-formulaire {
+            padding: 3rem 2rem;
+        }
+
+        .section-formulaire {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-logo {
+            background: linear-gradient(to right, #74a0eb, #a1b5da);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 2px dashed #374151;
+            margin-bottom: 2rem;
+        }
+
+        .titre-section {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--couleur-grise-foncee);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .icone-section {
+            width: 24px;
+            height: 24px;
+            margin-right: 0.5rem;
+            color: var(--couleur-principale);
+        }
+
+        .conteneur-logo {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .zone-apercu-logo {
+            width: 120px;
+            height: 120px;
+            background: var(--couleur-blanc);
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #E5E7EB;
+            flex-shrink: 0;
+        }
+
+        .image-apercu {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+
+        .image-cachee {
+            display: none;
+        }
+
+        .placeholder-logo {
+            text-align: center;
+            color: #9CA3AF;
+        }
+
+        .conteneur-upload {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .zone-upload {
+            position: relative;
+            border: 2px dashed #4886eb;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            background: var(--couleur-blanc);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .zone-upload:hover {
+            border-color: var(--couleur-secondaire);
+            background-color: #6b728034;
+        }
+
+        .zone-upload.survol {
+            border-color: var(--couleur-secondaire);
+            background-color: #6B7280;
+        }
+
+        .input-fichier {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .groupe-champs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .champ-formulaire {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label-champ {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--couleur-grise-foncee);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-texte, .textarea-champ {
+            padding: 1rem 1.5rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-texte:focus, .textarea-champ:focus {
+            border-color: var(--couleur-principale);
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+
+        .textarea-champ {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .champ-whatsapp .input-texte:focus {
+            border-color: var(--couleur-verte);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .icone-whatsapp {
+            color: var(--couleur-verte);
+        }
+
+        .conteneur-bouton {
+            text-align: center;
+            padding-top: 2rem;
+        }
+
+        .bouton-soumettre {
+            background: linear-gradient(to right, #3671cf, #4888f0);
+            color: var(--couleur-blanc);
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 1.25rem 3rem;
+            border: none;
+            height: 70px;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            box-shadow: var(--ombre-forte);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+        i{
+padding: 10px;
+        }
+
+        .bouton-soumettre:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .bouton-soumettre:active {
+            transform: translateY(0);
+        }
+
+        .bouton-soumettre:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .texte-conditions {
+            font-size: 0.9rem;
+            color: #6B7280;
+            margin-top: 1rem;
+        }
+
+        .icone {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+        }
+
+        .rotation {
+            animation: tourner 1s linear infinite;
+        }
+
+        @keyframes tourner {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .conteneur-principal {
+                padding: 1rem;
+            }
+
+            .corps-formulaire {
+                padding: 2rem 1rem;
+            }
+
+            .conteneur-logo {
+                flex-direction: column;
+                text-align: center;
+            }
+            .bouton-soumettre{
+                width: 250px;
+                height: 55px;
+                padding: 5px;
+            }
+
+            .titre-principal {
+                font-size: 2rem;
+            }
+
+            .groupe-champs {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .message-succes {
+            background-color: #D1FAE5;
+            color: #065F46;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px
+             solid var(--couleur-verte);
+            margin-bottom: 1rem;
+        }
+
+        .message-erreur {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #EF4444;
+            margin-bottom: 1rem;
+        }

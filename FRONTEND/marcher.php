@@ -1,1313 +1,898 @@
 <?php
 session_start();
-$pdo = new PDO(
-    'mysql:host=localhost;port=3307;dbname=projet_de_stage;charset=utf8mb4',
-    'root',
-    '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-);
-
-$stmt = $pdo->query("SELECT * FROM produits ORDER BY id DESC");
-$produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $pdo = new PDO(
+        'mysql:host=localhost;port=3307;dbname=projet_de_stage;charset=utf8mb4',
+        'root', '',
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+    );
+    $produits = $pdo->query("SELECT * FROM produits ORDER BY id DESC")->fetchAll();
+} catch (Exception $e) {
+    $produits = [];
+}
+$total = count($produits);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Market</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="src/css/acceuil.css">
-    <link rel="stylesheet" href="src/css/marcher.css">
-    <style>
-        :root {
-            --primary-color: #2563eb;
-            --primary-dark: #1e40af;
-            --primary-light: #3b82f6;
-            --success-color: #10b981;
-            --success-dark: #059669;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f9fafb;
-            --border-color: #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-              .entete {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, 
-                Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            font-size: 25px;
-            font-weight: bold;
-            color: rgb(255, 84, 4);
-            position: relative; 
-            left: 2%;
-        }
- .titre {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            padding: 10px;
-            gap: 20px;
-            opacity: 1;
-            z-index: 999;
-            background-color: var();
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            position: fixed;
-            top: 0px;
-            width: 100%;
-            left: 0px;
-            transition: background-color 0.3s ease;
-        }
-
-        button {
-            border: none;
-            background: transparent;
-            font-size: 17px;
-            margin: 20px;
-            color: rgba(0, 0, 0, 0.699);
-            cursor: pointer;
-        }
-
-[theme="dark"] button{
-        color: rgba(255, 255, 255, 0.7);
-        }
-
-        .autre {
-            justify-content: space-around;
-            display: flex;
-            align-items: center;
-            position: relative;
-            left: -10%;
-        }
-
-        .categorie {
-            position: relative;
-            left: 20%;
-            display: flex;
-            align-items: center;
-        }
-        .menu-hamburger {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-            padding: 5px;
-        }
-        .ceux{
-            position: relative;left: 10%;
-        }
-
-        .menu-hamburger div {
-            width: 25px;
-            height: 3px;
-            background-color: rgb(255, 84, 4);
-            margin: 3px 0;
-            transition: 0.3s;
-        }
-
-        .menu-hamburger.ouvert div:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
-        }
-        .menu-hamburger.ouvert div:nth-child(2) {
-            opacity: 0;
-        }
-        .menu-hamburger.ouvert div:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
-        }
-
-        .mode {
-            background: transparent;
-            border: 2px solid rgb(255, 84, 4);
-            color: rgb(255, 84, 4);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            margin: 0 10px;
-        }
-
-        .mode:hover {
-            background: rgb(255, 84, 4);
-            color: white;
-            transform: scale(1.04);
-            transform: translateY(3px);
-        }
-
-        @media (min-width: 769px) {
-            .ceux {
-                display: flex;
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .entete {
-                position: relative;
-                left: 0%;
-                font-size: 16px;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .ceux {
-                display: none;
-                opacity: 0;
-                position: fixed;
-                top: 57px;
-                left: 0%;
-                width: 50%;
-                height: calc(50vh - 70px);
-                background-color: var(--header-bg);
-                flex-direction: column;
-                justify-content: flex-start;
-                padding-top: 50px;
-                z-index: 998;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-                transition: background-color 0.3s ease;
-            }
-            .entete{
-                position: relative;
-                left: -15%!important;
-                font-size: 18px!important;
-            }
-            .ceux.menu-ouvert {
-                display: flex !important;
-                opacity: 1 !important;
-            }
-            .ceux.menu-ouvert button {
-                width: 80%;
-                max-width: 250px;
-                padding: 10px;
-                border: none;
-                margin: 10px ;
-                font-size: 17px;
-                color: var(--text-color);
-                background-color: transparent;
-                border-radius: 10px;
-            }
-            .notification{
-                margin: 4px;
-                gap: 40px;
-            }
-            .tit{
-                font-size: 30px;
-                padding: 10px;
-            }
-            .text{
-                top: -30px;
-                width: 80%!important;
-                position: relative;
-                border-radius: 15px!important;
-                left: 10px !important;
-            }
-#commence{
-    font-size: 18px!important;
-    width: 80%!important;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Market — Marché Local</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bl:   #1A56F0;
+    --bl2:  #0D3ED4;
+    --bl3:  #E8EFFE;
+    --bl4:  #C7D6FC;
+    --vert: #0EBF7A;
+    --vert2:#D1FAF0;
+    --rouge:#F03B3B;
+    --txt:  #0F1729;
+    --txt2: #5A6585;
+    --txt3: #9BA4BE;
+    --bg:   #F5F7FF;
+    --card: #FFFFFF;
+    --brd:  #E4E9F7;
+    --r:    16px;
+    --r2:   24px;
 }
-.ligne{
-    position: relative;
-    left: -30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center
-;
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:'DM Sans',sans-serif;
+    background:var(--bg);
+    color:var(--txt);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
 }
-.h2{
-padding: 10px;
+
+/* ── NAV ─────────────────────────────────────────────── */
+nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--brd);
+    height:66px;
+    display:flex;align-items:center;
+    padding:0 2rem;
+    gap:1rem;
 }
-.tect{
-    height: 1000px;
+.nav-logo{
+    font-family:'Sora',sans-serif;
+    font-weight:800;font-size:1.25rem;
+    color:var(--bl);
+    display:flex;align-items:center;gap:8px;
+    flex-shrink:0;
+    margin-right:auto;
 }
-/* #span{
-    padding: 2px;
-} */
-
-.client{
-    position: relative;
-    top: -30px;
-    display: flex;
-    flex-wrap: wrap;
-    text-align: center;
-    padding: 30px;
-    
+.nav-logo span{
+    background:var(--bl);color:#fff;
+    border-radius:8px;width:32px;height:32px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:0.9rem;
 }
-            .ceux.menu-ouvert button:hover {
-                background-color: #ffe8e0;
-                color: rgb(255, 84, 4);
-            }
-                        .menu-hamburger {
-                display: flex;
-                font-size: 10px!important;
-                color:blue !important;
-            }
-                        .autre {
-                justify-content: space-between;
-                left: 0;
-                width: 100%;
-                padding: 0 20px;
-            }
-.entete{
-    position: relative;
-    left: -80px;
+.nav-links{display:flex;gap:4px;}
+.nav-links button{
+    background:none;border:none;
+    font-family:'DM Sans',sans-serif;
+    font-size:0.875rem;font-weight:500;
+    color:var(--txt2);
+    padding:8px 14px;border-radius:10px;
+    cursor:pointer;transition:all .2s;
 }
-            .categorie {
-                position: relative !important;
-                left:-100px!important;
-            }
-            .menu-hamburger{
-                position: relative;
-                left: -15px;
-                font-size: 5px!important;
-            }
-        }
-      
-    .text {
-        position: relative;
-        /* left: 40%; */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: linear-gradient(135deg, lavender, #ffe4b5);
-      color: rgb(255, 84, 4);
-      font-size: 1.2rem;
-      font-weight: bold;
-      width: 30%;
-      padding: 15px 25px;
-      border-radius: 30px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      animation: bouge 1.2s ease-in-out;
-      cursor: default;
-    }
-
-    .text i {
-      font-size: 1.5rem;
-      color: goldenrod;
-      animation: bounce 1.5s infinite;
-    }
-
-    @keyframes bouge {
-      from {opacity: 0; transform: translateY(-20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0);}
-      50% { transform: translateY(-5px);}
-    }
-
-    .milieu {
-      text-align: center;
-      background-color: #ffe4b5;
-      height: 800px;
-      background: var(--bg-color);
-      transition: background-color 0.3s ease;
-        background-image: url('c:\Users\lenovo\Pictures\file_000000005fa061f6a175377cd8c0ce3b.png');
-            background-size: cover;
-            background-position: center;
-    }
-
-    [theme="dark"] .milieu {
-        background: var(--bg-color);
-    }
-
-    h1{
-        font-size: 75px;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
-        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        font-weight: bold;
-        text-align: center;
-        color: var(--text-color);
-    }
-    #commence{
-        background-color: rgb(255, 84, 4);
-         position: relative;
-        left: 30%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-color: white;
-      font-size: 1.2rem;
-      font-weight: bold;
-      width: 25%;
-      height: 60px;
-      padding: 15px 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      animation: bouge 1.2s ease-in-out;
-      cursor: default;
-
-    }
-    #commence:hover{
-        transform: translateY(-4px);
-        transition: 1s ease-in-out;
-        transform: scale(1.1);
-    }
-    .ligne{
-        display: flex;
-        align-items: center;
-    }
-    #span{
-        position: relative;left: 30%;
-        font-size: 17px;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-         font-weight: bold;
-         color: var(--text-color);
-         text-decoration: none;
-    }
-
-        .createurs {
-            position: relative;
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            top: 80px;
-            padding: 60px 20px;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-        }
-
-        .createurs::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.3;
-        }
-
-        .createurs h1 {
-            position: relative;
-            font-size: clamp(28px, 5vw, 48px);
-            font-weight: 800;
-            color: white;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
-        }
-
-        .createurs p {
-            position: relative;
-            color: rgba(255, 255, 255, 0.95);
-            font-size: clamp(16px, 3vw, 20px);
-            margin-bottom: 32px;
-            line-height: 1.7;
-            font-weight: 400;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .input {
-            position: relative;
-            width: min(90%, 600px);
-            padding: 16px 24px 16px 52px;
-            font-size: 16px;
-            border-radius: var(--radius-xl);
-            border: 2px solid transparent;
-            background: white;
-            box-shadow: var(--shadow-xl);
-            transition: all 0.3s ease;
-            outline: none;
-            font-weight: 500;
-        }
-
-        .input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .createurs::after {
-            content: '\f002';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%) translateX(-270px);
-            bottom: 90px;
-            color: var(--text-secondary);
-            font-size: 18px;
-            pointer-events: none;
-        }
-
-        .input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), var(--shadow-xl);
-        }
-
-        .buttons {
-            position: relative;
-            top: 100px;
-            background: var(--bg-primary);
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            align-items: center;
-            padding: 24px 20px;
-            gap: 12px;
-            box-shadow: var(--shadow-sm);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .res, select {
-            padding: 12px 24px;
-            border-radius: var(--radius-lg);
-            border: 2px solid var(--border-color);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            background: var(--bg-primary);
-        }
-
-        .res {
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .res i {
-            font-size: 16px;
-        }
-
-        .res:hover {
-            border-color: var(--primary-color);
-            background: rgba(37, 99, 235, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .res.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        select {
-            color: var(--text-primary);
-            min-width: 160px;
-            font-family: inherit;
-            background: var(--bg-primary);
-            cursor: pointer;
-        }
-
-        select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        /* PANIER FLOTTANT */
-        .plan {
-            position: fixed;
-            bottom: 40px;
-            right: 24px;
-            z-index: 999;
-        }
-
-        .panier {
-            position: relative;
-            width: 64px;
-            height: 64px;
-            border: none;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: var(--shadow-xl);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .panier::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background: var(--primary-light);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .panier:hover::before {
-            opacity: 1;
-        }
-
-        .panier:hover {
-            transform: scale(1.1) translateY(-4px);
-            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.4);
-        }
-
-        .panier:active {
-            transform: scale(1.05) translateY(-2px);
-        }
-
-        .panier i {
-            position: relative;
-            z-index: 1;
-        }
-
-        .badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: var(--danger-color);
-            color: white;
-            font-size: 12px;
-            font-weight: 700;
-            border-radius: 50%;
-            min-width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--bg-secondary);
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .badge:not(:empty) {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .boutique {
-            position: relative;
-            top: 120px;
-            padding: 32px;
-            background: transparent;
-            margin: 0 auto;
-            max-width: 1400px;
-        }
-
-        .boutique > span {
-            font-weight: 700;
-            font-size: 20px;
-            color: var(--text-primary);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .boutique > p {
-            color: var(--warning-color);
-            font-weight: 600;
-            margin-bottom: 32px;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* GRILLE PRODUITS */
-        .businesses-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-        }
-
-        .business-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-        }
-
-        .business-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-            border-color: var(--primary-color);
-        }
-
-        .business-image {
-            width: 100%;
-            height: 220px;
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .business-image::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.3) 100%);
-        }
-
-        .business-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .business-card:hover .business-image img {
-            transform: scale(1.05);
-        }
-
-        .business-info {
-            padding: 24px;
-        }
-
-        .business-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            line-height: 1.3;
-        }
-
-        .coeur {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 4px;
-        }
-
-        .coeur:hover {
-            color: var(--danger-color);
-            transform: scale(1.2);
-        }
-
-        .coeur.red {
-            color: var(--danger-color);
-        }
-
-        .business-prix {
-            color: var(--success-color);
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-        }
-
-        .business-prix::before {
-            content: 'XAF';
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .business-category {
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 12px;
-            background: var(--bg-secondary);
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: var(--radius-sm);
-        }
-
-        .business-location {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .business-location i {
-            color: var(--primary-color);
-        }
-
-        .business-rating {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .stars {
-            color: #fbbf24;
-            font-size: 16px;
-        }
-
-        .avis {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* ACTIONS */
-        .business-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: none;
-            letter-spacing: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-            grid-column: 1 / -1;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-primary);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .partage {
-            background: var(--success-color);
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .partage:hover {
-            background: var(--success-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .partage i {
-            font-size: 16px;
-        }
-
-        /* MINI PANIER */
-        #mini-panier {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            width: 400px;
-            max-width: 90vw;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transform: translateX(100%);
-            opacity: 0;
-            transition: all 0.4s ease;
-            display: none;
-            max-height: 80vh;
-            overflow: hidden;
-        }
-
-        #mini-panier.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        .panier-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: #3498db;
-            color: white;
-            border-radius: 10px 10px 0 0;
-        }
-
-        .panier-header h3 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        #liste-produits {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .panier-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .item-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .item-name {
-            font-weight: 600;
-            color: #333;
-            font-size: 16px;
-        }
-.enbas{
-    display: flex;
- align-items: center;
- justify-content: space-between;
+.nav-links button:hover,.nav-links button.active{
+    background:var(--bl3);color:var(--bl);
 }
-        .item-prix {
-            font-size: 14px;
-            color: #27ae60;
-        }
+.nav-actions{display:flex;align-items:center;gap:8px;}
+.nav-icon-btn{
+    width:38px;height:38px;border-radius:10px;
+    background:none;border:1.5px solid var(--brd);
+    color:var(--txt2);font-size:0.9rem;
+    cursor:pointer;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+}
+.nav-icon-btn:hover{background:var(--bl3);border-color:var(--bl4);color:var(--bl);}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.hamburger div{width:22px;height:2px;background:var(--txt);border-radius:2px;transition:all .3s;}
 
-        #notification-container, #alert-container {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+/* ── HERO ────────────────────────────────────────────── */
+.hero{
+    margin-top:66px;
+    background:linear-gradient(135deg,#1A56F0 0%,#0D3ED4 40%,#1565E8 70%,#2979FF 100%);
+    padding:5rem 2rem 7rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+}
+/* Motif grille */
+.hero::before{
+    content:'';position:absolute;inset:0;
+    background-image:
+        linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);
+    background-size:40px 40px;
+}
+/* Cercles décoratifs */
+.hero-orb{
+    position:absolute;border-radius:50%;
+    background:rgba(255,255,255,.08);
+    pointer-events:none;
+}
+.hero-orb.a{width:400px;height:400px;top:-150px;right:-100px;}
+.hero-orb.b{width:250px;height:250px;bottom:-80px;left:5%;}
+.hero-orb.c{width:120px;height:120px;top:30%;left:8%;}
 
-        #alert-container {
-            left: 50%;
-            right: auto;
-            transform: translateX(-50%);
-        }
+.hero-inner{position:relative;z-index:1;max-width:700px;margin:0 auto;}
 
-        .alert-swing, .order-notification {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 4px solid var(--warning-color);
-            animation: slideInRight 0.4s ease;
-        }
+.hero-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:100px;
+    padding:6px 16px;
+    font-size:.78rem;font-weight:600;
+    color:rgba(255,255,255,.9);
+    letter-spacing:.08em;text-transform:uppercase;
+    margin-bottom:1.5rem;
+}
+.hero-badge i{color:#FFD700;}
 
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+.hero h1{
+    font-family:'Sora',sans-serif;
+    font-size:clamp(2rem,5vw,3.2rem);
+    font-weight:800;
+    color:#fff;
+    line-height:1.15;
+    letter-spacing:-.02em;
+    margin-bottom:1rem;
+}
+.hero h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg,#FFD700,#FFA726);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+}
 
-        .alert-swing i, .order-notification i {
-            color: var(--warning-color);
-            font-size: 20px;
-        }
+.hero p{
+    color:rgba(255,255,255,.82);
+    font-size:1.05rem;font-weight:300;
+    line-height:1.7;margin-bottom:2.5rem;
+}
 
-        @media (max-width: 1024px) {
-            .businesses-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 20px;
-            }
-        }
+.search-wrap{
+    position:relative;
+    max-width:580px;margin:0 auto;
+}
+.search-wrap i{
+    position:absolute;left:20px;top:50%;transform:translateY(-50%);
+    color:var(--txt3);font-size:1rem;pointer-events:none;
+}
+.search-input{
+    width:100%;
+    padding:1rem 1.25rem 1rem 3rem;
+    border-radius:100px;
+    border:none;
+    font-family:'DM Sans',sans-serif;
+    font-size:.95rem;font-weight:500;
+    background:#fff;
+    box-shadow:0 8px 32px rgba(0,0,0,.18);
+    outline:none;
+    color:var(--txt);
+    transition:box-shadow .2s;
+}
+.search-input:focus{box-shadow:0 8px 40px rgba(0,0,0,.25);}
+.search-input::placeholder{color:var(--txt3);}
 
-        @media (max-width: 768px) {
-            .createurs {
-                top: 60px;
-                padding: 40px 20px;
-            }
+/* Vague en bas du hero */
+.hero-wave{
+    position:absolute;bottom:-1px;left:0;right:0;
+    line-height:0;
+}
+.hero-wave svg{display:block;width:100%;}
 
-            .createurs::after {
-                display: none;
-            }
+/* ── FILTRES ─────────────────────────────────────────── */
+.filtres{
+    background:#fff;
+    border-bottom:1px solid var(--brd);
+    position:sticky;top:66px;z-index:100;
+    padding:.75rem 2rem;
+    display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+}
+.filtre-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 16px;
+    border-radius:100px;
+    border:1.5px solid var(--brd);
+    background:#fff;
+    font-family:'DM Sans',sans-serif;
+    font-size:.82rem;font-weight:600;
+    color:var(--txt2);
+    cursor:pointer;transition:all .2s;
+    white-space:nowrap;
+}
+.filtre-btn:hover{border-color:var(--bl4);background:var(--bl3);color:var(--bl);}
+.filtre-btn.actif{
+    background:var(--bl);color:#fff;
+    border-color:var(--bl);
+    box-shadow:0 4px 14px rgba(26,86,240,.3);
+}
+.filtre-sep{flex:1;}
+.filtre-select{
+    padding:8px 16px;
+    border-radius:100px;
+    border:1.5px solid var(--brd);
+    font-family:'DM Sans',sans-serif;
+    font-size:.82rem;font-weight:500;
+    color:var(--txt2);
+    background:#fff;
+    cursor:pointer;outline:none;
+    transition:border-color .2s;
+}
+.filtre-select:focus{border-color:var(--bl);}
 
-            .buttons {
-                display: flex!important;
-            }
-            .notification{
-                position:relative ;
-                left: 90px;
-            }
+/* ── CONTENU PRINCIPAL ───────────────────────────────── */
+.main{
+    max-width:1360px;margin:0 auto;
+    padding:2.5rem 2rem 5rem;
+}
+.main-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:1.75rem;flex-wrap:wrap;gap:.75rem;
+}
+.main-titre{
+    font-family:'Sora',sans-serif;
+    font-size:1.4rem;font-weight:700;
+    color:var(--txt);
+}
+.main-titre span{color:var(--bl);}
+.main-sous{
+    display:flex;align-items:center;gap:6px;
+    font-size:.82rem;font-weight:600;
+    color:var(--vert);
+    background:var(--vert2);
+    padding:5px 12px;border-radius:100px;
+}
 
-            .boutique {
-                top: 100px;
-                padding: 20px;
-            }
+/* ── GRILLE PRODUITS ─────────────────────────────────── */
+.grille{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:1.5rem;
+}
 
-            .businesses-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
+/* ── CARTE PRODUIT ───────────────────────────────────── */
+.carte{
+    background:var(--card);
+    border-radius:var(--r2);
+    border:1px solid var(--brd);
+    overflow:hidden;
+    transition:all .3s cubic-bezier(.4,0,.2,1);
+    animation:entree .5s ease both;
+    box-shadow:0 2px 12px rgba(26,86,240,.06);
+    display:flex;flex-direction:column;
+}
+@keyframes entree{
+    from{opacity:0;transform:translateY(24px);}
+    to{opacity:1;transform:translateY(0);}
+}
+.carte:nth-child(2){animation-delay:.07s;}
+.carte:nth-child(3){animation-delay:.14s;}
+.carte:nth-child(4){animation-delay:.21s;}
+.carte:nth-child(5){animation-delay:.28s;}
+.carte:nth-child(6){animation-delay:.35s;}
 
-            .plan {
-                bottom: 24px;
-                right: 16px;
-            }
-            .entete{
-                padding: 0 0 0 40px;
-                position: relative !important;
-            }
-            .categorie{
-                position: relative !important;
-                justify-content: flex-end !important;
-            }
-            .business-nam{
-                display: flex;
-                justify-content: space-between;
+.carte:hover{
+    transform:translateY(-6px);
+    box-shadow:0 16px 48px rgba(26,86,240,.14);
+    border-color:var(--bl4);
+}
 
+.carte-img{
+    position:relative;height:210px;overflow:hidden;
+    background:linear-gradient(135deg,#e8effe,#d0dcfd);
+}
+.carte-img img{
+    width:100%;height:100%;object-fit:cover;
+    transition:transform .4s ease;
+}
+.carte:hover .carte-img img{transform:scale(1.06);}
 
-            }
+/* Overlay dégradé sur image */
+.carte-img::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg,transparent 50%,rgba(10,20,60,.35) 100%);
+}
 
-            .panier {
-                width: 56px;
-                height: 56px;
-                font-size: 20px;
-            }
+/* Badge favori */
+.btn-coeur{
+    position:absolute;top:12px;right:12px;z-index:2;
+    width:36px;height:36px;border-radius:50%;
+    background:rgba(255,255,255,.9);
+    border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+    transition:all .25s;
+    backdrop-filter:blur(4px);
+}
+.btn-coeur:hover{background:#fff;transform:scale(1.15);}
+.btn-coeur.actif{color:var(--rouge);}
 
-            #mini-panier {
-                width: calc(100vw - 32px);
-                right: 16px;
-            }
+/* Badge prix flottant */
+.badge-prix{
+    position:absolute;bottom:12px;left:12px;z-index:2;
+    background:rgba(255,255,255,.95);
+    border-radius:100px;
+    padding:4px 12px;
+    font-family:'Sora',sans-serif;
+    font-size:.82rem;font-weight:700;
+    color:var(--vert);
+    backdrop-filter:blur(4px);
+}
+.badge-prix::before{content:'XAF ';font-size:.7rem;font-weight:500;color:var(--txt2);}
 
-            .business-actions {
-                grid-template-columns: 1fr;
-            }
+.carte-body{padding:1.25rem;flex:1;display:flex;flex-direction:column;gap:.6rem;}
 
-            .btn-primary {
-                grid-column: 1;
-            }
-            .enbas{
-                display: flex;
-                flex-wrap: wrap
-            }
-        }
+.carte-nom{
+    font-family:'Sora',sans-serif;
+    font-size:1.05rem;font-weight:700;
+    color:var(--txt);
+    line-height:1.3;
+}
 
-        @media (max-width: 480px) {
-            .res {
-                width: 100%;
-                justify-content: center;
-            }
+.carte-desc{
+    font-size:.82rem;color:var(--txt2);
+    line-height:1.5;
+    display:-webkit-box;-webkit-line-clamp:2;
+    -webkit-box-orient:vertical;overflow:hidden;
+    flex:1;
+}
 
-            select {
-                width: 100%;
-            }
+.carte-lieu{
+    display:flex;align-items:center;gap:6px;
+    font-size:.8rem;font-weight:500;color:var(--txt2);
+}
+.carte-lieu i{color:var(--bl);font-size:.75rem;}
 
-            .boutique {
-                padding: 16px;
-            }
-        }
+/* Séparateur */
+.carte-sep{height:1px;background:var(--brd);margin:.25rem 0;}
 
-        .entete {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
+.carte-actions{display:flex;gap:.5rem;}
 
-        #liste-produits::-webkit-scrollbar {
-            width: 6px;
-        }
+.btn-commander{
+    flex:1;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    background:var(--bl);color:#fff;
+    border:none;border-radius:12px;
+    padding:.75rem 1rem;
+    font-family:'DM Sans',sans-serif;
+    font-size:.85rem;font-weight:700;
+    cursor:pointer;transition:all .2s;
+    letter-spacing:.01em;
+}
+.btn-commander:hover{
+    background:var(--bl2);
+    box-shadow:0 6px 20px rgba(26,86,240,.35);
+    transform:translateY(-1px);
+}
+a{
+    text-decoration: none;
+}
+.btn-voir{
+    outline:none;
+    width:40px;height:40px;
+    border-radius:12px;
+    border:1.5px solid var(--brd);
+    background:#fff;
+    color:var(--txt2);
+    font-size:.85rem;
+    cursor:pointer;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+}
+.btn-voir:hover{border-color:var(--bl4);background:var(--bl3);color:var(--bl);}
+.btn-partage{
+    width:40px;height:40px;
+    border-radius:12px;
+    border:none;
+    background:var(--vert2);
+    color:var(--vert);
+    font-size:.85rem;
+    cursor:pointer;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+}
+.btn-partage:hover{background:var(--vert);color:#fff;transform:translateY(-1px);}
 
-        #liste-produits::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
+/* ── ÉTAT VIDE ────────────────────────────────────────── */
+.vide{
+    grid-column:1/-1;
+    text-align:center;padding:5rem 2rem;
+    color:var(--txt3);
+}
+.vide i{font-size:3rem;margin-bottom:1rem;display:block;color:var(--bl4);}
+.vide p{font-size:1.05rem;font-weight:500;}
 
-        #liste-produits::-webkit-scrollbar-thumb {
-            background: var(--text-secondary);
-            border-radius: 3px;
-        }
+/* ── PANIER FLOTTANT ─────────────────────────────────── */
+.panier-btn{
+    position:fixed;bottom:2rem;right:2rem;z-index:300;
+    width:60px;height:60px;border-radius:50%;
+    background:var(--bl);color:#fff;
+    border:none;font-size:1.3rem;
+    cursor:pointer;
+    box-shadow:0 8px 28px rgba(26,86,240,.4);
+    transition:all .3s cubic-bezier(.4,0,.2,1);
+    display:flex;align-items:center;justify-content:center;
+}
+.panier-btn:hover{transform:scale(1.1) translateY(-3px);box-shadow:0 12px 36px rgba(26,86,240,.5);}
+.panier-count{
+    position:absolute;top:-4px;right:-4px;
+    background:var(--rouge);color:#fff;
+    font-size:.7rem;font-weight:700;
+    border-radius:50%;min-width:20px;height:20px;
+    display:flex;align-items:center;justify-content:center;
+    border:2.5px solid var(--bg);
+    opacity:0;transform:scale(0);
+    transition:all .3s cubic-bezier(.68,-.55,.265,1.55);
+}
+.panier-count.visible{opacity:1;transform:scale(1);}
 
-        #liste-produits::-webkit-scrollbar-thumb:hover {
-            background: var(--text-primary);
-        }
+/* ── TOAST ───────────────────────────────────────────── */
+#toasts{
+    position:fixed;top:80px;right:1.5rem;z-index:1000;
+    display:flex;flex-direction:column;gap:.6rem;
+}
+.toast{
+    background:#fff;
+    border:1px solid var(--brd);
+    border-left:4px solid var(--bl);
+    border-radius:var(--r);
+    padding:.85rem 1.1rem;
+    font-size:.85rem;font-weight:600;
+    color:var(--txt);
+    box-shadow:0 8px 24px rgba(0,0,0,.1);
+    display:flex;align-items:center;gap:10px;
+    animation:toast-in .35s ease;
+    max-width:320px;
+}
+@keyframes toast-in{
+    from{opacity:0;transform:translateX(60px);}
+    to{opacity:1;transform:translateX(0);}
+}
+.toast.out{animation:toast-out .3s ease forwards;}
+@keyframes toast-out{
+    to{opacity:0;transform:translateX(60px);}
+}
+.toast i{color:var(--vert);font-size:1rem;flex-shrink:0;}
 
-        /* ÉTATS DE CHARGEMENT */
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-            100% {
-                background-position: 1000px 0;
-            }
-        }
-
-        .loading {
-            animation: shimmer 2s infinite;
-            background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
-            background-size: 1000px 100%;
-        }
-
-        /* FOCUS VISIBLE POUR ACCESSIBILITÉ */
-        *:focus-visible {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        button:focus-visible {
-            outline-offset: 4px;
-        }
-    </style>
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media(max-width:900px){
+    .nav-links{display:none;}
+    .hamburger{display:flex;}
+    .grille{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+}
+@media(max-width:600px){
+    .hero{padding:4rem 1.25rem 6rem;}
+    .filtres{padding:.6rem 1rem;}
+    .main{padding:1.75rem 1rem 4rem;}
+    .grille{grid-template-columns:1fr;}
+    .filtre-sep{display:none;}
+}
+</style>
 </head>
 <body>
-    <header>
-        <div class="titre">
-            <div class="autre">
-                <div class="menu-hamburger" onclick="toggleMenu()">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-                <blockquote class="entete">
-                    <i class="fas fa-envelope"></i> 
-                    <span data-lang-en="Creator Market">Creator market</span>
-                </blockquote>
-                <div class="ceux" id="ceux">
-                    <button id="acceuil" class="acceuil">
-                        <i class="fas fa-envelope"></i> 
-                        <span data-lang-en="Home">Acceuil</span>
-                    </button>
-                    <button class="marcher">
-                        <i class="fas fa-search"></i> 
-                        <span data-lang-en="Market Place">Market Place</span>
-                    </button>
-                    <button onclick="window.location.href='templates.html'" class="marcher">
-                        <i class="fas fa-crown"></i> 
-                        <span data-lang-en="Create">Créer</span>
-                    </button>
-                    <button class="marcher">
-                        <i class="fas fa-user"></i> 
-                        <span data-lang-en="Dashboard">Dashboard</span>
-                    </button>
-                </div>
 
-                <div id="categorie" class="categorie">
-                    <button id="notification" class="notification">
-                        <i class="fas fa-bell"></i>
+<!-- NAV -->
+<nav>
+    <div class="nav-logo">
+        <span><i class="fas fa-store"></i></span>
+        Creator Market
+    </div>
+    <div class="nav-links">
+        <button onclick="window.location.href='acceuil.php'"><i class="fas fa-home"></i> Accueil</button>
+        <button class="active"><i class="fas fa-th"></i> Marché</button>
+        <button onclick="location.href='templates.html'"><i class="fas fa-crown"></i> Créer</button>
+        <button><i class="fas fa-user"></i> Dashboard</button>
+    </div>
+    <div class="nav-actions">
+        <button class="nav-icon-btn" title="Notifications"><i class="fas fa-bell"></i></button>
+        <button class="nav-icon-btn" title="Langue"><i class="fas fa-globe"></i></button>
+        <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+            <div></div><div></div><div></div>
+        </button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-orb a"></div>
+    <div class="hero-orb b"></div>
+    <div class="hero-orb c"></div>
+    <div class="hero-inner">
+        <div class="hero-badge"><i class="fas fa-star"></i> Marché local camerounais</div>
+        <h1>Découvrez les <em>créateurs</em><br>de votre quartier</h1>
+        <p>Plus de <?= $total ?: '7' ?> articles locaux vous attendent.<br>Commandez directement via WhatsApp.</p>
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="search" class="search-input" id="search-input"
+                placeholder="Recherchez un article, une boutique, une ville…">
+        </div>
+    </div>
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,10 1440,40 L1440,60 L0,60 Z" fill="#F5F7FF"/>
+        </svg>
+    </div>
+</section>
+
+<!-- FILTRES -->
+<div class="filtres" id="filtres">
+    <button class="filtre-btn actif" data-cat="tous"><i class="fas fa-th-large"></i> Tous</button>
+    <button class="filtre-btn" data-cat="restaurant"><i class="fas fa-utensils"></i> Restaurant</button>
+    <button class="filtre-btn" data-cat="beaute"><i class="fas fa-spa"></i> Beauté</button>
+    <button class="filtre-btn" data-cat="electronique"><i class="fas fa-tv"></i> Électronique</button>
+    <button class="filtre-btn" data-cat="mode"><i class="fas fa-tshirt"></i> Mode</button>
+    <div class="filtre-sep"></div>
+    <select class="filtre-select" id="city-select">
+        <option value="">Toutes les villes</option>
+        <option value="yaounde">Yaoundé</option>
+        <option value="douala">Douala</option>
+        <option value="bafoussam">Bafoussam</option>
+        <option value="garoua">Garoua</option>
+        <option value="kribi">Kribi</option>
+    </select>
+    <select class="filtre-select" id="sort-select">
+        <option value="recent">Plus récents</option>
+        <option value="prix-asc">Prix croissant</option>
+        <option value="prix-desc">Prix décroissant</option>
+    </select>
+</div>
+
+<!-- CONTENU -->
+<main class="main">
+    <div class="main-header">
+        <div class="main-titre">
+            <span id="count-label"><?= $total ?></span> article<?= $total > 1 ? 's' : '' ?> disponible<?= $total > 1 ? 's' : '' ?>
+        </div>
+        <div class="main-sous"><i class="fas fa-fire"></i> Articles en vedette</div>
+    </div>
+
+    <div class="grille" id="grille">
+        <?php if(empty($produits)): ?>
+        <div class="vide">
+            <i class="fas fa-box-open"></i>
+            <p>Aucun produit disponible pour le moment.</p>
+        </div>
+        <?php else: ?>
+        <?php foreach($produits as $p): ?>
+            <?php $p['boutique_id'] ?? 'VIDE' ?>
+            
+        <div class="carte"
+        data-id="<?= $p['id'] ?>"
+    data-boutique="<?= $p['boutique_id'] ?>"
+            data-nom="<?= htmlspecialchars($p['nom']) ?>"
+            data-desc="<?= htmlspecialchars($p['description']) ?>"
+            data-lieu="<?= htmlspecialchars($p['localisation']) ?>"
+            data-prix="<?= htmlspecialchars($p['prix']) ?>"
+            data-wa="<?= htmlspecialchars($p['whatsapp']) ?>">
+            <div class="carte-img">
+                <img src="<?= htmlspecialchars($p['image']) ?>"
+                     alt="<?= htmlspecialchars($p['nom']) ?>"
+                     loading="lazy"
+                     onerror="this.src='https://via.placeholder.com/400x210/E8EFFE/1A56F0?text=Image'">
+<button class="btn-coeur" data-id="<?= $p['boutique_id'] ?>" title="Ajouter aux favoris">♡</button>                <div class="badge-prix"><?= number_format($p['prix'],0,',',' ') ?></div>
+            </div>
+            <div class="carte-body">
+                <div class="carte-nom"><?= htmlspecialchars($p['nom']) ?></div>
+                <div class="carte-desc"><?= htmlspecialchars($p['description']) ?></div>
+                <div class="carte-lieu">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <?= htmlspecialchars($p['localisation']) ?>
+                </div>
+                <div class="carte-sep"></div>
+                <div class="carte-actions">
+                    <button class="btn-commander">
+                        <i class="fab fa-whatsapp"></i> Commander
                     </button>
-                    <button id="langue" class="notification">
-                        <i class="fas fa-globe"></i> 
-                        <span data-lang-en="EN">FR</span>
-                    </button>
+    <a href="index.php?boutique_id=<?= $p['boutique_id'] ?>" class="btn-voir">
+        <i class="fas fa-eye"></i>
+        <!-- <span>Voir ma boutique</span> -->
+    </a>
+                    <!-- <button class="btn-voir" title="Voir le détail"><i class="fas fa-eye"></i></button> -->
+                    <button class="btn-partage" title="Partager"><i class="fas fa-share-alt"></i></button>
                 </div>
             </div>
         </div>
-    </header>
-
-    <div class="createurs">
-        <h1>Découvrez les créateurs locaux</h1>
-        <p>Plus de 7 businesses locaux vous attendent. Commandez, réservez <br> et soutenez l'économie locale!</p>
-        <input type="search" class="input" placeholder="Recherchez une boutique, un salon de beauté, un restaurant...">
+        <?php endforeach; ?>
+        <?php endif; ?>
     </div>
+</main>
 
-    <div class="buttons">
-        <button class="res active">
-            <i class="fas fa-th-large"></i> Tous
-        </button>
-        <button class="res">
-            <i class="fas fa-utensils"></i> Restaurant
-        </button>
-        <button class="res">
-            <i class="fas fa-spa"></i> Beauté
-        </button>
-        <button class="res">
-            <i class="fas fa-tv"></i> Électroniques
-        </button>
-        <button class="res">
-            <i class="fas fa-tshirt"></i> Mode
-        </button>
-        
-        <select name="city" id="citySelect">
-            <option value="toutes les villes">Toutes Les villes</option>
-            <option value="yaounde">Yaoundé</option>
-            <option value="douala">Douala</option>
-            <option value="bafoussam">Bafoussam</option>
-            <option value="melong">Melong</option>
-            <option value="garoua">Garoua</option>
-            <option value="kribi">Kribi</option>
-        </select>
-        
-        <select name="sort" id="sortSelect">
-            <option value="tendances">Tendances</option>
-            <option value="mieux notes">Mieux notés</option>
-            <option value="plus recents">Plus récents</option>
-        </select>
-    </div>
+<!-- Panier flottant -->
+<button class="panier-btn" id="panier-btn" title="Panier">
+    <i class="fas fa-shopping-bag"></i>
+    <span class="panier-count" id="panier-count">0</span>
+</button>
 
-    <div class="boutique">
-        <span>7 Résultats</span>
-        <p>⭐ Businesses en vedette</p>
-        
-        <div class="businesses-grid" id="businesses-grid">
-            <?php foreach($produits as $produit): ?>
-            <div class="business-card">
-                <div class="business-image">
-                    <img src="<?= htmlspecialchars($produit['image']) ?>" 
-                         alt="<?= htmlspecialchars($produit['nom']) ?>">
+<!-- Zone toasts -->
+<div id="toasts"></div>
+<style>
+     #modal-commande {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        #modal-commande.visible { display: flex; }
+ 
+        .cmd-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 30, 0.55);
+            backdrop-filter: blur(5px);
+        }
+ 
+        .cmd-box {
+            position: relative;
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 460px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 32px 80px rgba(0,0,0,.22);
+            animation: cmdPop .32s cubic-bezier(.175,.885,.32,1.275);
+            font-family: 'Figtree', 'Inter', sans-serif;
+        }
+        @keyframes cmdPop {
+            from { transform: scale(.88) translateY(20px); opacity: 0; }
+            to   { transform: scale(1)   translateY(0);    opacity: 1; }
+        }
+ 
+        /* ── En-tête ── */
+        .cmd-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px 14px;
+            border-bottom: 1.5px solid #f0ede8;
+            gap: 12px;
+        }
+        .cmd-produit-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .cmd-produit-img {
+            width: 52px; height: 52px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px solid #e8e5df;
+            background: #f5f4f0;
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #ccc; font-size: 20px;
+        }
+        .cmd-produit-img img { width: 100%; height: 100%; object-fit: cover; }
+        .cmd-produit-nom {
+            font-weight: 700; font-size: .92rem;
+            color: #1a1a1a;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            max-width: 220px;
+        }
+        .cmd-produit-prix {
+            font-size: .78rem; color: #15803d;
+            font-weight: 700; margin-top: 2px;
+        }
+        .cmd-close {
+            background: #f5f4f0; border: none;
+            width: 34px; height: 34px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #888; font-size: 15px;
+            flex-shrink: 0; transition: all .15s;
+        }
+        .cmd-close:hover { background: #e8e5df; color: #1a1a1a; }
+ 
+        /* ── Corps ── */
+        .cmd-body { padding: 20px; }
+        .cmd-titre {
+            font-size: 1.1rem; font-weight: 800;
+            color: #1a1a1a; margin-bottom: 5px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .cmd-titre i { color: #25D366; }
+        .cmd-sous-titre { font-size: .8rem; color: #888; margin-bottom: 20px; line-height: 1.5; }
+ 
+        /* ── Champs ── */
+        .cmd-form { display: flex; flex-direction: column; gap: 0; }
+        .cmd-champ { margin-bottom: 14px; }
+        .cmd-champ label {
+            display: block;
+            font-size: .72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .7px;
+            color: #666; margin-bottom: 6px;
+        }
+        .req { color: #dc2626; }
+ 
+        .cmd-input-wrap {
+            display: flex; align-items: center; gap: 10px;
+            background: #faf9f7;
+            border: 1.5px solid #e0ddd7;
+            border-radius: 10px;
+            padding: 0 13px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .cmd-input-wrap:focus-within {
+            border-color: #25D366;
+            box-shadow: 0 0 0 3px rgba(37,211,102,.1);
+            background: #fff;
+        }
+        .cmd-input-wrap i { color: #aaa; font-size: 14px; flex-shrink: 0; }
+        .cmd-input-wrap input,
+        .cmd-input-wrap textarea {
+            flex: 1; border: none; outline: none;
+            background: transparent;
+            font-family: inherit; font-size: .9rem;
+            color: #1a1a1a; padding: 11px 0;
+        }
+        .cmd-input-wrap input::placeholder,
+        .cmd-input-wrap textarea::placeholder { color: #c5c1ba; }
+        .cmd-textarea-wrap { align-items: flex-start; padding-top: 10px; padding-bottom: 10px; }
+        .cmd-textarea-wrap i { margin-top: 2px; }
+        .cmd-textarea-wrap textarea { resize: none; line-height: 1.45; }
+ 
+        .cmd-champ-row { display: flex; gap: 12px; }
+ 
+        /* Total */
+        .cmd-total {
+            background: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800; font-size: 1rem;
+            color: #15803d;
+            height: 44px;
+            display: flex; align-items: center;
+            margin-top: 0;
+        }
+ 
+        /* Erreur */
+        .cmd-erreur {
+            background: #fef2f2;
+            border: 1.5px solid #fecaca;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: .82rem; color: #991b1b;
+            margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+ 
+        /* Bouton valider */
+        .cmd-btn-valider {
+            width: 100%;
+            padding: 14px;
+            background:blue;
+            color: #fff; border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: .95rem; font-weight: 800;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 9px;
+            transition: all .2s;
+            box-shadow: 0 4px 18px rgba(37,211,102,.35);
+            margin-bottom: 12px;
+        }
+        .cmd-btn-valider:hover { background: #1da851; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.45); }
+        .cmd-btn-valider:active { transform: translateY(0); }
+        .cmd-btn-valider.loading { opacity: .7; pointer-events: none; }
+        .cmd-btn-valider.loading i { animation: spin .7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+ 
+        .cmd-mention {
+            text-align: center; font-size: .72rem; color: #aaa;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .cmd-mention i { color: #ccc; }
+ 
+        /* Scrollbar de la modal */
+        .cmd-box::-webkit-scrollbar { width: 5px; }
+        .cmd-box::-webkit-scrollbar-thumb { background: #e0ddd7; border-radius: 3px; }
+ 
+        @media (max-width: 480px) {
+            .cmd-box { border-radius: 16px; }
+            .cmd-champ-row { flex-direction: column; gap: 14px; }
+        }
+    
+</style>
+<div id="modal-commande" aria-modal="true" role="dialog" aria-labelledby="modal-cmd-titre">
+        <div class="cmd-overlay" id="cmd-overlay"></div>
+        <div class="cmd-box">
+ 
+            <!-- En-tête -->
+            <div class="cmd-head">
+                <div class="cmd-produit-info">
+                    <div class="cmd-produit-img" id="cmd-img-wrap">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <div>
+                        <div class="cmd-produit-nom" id="cmd-nom-produit">—</div>
+                        <div class="cmd-produit-prix" id="cmd-prix-produit">—</div>
+                    </div>
                 </div>
-                <div class="business-info">
-                    <div class="business-name">
-                        <?= htmlspecialchars($produit['nom']) ?>
-                        <button class="coeur">❤</button>
-                    </div>
-                    <div class="business-prix">
-                        <?= htmlspecialchars($produit['prix']) ?>
-                    </div>
-                    <div class="business-category">
-                        <?= htmlspecialchars($produit['description']) ?>
-                    </div>
-                    <div class="business-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <?= htmlspecialchars($produit['localisation']) ?>
-                    </div>
-                    <div class="business-actions">
-                        <button class="action-btn btn-primary boutton-reponse"
-                            data-nom="<?= htmlspecialchars($produit['nom']) ?>"
-                            data-prix="<?= htmlspecialchars($produit['prix']) ?>"
-                            data-localisation="<?= htmlspecialchars($produit['localisation']) ?>"
-                            data-whatsapp="<?= htmlspecialchars($produit['whatsapp']) ?>">
-                            <i class="fas fa-shopping-cart"></i> Commander
-                        </button> 
-                        <div class="enbas">
-                        <button class="action-btn btn-secondary">
-                            <i class="fas fa-eye"></i> Voir
-                        </button>
-                        <button class="partage">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
+                <button class="cmd-close" id="cmd-close" aria-label="Fermer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+ 
+            <!-- Titre -->
+            <div class="cmd-body">
+                <h2 class="cmd-titre" id="modal-cmd-titre">
+                    <i class="fab fa-whatsapp"></i> Passer votre commande
+                </h2>
+                <p class="cmd-sous-titre">
+                    Remplissez vos informations — vous serez redirigé vers WhatsApp automatiquement.
+                </p>
+ 
+                <!-- Formulaire -->
+                <div class="cmd-form">
+ 
+                    <div class="cmd-champ">
+                        <label for="cmd-nom">Votre prenom <span class="req">*</span></label>
+                        <div class="cmd-input-wrap">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="nom_client" id="cmd-nom" placeholder="Ex : brayan" maxlength="100" autocomplete="name">
                         </div>
                     </div>
+ 
+                    <div class="cmd-champ">
+                        <label for="cmd-tel">Numéro de téléphone <span class="req">*</span></label>
+                        <div class="cmd-input-wrap">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="cmd-tel" name="telephone" placeholder="+237 657300644" maxlength="20" autocomplete="tel">
+                        </div>
+                    </div>
+ 
+                    <div class="cmd-champ cmd-champ-row">
+                        <div class="cmd-champ" style="flex:1;margin-bottom:0;">
+                            <label for="cmd-qte">Quantité <span class="req">*</span></label>
+                            <div class="cmd-input-wrap">
+                                <i class="fas fa-hashtag"></i>
+                                <input type="number" id="cmd-qte" name="quantite" value="1" min="1" max="99">
+                            </div>
+                        </div>
+                        <div class="cmd-champ" style="flex:2;margin-bottom:0;">
+                            <label>Total estimé</label>
+                            <div class="cmd-total"  id="cmd-total">—</div>
+                        </div>
+                    </div>
+ 
+                    <div class="cmd-champ">
+                        <label for="cmd-note">Note (optionnel)</label>
+                        <div class="cmd-input-wrap cmd-textarea-wrap">
+                            <i class="fas fa-comment-alt"></i>
+                            <textarea id="cmd-note" name="note" placeholder="Couleur, taille, adresse de livraison…" rows="2" maxlength="300"></textarea>
+                        </div>
+                    </div>
+ 
+                    <div class="cmd-erreur" id="cmd-erreur" style="display:none;"></div>
+ 
+                    <button class="cmd-btn-valider" id="cmd-btn-valider">
+                        <i class="fab fa-whatsapp"></i>
+                        Confirmer et ouvrir WhatsApp
+                    </button>
+ 
+                    <p class="cmd-mention">
+                        <i class="fas fa-lock"></i>
+                        Vos informations sont uniquement partagées avec le vendeur.
+                    </p>
                 </div>
             </div>
-            <?php endforeach; ?>
         </div>
     </div>
-
-    <script>
-        // Redirection WhatsApp
-        document.querySelectorAll('.boutton-reponse').forEach(button => {
-            button.addEventListener('click', function() {
-                let nom = this.getAttribute('data-nom');
-                let prix = this.getAttribute('data-prix');
-                let whatsap = this.getAttribute('data-whatsapp');
-                let localisation = this.getAttribute('data-localisation');
-                let message = `Bonjour madame/monsieur 👋
-
-Je voudrais commander le produit suivant :
-
-*Produit* : ${nom}
-*Prix* : ${prix}
-*Localisation* : ${localisation}
-
-Merci de me confirmer la disponibilité et les modalités de livraison.`;
-                
-                let whatsapp = `https://wa.me/${whatsap}?text=` + encodeURIComponent(message);
-                window.open(whatsapp, '_blank');
-            });
-        });
-
-        // Recherche
-        const recherche = document.querySelector('input[type="search"]');
-        if (recherche) {
-            recherche.addEventListener('input', (e) => {
-                const minscule = e.target.value.toLowerCase();
-                document.querySelectorAll('.business-card').forEach(card => {
-                    const businessName = card.querySelector('.business-name').textContent.toLowerCase();
-                    const businessCategory = card.querySelector('.business-category').textContent.toLowerCase();
-                    card.style.display = (businessName.includes(minscule) || businessCategory.includes(minscule) || minscule === '') ? 'block' : 'none';
-                });
-            });
-        }
-
-        // Gestion des catégories
-        document.querySelectorAll('.res').forEach(bouton => {
-            bouton.addEventListener('click', () => {
-                document.querySelectorAll('.res').forEach(btn => btn.classList.remove('active'));
-                bouton.classList.add('active');
-            });
-        });
-
-        // Menu hamburger
-        function toggleMenu() {
-            const hamburger = document.querySelector('.menu-hamburger');
-            const menu = document.querySelector('.ceux');
-            hamburger.classList.toggle('ouvert');
-            menu.classList.toggle('menu-ouvert');
-        }
-    </script>
+   
+<script src="src/js/marcher.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </body>
 </html>
