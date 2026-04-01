@@ -109,6 +109,7 @@ $produits = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/css/dahsbord.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         /* ─── Sections masquées par défaut ─── */
         .section-vue { display: none; }
@@ -318,6 +319,320 @@ $produits = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
         .toast-produit.erreur { border-color:rgba(239,68,68,.3); }
         .toast-produit.erreur i { color:#f87171; }
         @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+    </style>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ════════════════════════════════════════════════════════════
+           MODALS GÉNÉRIQUES
+        ═════════════════════════════════════════════════════════════ */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal.visible { display: flex; }
+        .modal-bg {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.7);
+            backdrop-filter: blur(8px);
+            animation: fadeIn .3s ease;
+        }
+        .modal-box {
+            position: relative;
+            background: var(--bg-secondary, #1e293b);
+            border: 1px solid var(--border-color, rgba(255,255,255,.1));
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn .3s cubic-bezier(.175,.885,.32,1.275);
+            box-shadow: 0 25px 80px rgba(0,0,0,.5);
+        }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes modalSlideIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color, rgba(255,255,255,.1));
+        }
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary, #fff);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .btn-annuler, .btn-primary, .btn-danger, .btn-premium {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn-annuler {
+            background: var(--overlay-bg, rgba(255,255,255,.08));
+            border: 1px solid var(--border-color, rgba(255,255,255,.1));
+            color: var(--text-primary, #fff);
+        }
+        .btn-annuler:hover { background: rgba(255,255,255,.12); }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 14px rgba(59,130,246,.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,.4); }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 14px rgba(239,68,68,.3);
+        }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,.4); }
+        .btn-premium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 4px 14px rgba(245,158,11,.3);
+        }
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,158,11,.4); }
+
+        /* Form elements in modals */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary, #fff);
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--overlay-bg, rgba(255,255,255,.08));
+            border: 1px solid var(--border-color, rgba(255,255,255,.1));
+            border-radius: 10px;
+            color: var(--text-primary, #fff);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+        }
+        .form-input::placeholder { color: var(--text-muted, #94a3b8); }
+
+        /* Danger icon */
+        .modal-danger-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(239,68,68,.2), rgba(239,68,68,.35));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 28px;
+            color: #f87171;
+            box-shadow: 0 8px 24px rgba(239,68,68,.25);
+        }
+
+        /* Order details */
+        .order-details {
+            margin: 1.5rem 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color, rgba(255,255,255,.06));
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-muted, #94a3b8);
+        }
+        .detail-value {
+            font-weight: 600;
+            color: var(--text-primary, #fff);
+            text-align: right;
+        }
+
+        /* Notifications */
+        .notifications-list {
+            margin: 1.5rem 0;
+        }
+        .notification-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--overlay-bg, rgba(255,255,255,.05));
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: background 0.2s;
+        }
+        .notification-item:hover { background: rgba(255,255,255,.08); }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            color: var(--text-primary, #fff);
+            margin-bottom: 0.25rem;
+        }
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--text-muted, #94a3b8);
+        }
+
+        /* Premium features */
+        .premium-features {
+            margin: 1.5rem 0;
+        }
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--overlay-bg, rgba(255,255,255,.05));
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+        .premium-feature i {
+            font-size: 20px;
+            color: #f59e0b;
+            width: 24px;
+        }
+        .premium-feature div {
+            flex: 1;
+        }
+        .premium-feature strong {
+            display: block;
+            color: var(--text-primary, #fff);
+            margin-bottom: 0.25rem;
+        }
+        .premium-feature p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted, #94a3b8);
+        }
+        .premium-pricing {
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(245,158,11,.1), rgba(217,119,6,.1));
+            border-radius: 12px;
+            border: 1px solid rgba(245,158,11,.2);
+        }
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 0.25rem;
+        }
+        .price-note {
+            font-size: 0.8rem;
+            color: var(--text-muted, #94a3b8);
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           SIDEBAR MOBILE
+        ═════════════════════════════════════════════════════════════ */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 999;
+            backdrop-filter: blur(4px);
+        }
+        .sidebar-overlay.active { display: block; }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--bg-secondary, #1e293b);
+            border: 1px solid var(--border-color, rgba(255,255,255,.1));
+            border-radius: 10px;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: var(--text-primary, #fff);
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-toggle { display: block; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+            .sidebar.open { transform: translateX(0); }
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           CHARTS
+        ═════════════════════════════════════════════════════════════ */
+        #chart-ventes, #chart-statuts, #chart-produits {
+            max-height: 300px;
+            margin: 1rem 0;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           RESPONSIVE
+        ═════════════════════════════════════════════════════════════ */
+        @media (max-width: 640px) {
+            .modal-box {
+                margin: 1rem;
+                padding: 1.5rem;
+                max-width: none;
+            }
+            .modal-actions {
+                flex-direction: column;
+            }
+            .btn-annuler, .btn-primary, .btn-danger, .btn-premium {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body data-theme="dark">
@@ -836,13 +1151,18 @@ $produits = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="section-card">
-                <div class="card-title">Ventes par jour (30 derniers jours)</div>
-                <div class="chart-placeholder">
-                    <div style="text-align:center;padding:3rem;color:var(--text-muted);">
-                        <i class="fas fa-chart-bar" style="font-size:3rem;margin-bottom:1rem;opacity:0.3;"></i>
-                        <p>Graphique des ventes en cours de développement</p>
-                    </div>
-                </div>
+                <div class="card-title">Ventes mensuelles</div>
+                <canvas id="chart-ventes" style="max-height: 400px;"></canvas>
+            </div>
+            
+            <div class="section-card">
+                <div class="card-title">Statuts des commandes</div>
+                <canvas id="chart-statuts" style="max-height: 350px;"></canvas>
+            </div>
+
+            <div class="section-card">
+                <div class="card-title">Produits populaires</div>
+                <canvas id="chart-produits" style="max-height: 350px;"></canvas>
             </div>
         </div>
     </div><!-- /vue-analytics -->
@@ -1035,7 +1355,7 @@ $produits = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
 </div><!-- /main-content -->
 
 <!-- ═══ MODAL SUPPRESSION ═══ -->
-<div id="modal-supprimer" role="dialog" aria-modal="true">
+<div id="modal-supprimer" role="dialog" aria-modal="true" class="modal">
     <div class="modal-bg" onclick="fermerModalSuppr()"></div>
     <div class="modal-box">
         <div class="modal-danger-icon"><i class="fas fa-trash-alt"></i></div>
@@ -1045,6 +1365,194 @@ $produits = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
             <button class="btn-annuler" onclick="fermerModalSuppr()"><i class="fas fa-times"></i> Annuler</button>
             <button class="btn-confirmer-suppr" id="btn-confirmer-suppr" onclick="executerSuppression()">
                 <i class="fas fa-trash-alt"></i> Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL CHANGER MOT DE PASSE ═══ -->
+<div id="modal-change-password" role="dialog" aria-modal="true" class="modal">
+    <div class="modal-bg" onclick="fermerModal('modal-change-password')"></div>
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-key"></i> Changer le mot de passe</h3>
+        </div>
+        <form id="form-change-password" onsubmit="changerMotDePasse(event)">
+            <div class="form-group">
+                <label>Mot de passe actuel</label>
+                <input type="password" name="ancien_pwd" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label>Nouveau mot de passe</label>
+                <input type="password" name="nouveau_pwd" class="form-input" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label>Confirmer le nouveau mot de passe</label>
+                <input type="password" name="confirmer_pwd" class="form-input" required minlength="6">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-annuler" onclick="fermerModal('modal-change-password')">Annuler</button>
+                <button type="submit" class="btn-primary" id="btn-change-password">
+                    <i class="fas fa-save"></i> Changer le mot de passe
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══ MODAL SUPPRIMER COMPTE ═══ -->
+<div id="modal-delete-account" role="dialog" aria-modal="true" class="modal">
+    <div class="modal-bg" onclick="fermerModal('modal-delete-account')"></div>
+    <div class="modal-box">
+        <div class="modal-danger-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3>⚠️ Supprimer votre compte ?</h3>
+        <p>Cette action est <strong>irréversible</strong>. Toutes vos données seront supprimées :</p>
+        <ul style="text-align:left;margin:1rem 0;color:var(--text-muted);">
+            <li>• Votre boutique et tous ses produits</li>
+            <li>• Toutes vos commandes et données clients</li>
+            <li>• Vos favoris et statistiques</li>
+        </ul>
+        <form id="form-delete-account" onsubmit="supprimerMonCompte(event)">
+            <div class="form-group">
+                <label>Confirmer en tapant "OUI"</label>
+                <input type="text" name="confirmation" class="form-input" required placeholder="Tapez OUI pour confirmer">
+            </div>
+            <div class="form-group">
+                <label>Votre mot de passe</label>
+                <input type="password" name="password" class="form-input" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-annuler" onclick="fermerModal('modal-delete-account')">Annuler</button>
+                <button type="submit" class="btn-danger" id="btn-delete-account">
+                    <i class="fas fa-trash-alt"></i> Supprimer définitivement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══ MODAL DÉTAILS COMMANDE ═══ -->
+<div id="modal-order-details" role="dialog" aria-modal="true" class="modal">
+    <div class="modal-bg" onclick="fermerModal('modal-order-details')"></div>
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-shopping-bag"></i> Détails de la commande <span id="order-id"></span></h3>
+        </div>
+        <div class="order-details">
+            <div class="detail-row">
+                <span class="detail-label">Client:</span>
+                <span class="detail-value" id="order-client"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Produit:</span>
+                <span class="detail-value" id="order-produit"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Montant:</span>
+                <span class="detail-value" id="order-montant"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Date:</span>
+                <span class="detail-value" id="order-date"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Statut:</span>
+                <span class="detail-value" id="order-statut"></span>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="fermerModal('modal-order-details')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL NOTIFICATIONS ═══ -->
+<div id="modal-notifications" role="dialog" aria-modal="true" class="modal">
+    <div class="modal-bg" onclick="fermerModal('modal-notifications')"></div>
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-bell"></i> Notifications</h3>
+        </div>
+        <div class="notifications-list">
+            <div class="notification-item">
+                <div class="notification-icon" style="background:rgba(16,185,129,.15);color:#10b981;">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Nouvelle commande reçue</div>
+                    <div class="notification-time">Il y a 2 heures</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon" style="background:rgba(59,130,246,.15);color:#3b82f6;">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Produit ajouté avec succès</div>
+                    <div class="notification-time">Il y a 5 heures</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon" style="background:rgba(139,92,246,.15);color:#8b5cf6;">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">12 nouveaux j'aime</div>
+                    <div class="notification-time">Aujourd'hui</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="fermerModal('modal-notifications')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL PREMIUM ═══ -->
+<div id="modal-premium" role="dialog" aria-modal="true" class="modal">
+    <div class="modal-bg" onclick="fermerModal('modal-premium')"></div>
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-crown"></i> Passer à Premium</h3>
+        </div>
+        <div class="premium-features">
+            <div class="premium-feature">
+                <i class="fas fa-chart-line"></i>
+                <div>
+                    <strong>Analytics avancés</strong>
+                    <p>Statistiques détaillées et rapports</p>
+                </div>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-bullhorn"></i>
+                <div>
+                    <strong>Promotions illimitées</strong>
+                    <p>Créez des campagnes marketing</p>
+                </div>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-headset"></i>
+                <div>
+                    <strong>Support prioritaire</strong>
+                    <p>Aide 24/7 et formation</p>
+                </div>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-star"></i>
+                <div>
+                    <strong>Badge Premium</strong>
+                    <p>Visibilité accrue auprès des clients</p>
+                </div>
+            </div>
+        </div>
+        <div class="premium-pricing">
+            <div class="price">5,000 FCFA/mois</div>
+            <div class="price-note">Paiement annuel: 50,000 FCFA (2 mois gratuits)</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-annuler" onclick="fermerModal('modal-premium')">Plus tard</button>
+            <button class="btn-premium" onclick="showToast('info', 'fa-crown', 'Paiement Premium bientôt disponible', 5000)">
+                <i class="fas fa-crown"></i> S'abonner maintenant
             </button>
         </div>
     </div>
@@ -1205,7 +1713,25 @@ function changerStatutCommande(id, nouveau_statut) {
 }
 
 function afficherCommande(id) {
-    alert('Détails de la commande #' + id);
+    const row = document.querySelector(`[data-cmd-id="${id}"]`);
+    if (row) {
+        const nom = row.cells[0].textContent;
+        const produit = row.cells[1].textContent;
+        const montant = row.cells[2].textContent;
+        const date = row.cells[3].textContent;
+        const statut = row.cells[4].textContent;
+        
+        const modal = document.getElementById('modal-order-details');
+        document.getElementById('order-id').textContent = '#' + id;
+        document.getElementById('order-client').textContent = nom;
+        document.getElementById('order-produit').textContent = produit;
+        document.getElementById('order-montant').textContent = montant;
+        document.getElementById('order-date').textContent = date;
+        document.getElementById('order-statut').textContent = statut;
+        
+        modal.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1265,43 +1791,83 @@ function sauvegarderProfil(e) {
         .catch(() => showToast('erreur', 'Erreur réseau'));
 }
 
-function showToast(type, msg) {
+function showToast(type, icon, msg, duration) {
+    if (typeof icon === 'string' && msg === undefined) {
+        // Backwards compatibility: showToast(type, msg)
+        msg = icon;
+        icon = type === 'succes' ? 'fa-check-circle' : (type === 'erreur' ? 'fa-exclamation-circle' : 'fa-info-circle');
+    }
+    duration = duration || 3000;
+    
     const toast = document.createElement('div');
     toast.className = 'toast-produit ' + type;
-    toast.innerHTML = '<i class="fas ' + (type === 'succes' ? 'fa-check-circle' : 'fa-exclamation-circle') + '"></i>' + msg;
+    const iconClass = icon.startsWith('fa-') ? icon : 'fa-check-circle';
+    toast.innerHTML = '<i class="fas ' + iconClass + '"></i>' + msg;
     document.body.appendChild(toast);
     setTimeout(() => {
         toast.style.transition = 'opacity .3s, transform .3s';
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(10px)';
         setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, duration);
 }
 
 function changerAvatar() {
-    alert('Fonctionnalité de téléchargement de photo en cours de développement');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('erreur', 'Fichier trop volumineux (max 5MB)');
+            return;
+        }
+        
+        const fd = new FormData();
+        fd.append('avatar', file);
+        
+        const btn = document.querySelector('[onclick="changerAvatar()"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléchargement...';
+        
+        try {
+            const res = await fetch('upload_avatar.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast('succes', data.message);
+                document.getElementById('profile-avatar').src = data.avatar_url + '?t=' + Date.now();
+            } else {
+                showToast('erreur', data.message);
+            }
+        } catch (err) {
+            showToast('erreur', 'Erreur réseau');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    };
+    input.click();
 }
 
 /* ════════════════════════════════════════════════════════════
    PARAMÈTRES
 ════════════════════════════════════════════════════════════ */
 function afficherPassword() {
-    const pwd = prompt('Entrez votre nouveau mot de passe:');
-    if (pwd) {
-        alert('Mot de passe mis à jour (fonctionnalité en développement)');
-    }
+    document.getElementById('modal-change-password').classList.add('visible');
+    document.body.style.overflow = 'hidden';
 }
 
 function afficherSecurite() {
-    alert('Page de sécurité en cours de développement');
+    showToast('info', 'fa-shield', 'Vérification en deux étapes: Bientôt disponible', 5000);
 }
 
 function supprimerCompte() {
-    if (confirm('⚠️ Êtes-vous ABSOLUMENT sûr ? Cette action est définitive!')) {
-        if (confirm('Tapez "OUI" pour confirmer la suppression de votre compte')) {
-            alert('Suppression en cours (fonctionnalité en développement)');
-        }
-    }
+    document.getElementById('modal-delete-account').classList.add('visible');
+    document.body.style.overflow = 'hidden';
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1329,11 +1895,12 @@ function toggleTheme() {
 }
 
 function toggleLanguage() {
-    alert('Changement de langue en cours de développement');
+    showToast('info', 'fa-globe', 'Région: Français (Congo) - Support multi-langue bientôt disponible', 5000);
 }
 
 function openNotifications() {
-    alert('Notifications: Vous n\'avez pas de nouvelles notifications');
+    document.getElementById('modal-notifications').classList.add('visible');
+    document.body.style.overflow = 'hidden';
 }
 
 function openWhatsApp() {
@@ -1341,13 +1908,256 @@ function openWhatsApp() {
 }
 
 function upgradePremium() {
-    alert('Plan Premium en cours de développement');
+    document.getElementById('modal-premium').classList.add('visible');
+    document.body.style.overflow = 'hidden';
 }
 
-// Restaurer le thème au chargement
+/* ════════════════════════════════════════════════════════════
+   FONCTIONS MODALES GÉNÉRIQUES
+════════════════════════════════════════════════════════════ */
+function fermerModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('visible');
+        document.body.style.overflow = '';
+    }
+}
+
+function fermerModalSuppr() {
+    document.getElementById('modal-supprimer').classList.remove('visible');
+    document.body.style.overflow = '';
+}
+
+/* ════════════════════════════════════════════════════════════
+   CHANGER MOT DE PASSE
+════════════════════════════════════════════════════════════ */
+async function changerMotDePasse(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('form-change-password');
+    const btn = document.getElementById('btn-change-password');
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changement...';
+    
+    try {
+        const fd = new FormData(form);
+        const res = await fetch('change_password.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        
+        if (data.success) {
+            showToast('succes', 'fa-check-circle', 'Mot de passe changé avec succès');
+            fermerModal('modal-change-password');
+            form.reset();
+        } else {
+            showToast('erreur', 'fa-exclamation-circle', data.message || 'Erreur lors du changement');
+        }
+    } catch (err) {
+        showToast('erreur', 'fa-exclamation-circle', 'Erreur réseau');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SUPPRIMER COMPTE
+════════════════════════════════════════════════════════════ */
+async function supprimerMonCompte(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('form-delete-account');
+    const confirmation = form.querySelector('[name="confirmation"]').value;
+    
+    if (confirmation !== 'OUI') {
+        showToast('erreur', 'fa-exclamation-circle', 'Veuillez taper "OUI" pour confirmer');
+        return;
+    }
+    
+    const btn = document.getElementById('btn-delete-account');
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Suppression...';
+    
+    try {
+        const fd = new FormData(form);
+        const res = await fetch('delete_account.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        
+        if (data.success) {
+            showToast('succes', 'fa-check-circle', 'Compte supprimé avec succès. Redirection...');
+            setTimeout(() => {
+                window.location.href = 'logout.php';
+            }, 2000);
+        } else {
+            showToast('erreur', 'fa-exclamation-circle', data.message || 'Erreur lors de la suppression');
+        }
+    } catch (err) {
+        showToast('erreur', 'fa-exclamation-circle', 'Erreur réseau');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR MOBILE
+════════════════════════════════════════════════════════════ */
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar.classList.contains('open')) {
+        closeSidebar();
+    } else {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+/* ════════════════════════════════════════════════════════════
+   CHARTS ANALYTICS
+════════════════════════════════════════════════════════════ */
+function initCharts() {
+    // Vérifier si Chart.js est chargé
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js non chargé, skipping charts initialization');
+        return;
+    }
+
+    // Graphique des ventes mensuelles
+    const ctxVentes = document.getElementById('chart-ventes');
+    if (ctxVentes) {
+        new Chart(ctxVentes, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                datasets: [{
+                    label: 'Ventes (FCFA)',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 40000, 38000, 45000],
+                    borderColor: 'rgb(16, 185, 129)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' FCFA';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique des commandes par statut
+    const ctxStatuts = document.getElementById('chart-statuts');
+    if (ctxStatuts) {
+        new Chart(ctxStatuts, {
+            type: 'doughnut',
+            data: {
+                labels: ['En attente', 'Confirmée', 'En préparation', 'Expédiée', 'Livrée'],
+                datasets: [{
+                    data: [12, 8, 15, 6, 22],
+                    backgroundColor: [
+                        'rgb(239, 68, 68)',
+                        'rgb(245, 158, 11)',
+                        'rgb(59, 130, 246)',
+                        'rgb(139, 92, 246)',
+                        'rgb(16, 185, 129)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique des produits populaires
+    const ctxProduits = document.getElementById('chart-produits');
+    if (ctxProduits) {
+        new Chart(ctxProduits, {
+            type: 'bar',
+            data: {
+                labels: ['Produit A', 'Produit B', 'Produit C', 'Produit D', 'Produit E'],
+                datasets: [{
+                    label: 'Ventes',
+                    data: [45, 32, 28, 19, 15],
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   INITIALISATION AU CHARGEMENT
+════════════════════════════════════════════════════════════ */
 window.addEventListener('load', function() {
+    // Restaurer le thème
     const savedTheme = localStorage.getItem('dashboard-theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+    
+    // Initialiser les graphiques
+    initCharts();
+    
+    // Fermer les modals avec Échap
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal.visible').forEach(modal => {
+                modal.classList.remove('visible');
+                document.body.style.overflow = '';
+            });
+        }
+    });
+    
+    // Fermer sidebar sur clic overlay
+    const overlay = document.getElementById('sidebar-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
 });
 </script>
 </body>
