@@ -8,6 +8,17 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => 'Methode non autorisee']);
+    exit;
+}
+
+$csrfToken = $_POST['csrf_token'] ?? '';
+if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+    echo json_encode(['success' => false, 'message' => 'Jeton CSRF invalide']);
+    exit;
+}
+
 $commandeId = intval($_POST['commande_id'] ?? 0);
 $statut = trim($_POST['statut'] ?? '');
 $statutsValides = ['nouveau', 'confirme', 'preparation', 'livre', 'annule'];

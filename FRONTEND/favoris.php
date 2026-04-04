@@ -18,36 +18,35 @@ try {
     }
 
     $utilisateur_id = $_SESSION['user_id'] ?? null;
-    $produit_id     = isset($_POST['boutique_id']) ? (int) $_POST['boutique_id'] : null;
+    $boutique_id    = isset($_POST['boutique_id']) ? (int) $_POST['boutique_id'] : null;
 
     // Vérifications
     if (!$utilisateur_id) {
         throw new Exception('Vous devez être connecté pour ajouter un favori');
     }
-    if (!$produit_id || $produit_id <= 0) {
-        throw new Exception('Identifiant de produit invalide');
+    if (!$boutique_id || $boutique_id <= 0) {
+        throw new Exception('Identifiant de boutique invalide');
     }
 
-    // Vérifier que le produit existe
-    $check = $pdo->prepare("SELECT boutique_id FROM produits WHERE id = ?");
-    $check->execute([$produit_id]);
-    $produit = $check->fetch();
-    if (!$produit) {
-        throw new Exception('Produit introuvable');
+    // Vérifier que la boutique existe
+    $check = $pdo->prepare("SELECT id, nom FROM boutiques WHERE id = ?");
+    $check->execute([$boutique_id]);
+    $boutique = $check->fetch();
+    if (!$boutique) {
+        throw new Exception('Boutique introuvable');
     }
-    $boutique_id = $produit['boutique_id'];
 
     // Toggle favori : vérifier d'abord AVANT toute action
     $check_fav = $pdo->prepare(
         "SELECT id FROM favoris WHERE utilisateur_id = ? AND boutique_id = ?"
     );
-    $check_fav->execute([$utilisateur_id, $produit_id]);
+    $check_fav->execute([$utilisateur_id, $boutique_id]);
 
     if ($check_fav->fetch()) {
         // Déjà en favori → supprimer
         $pdo->prepare(
             "DELETE FROM favoris WHERE utilisateur_id = ? AND boutique_id = ?"
-        )->execute([$utilisateur_id, $produit_id]);
+        )->execute([$utilisateur_id, $boutique_id]);
 
         $response['message'] = 'Retiré des favoris';
         $response['action']  = 'removed';
@@ -55,7 +54,7 @@ try {
         // Pas encore en favori → ajouter
         $pdo->prepare(
             "INSERT INTO favoris (utilisateur_id, boutique_id) VALUES (?, ?)"
-        )->execute([$utilisateur_id, $produit_id]);
+        )->execute([$utilisateur_id, $boutique_id]);
 
         $response['message'] = 'Ajouté aux favoris';
         $response['action']  = 'added';
@@ -65,7 +64,7 @@ try {
     $pdo->prepare(
         "UPDATE boutiques SET total_favoris = 
         (SELECT COUNT(*) FROM favoris WHERE boutique_id = ?) WHERE id = ?"
-    )->execute([$produit_id, $boutique_id]);
+    )->execute([$boutique_id, $boutique_id]);
 
     $response['success'] = true;
 

@@ -1,12 +1,7 @@
 <?php
-/**
- * Logout.php - Script de déconnexion utilisateur
- * Détruit la session et redirige vers la page d'accueil
- */
 
 session_start();
 
-// Détruire toutes les variables de session
 $_SESSION = array();
 
 // Détruire le cookie de session si applicable
@@ -27,6 +22,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Message de succès et redirection
-header("Location: acceuil.php?logout=success");
+header("Location: CONNEXION.php?logout=success");
 exit();
 ?>

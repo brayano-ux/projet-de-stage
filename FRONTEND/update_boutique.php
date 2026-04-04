@@ -8,6 +8,17 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => 'Methode non autorisee']);
+    exit;
+}
+
+$csrfToken = $_POST['csrf_token'] ?? '';
+if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+    echo json_encode(['success' => false, 'message' => 'Jeton CSRF invalide']);
+    exit;
+}
+
 $nom = trim($_POST['nom'] ?? '');
 $adresse = trim($_POST['adresse'] ?? '');
 $whatsapp = trim($_POST['whatsapp'] ?? '');

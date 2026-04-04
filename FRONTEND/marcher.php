@@ -7,8 +7,17 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
     );
     $produits = $pdo->query("SELECT * FROM produits ORDER BY id DESC")->fetchAll();
+
+    // Récupérer les boutiques favorites de l'utilisateur connecté
+    $boutiques_favorites = [];
+    if (isset($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare("SELECT boutique_id FROM favoris WHERE utilisateur_id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $boutiques_favorites = array_column($stmt->fetchAll(), 'boutique_id');
+    }
 } catch (Exception $e) {
     $produits = [];
+    $boutiques_favorites = [];
 }
 $total = count($produits);
 ?>
@@ -582,7 +591,7 @@ a{
                      alt="<?= htmlspecialchars($p['nom']) ?>"
                      loading="lazy"
                      onerror="this.src='https://via.placeholder.com/400x210/E8EFFE/1A56F0?text=Image'">
-<button class="btn-coeur" data-id="<?= $p['boutique_id'] ?>" title="Ajouter aux favoris">♡</button>                <div class="badge-prix"><?= number_format($p['prix'],0,',',' ') ?></div>
+<button class="btn-coeur<?= in_array($p['boutique_id'], $boutiques_favorites) ? ' actif' : '' ?>" data-id="<?= $p['boutique_id'] ?>" title="Ajouter aux favoris"><?= in_array($p['boutique_id'], $boutiques_favorites) ? '♥' : '♡' ?></button>                <div class="badge-prix"><?= number_format($p['prix'],0,',',' ') ?></div>
             </div>
             <div class="carte-body">
                 <div class="carte-nom"><?= htmlspecialchars($p['nom']) ?></div>

@@ -7,7 +7,7 @@ Ce dossier contient tous les fichiers de configuration centralisés pour l'appli
 ```
 config/
 ├── index.php        # Point d'entrée principal
-├── app.php          # Configuration générale de l'application
+├── app.php      # Configuratigénérale de l'application
 ├── database.php     # Configuration de la base de données
 └── README.md        # Documentation
 ```

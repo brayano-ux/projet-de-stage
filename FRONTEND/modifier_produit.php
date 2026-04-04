@@ -4,7 +4,7 @@ require_once __DIR__ . '/config/index.php';
 
 // ── Sécurité ──────────────────────────────────────────────────────────────────
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: connexion.php');
     exit;
 }
 
@@ -133,7 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id, $user_id
         ]);
 
-        // Rafraîchir les données affichées
         $produit = array_merge($produit, [
             'nom' => $nom, 'description' => $description,
             'prix' => $prix, 'localisation' => $localisation,
@@ -143,6 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $success = true;
         unset($_SESSION['csrf_token']);
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        sleep(2);
+            header('Location: dashboard.php');
+
     }
 }
 ?>

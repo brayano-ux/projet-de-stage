@@ -1,6 +1,7 @@
 <?php
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/config/index.php';
 
 $reponse = [
     'success' => false,
@@ -8,7 +9,9 @@ $reponse = [
     'erreurs' => []
 ];
 
+
 try {
+        $pdo = DatabaseConfig::getConnection();
     // Vérifier si l'utilisateur est connecté
     if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendeur') {
         throw new Exception('Vous devez être connecté en tant que vendeur pour ajouter un produit.');

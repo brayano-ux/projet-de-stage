@@ -40,6 +40,7 @@ if ($boutique_id) {
             p.image        AS image,
             p.localisation AS localisation,
             p.date_ajout   AS date_ajout,
+            b.id           AS boutique_id,
             b.nom          AS boutique_nom,
             b.whatsapp     AS whatsapp
         FROM produits p
@@ -205,6 +206,40 @@ if ($boutique_id) {
     .fab-btn:hover i { animation: shake .5s ease-in-out; }
     .fab-btn:active { transform: scale(.94); }
 
+    /* Panier flottant (au-dessus du bouton IA) */
+    #btn-panier {
+      background: linear-gradient(135deg, #f50499, #c40378);
+      bottom: 155px;
+      z-index: 9999;
+    }
+    #btn-panier::after { content: 'Panier'; }
+    #btn-panier .panier-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: #ef4444; color: #fff; font-size: 11px; font-weight: 800;
+      min-width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+      opacity: 0; transform: scale(0);
+      transition: opacity .2s, transform .2s;
+    }
+    #btn-panier .panier-badge.visible { opacity: 1; transform: scale(1); }
+
+    #btn-panier {
+      background: linear-gradient(135deg, var(--pink), var(--pink-dk));
+      bottom: 150px;
+    }
+    #btn-panier::after { content: 'Panier'; }
+    #btn-panier .panier-badge {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 20px; height: 20px; padding: 0 5px;
+      background: #ef4444; color: #fff; font-size: 11px; font-weight: 800;
+      border-radius: 999px; display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+      opacity: 0; transform: scale(0);
+      transition: opacity .2s, transform .2s;
+    }
+    #btn-panier .panier-badge.visible { opacity: 1; transform: scale(1); }
+
     #btn-ai   { background: linear-gradient(135deg, var(--blue), var(--purple)); bottom: 80px; }
     #btn-ai:hover { background: linear-gradient(135deg, #10b981, #059669); }
     #btn-ai::after  { content: 'Assistant IA'; }
@@ -311,10 +346,72 @@ if ($boutique_id) {
     .sug-btn:hover { background: var(--pink); color: #fff; }
 
     /* ─── RESPONSIVE ────────────────────────────────────────── */
+    /* ─── Panier latéral ─────────────────────────────────────── */
+    #panier-panel {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 100%; max-width: 380px;
+      background: #fff; z-index: 9997; box-shadow: -8px 0 40px rgba(0,0,0,.12);
+      transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    #panier-panel.open { transform: translateX(0); }
+    #panier-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9996;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    #panier-backdrop.open { opacity: 1; pointer-events: auto; }
+    .panier-head {
+      padding: 18px 20px; border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dk)); color: #fff;
+    }
+    .panier-head h3 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .panier-close {
+      background: rgba(255,255,255,.25); border: none; width: 34px; height: 34px;
+      border-radius: 50%; color: #fff; cursor: pointer; font-size: 18px;
+    }
+    #panier-items { flex: 1; overflow-y: auto; padding: 14px; }
+    .panier-line {
+      display: flex; gap: 12px; padding: 12px; border: 1px solid #eee; border-radius: 14px;
+      margin-bottom: 10px; align-items: flex-start;
+    }
+    .panier-line img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; }
+    .panier-line-info { flex: 1; min-width: 0; }
+    .panier-line-info h4 { margin: 0 0 4px; font-size: .9rem; font-weight: 700; color: #333; }
+    .panier-line-meta { font-size: .8rem; color: #666; }
+    .panier-qty {
+      display: flex; align-items: center; gap: 8px; margin-top: 8px;
+    }
+    .panier-qty button {
+      width: 28px; height: 28px; border: 1px solid #ddd; background: #fafafa;
+      border-radius: 8px; cursor: pointer; font-weight: 700;
+    }
+    .panier-remove {
+      background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; padding: 0;
+    }
+    .panier-foot {
+      padding: 16px; border-top: 1px solid #eee; background: #fafafa;
+    }
+    .panier-total-row {
+      display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem;
+      margin-bottom: 12px; color: #15803d;
+    }
+    .panier-foot input {
+      width: 100%; padding: 10px 14px; margin-bottom: 10px; border: 2px solid #e5e5e5;
+      border-radius: 10px; font-size: 14px;
+    }
+    .panier-btn-wa {
+      width: 100%; padding: 14px; border: none; border-radius: 12px;
+      background: #25D366; color: #fff; font-weight: 800; font-size: 15px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .panier-btn-wa:disabled { opacity: .55; cursor: not-allowed; }
+    .panier-vide { text-align: center; padding: 40px 16px; color: #888; font-size: 14px; }
+
     @media (max-width: 576px) {
       #products-content { grid-template-columns: 1fr; }
       .action-buttons   { flex-direction: column; }
       #ai-panel         { width: calc(100vw - 20px); right: 10px; bottom: 140px; }
+      #panier-panel     { max-width: 100%; }
     }
     @media (max-width: 768px) {
       #products-content { grid-template-columns: repeat(2, 1fr); }
@@ -367,6 +464,32 @@ if ($boutique_id) {
   </div>
 </header>
 
+<!-- ══ PANIER ═══════════════════════════════════════════════════ -->
+<button type="button" id="btn-panier" class="fab-btn" title="Panier" aria-label="Ouvrir le panier">
+  <i class="fas fa-shopping-bag"></i>
+  <span id="panier-badge" class="panier-badge">0</span>
+</button>
+<div id="panier-backdrop" aria-hidden="true"></div>
+<div id="panier-panel" role="dialog" aria-labelledby="panier-titre">
+  <div class="panier-head">
+    <h3 id="panier-titre">Mon panier</h3>
+    <button type="button" class="panier-close" id="panier-close" aria-label="Fermer">&times;</button>
+  </div>
+  <div id="panier-items"></div>
+  <div class="panier-foot">
+    <div class="panier-total-row">
+      <span>Total</span>
+      <span id="panier-total">0 FCFA</span>
+    </div>
+    <input type="text" id="panier-nom" placeholder="Votre nom *" autocomplete="name" maxlength="100">
+    <input type="tel" id="panier-tel" placeholder="Téléphone WhatsApp *" autocomplete="tel" maxlength="20">
+    <input type="text" id="panier-note" placeholder="Note (optionnelle)" maxlength="300">
+    <button type="button" class="panier-btn-wa" id="panier-valider">
+      <i class="fab fa-whatsapp"></i> Recevoir la commande sur WhatsApp
+    </button>
+  </div>
+</div>
+
 <!-- ══ BOUTON IA ════════════════════════════════════════════════ -->
 <button id="btn-ai" class="fab-btn" title="Assistant IA">
   <i class="fas fa-robot"></i>
@@ -385,17 +508,14 @@ if ($boutique_id) {
   <div id="chatContainer">
     <div class="message ai">
       <div class="message-content">
-        Bonjour&nbsp;! 👋 Je suis votre assistante virtuelle spécialisée en beauté et mode. Je peux vous aider avec&nbsp;:
+        Bonjour&nbsp;! 👋 Je suis l’assistante de <?= $boutique_info ? htmlspecialchars($boutique_info['nom']) : 'cette boutique' ?>.
+        Posez-moi une question sur nos produits, les prix ou des conseils beauté.
         <br><br>
-        ✨ Conseils maquillage &amp; soins de la peau<br>
-        👗 Suggestions de style &amp; tendances<br>
-        💇‍♀️ Conseils capillaires<br>
-        🎨 Associations de couleurs<br><br>
-        Comment puis-je vous aider aujourd'hui&nbsp;?
+        💡 Astuce&nbsp;: utilisez <strong>Commander</strong> sur une fiche produit pour l’ajouter au panier, puis ouvrez le panier pour finaliser sur WhatsApp.
         <div class="suggestions">
-          <button class="sug-btn" onclick="sendSuggestion('Routine pour peau sèche ?')">Peau sèche</button>
-          <button class="sug-btn" onclick="sendSuggestion('Tendances mode 2025')">Mode 2025</button>
-          <button class="sug-btn" onclick="sendSuggestion('Choisir son rouge à lèvres')">Rouge à lèvres</button>
+          <button type="button" class="sug-btn" onclick="sendSuggestion('Quels produits proposez-vous ?')">Catalogue</button>
+          <button type="button" class="sug-btn" onclick="sendSuggestion('Conseil peau sensible')">Peau sensible</button>
+          <button type="button" class="sug-btn" onclick="sendSuggestion('Comment commander ?')">Comment commander</button>
         </div>
       </div>
     </div>
@@ -575,19 +695,17 @@ if ($boutique_id) {
               </div>
 
               <?php
-                $jsNom    = addslashes(htmlspecialchars($p['nom'],    ENT_QUOTES));
-                $jsImg    = addslashes(htmlspecialchars($p['image'],  ENT_QUOTES));
-                $jsPrix   = (int)$p['prix'];
-                $jsWa     = addslashes(htmlspecialchars($p['whatsapp'] ?? '', ENT_QUOTES));
-                $jsId     = (int)$p['produit_id'];
+                $pBid = (int)($p['boutique_id'] ?? $boutique_id);
+                $pPid = (int)$p['produit_id'];
+                $jsWa = $p['whatsapp'] ?? '';
               ?>
               <div class="action-buttons">
-                <button class="btn-service btn-primary"
-                        onclick="acheter('<?= $jsWa ?>', '<?= $jsNom ?>', '<?= $jsPrix ?>', '<?= $jsImg ?>')">
-                  <i class="fas fa-shopping-cart"></i> Acheter
+                <button type="button" class="btn-service btn-primary"
+                        onclick='ajouterAuPanier(<?= json_encode($pBid) ?>, <?= json_encode($pPid) ?>, <?= json_encode($p['nom']) ?>, <?= json_encode((float)$p['prix']) ?>, <?= json_encode($p['image']) ?>, <?= json_encode($jsWa) ?>)'>
+                  <i class="fas fa-shopping-cart"></i> Commander
                 </button>
-                <button class="btn-service btn-secondary-custom"
-                        onclick="reserver('<?= $jsWa ?>', '<?= $jsNom ?>', '<?= $jsPrix ?>', '<?= $jsImg ?>')">
+                <button type="button" class="btn-service btn-secondary-custom"
+                        onclick="reserver(<?= json_encode($jsWa) ?>, <?= json_encode($p['nom']) ?>, <?= json_encode((float)$p['prix']) ?>, <?= json_encode($p['image']) ?>)">
                   <i class="fas fa-calendar-check"></i> Réserver
                 </button>
               </div>
@@ -816,6 +934,30 @@ if ($boutique_id) {
 <script src="NOUVEAU/assets/js/owl.carousel.js"></script>
 <script src="NOUVEAU/assets/js/jquery.magnific-popup.min.js"></script>
 <script src="NOUVEAU/assets/js/bootstrap.min.js"></script>
+
+<?php
+$cmProduits = [];
+if (!empty($produits) && is_array($produits)) {
+    foreach ($produits as $pp) {
+        $cmProduits[] = [
+            'id' => (int)($pp['produit_id'] ?? 0),
+            'nom' => $pp['nom'] ?? '',
+            'prix' => (float)($pp['prix'] ?? 0),
+            'description' => mb_substr((string)($pp['description'] ?? ''), 0, 200),
+        ];
+    }
+}
+$cmBoutique = [
+    'id' => (int)($boutique_id ?: 0),
+    'nom' => $boutique_info['nom'] ?? 'Beauty Innova',
+    'whatsapp' => $boutique_info['whatsapp'] ?? '',
+    'adresse' => $boutique_info['adresse'] ?? 'Yaoundé',
+];
+?>
+<script>
+window.CM_BOUTIQUE = <?= json_encode($cmBoutique, JSON_UNESCAPED_UNICODE) ?>;
+window.CM_PRODUITS = <?= json_encode($cmProduits, JSON_UNESCAPED_UNICODE) ?>;
+</script>
 
 <script>
 /* ─── OWL CAROUSELS ─────────────────────────────────────────── */

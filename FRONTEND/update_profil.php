@@ -8,6 +8,17 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => 'Methode non autorisee']);
+    exit;
+}
+
+$csrfToken = $_POST['csrf_token'] ?? '';
+if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+    echo json_encode(['success' => false, 'message' => 'Jeton CSRF invalide']);
+    exit;
+}
+
 $nom = trim($_POST['nom'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $telephone = trim($_POST['telephone'] ?? '');
@@ -33,8 +44,30 @@ try {
         exit;
     }
 
+    $hasTelephone = false;
+    $hasBio = false;
+    $columnsStmt = $pdo->query('SHOW COLUMNS FROM utilisateurs');
+    foreach ($columnsStmt->fetchAll(PDO::FETCH_ASSOC) as $column) {
+        if (($column['Field'] ?? '') === 'telephone') {
+            $hasTelephone = true;
+        }
+        if (($column['Field'] ?? '') === 'bio') {
+            $hasBio = true;
+        }
+    }
+
     $sql = 'UPDATE utilisateurs SET nom = ?, email = ?';
     $params = [$nom, $email];
+
+    if ($hasTelephone) {
+        $sql .= ', telephone = ?';
+        $params[] = $telephone;
+    }
+
+    if ($hasBio) {
+        $sql .= ', bio = ?';
+        $params[] = $bio;
+    }
 
     if ($mot_de_passe !== '') {
         $sql .= ', mot_de_passe = ?';
