@@ -1,762 +1,1581 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Système de Gestion Scolaire - Complet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none !important; }
-        .sidebar-link { transition: all 0.3s ease; }
-        .sidebar-link:hover { background-color: rgba(59, 130, 246, 0.1); }
-        .sidebar-link.active { background-color: rgba(59, 130, 246, 0.2); border-left: 4px solid #3b82f6; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide-in { animation: slideIn 0.4s ease-out; }
-        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .calendar-day { min-height: 80px; }
-        .calendar-day:hover { background-color: #f9fafb; }
-        @media print {
-            body * { visibility: hidden; }
-            #bulletinPrint, #bulletinPrint * { visibility: visible; }
-            #bulletinPrint { position: absolute; left: 0; top: 0; width: 100%; }
-        }
-        .role-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .role-admin { background-color: #fee2e2; color: #dc2626; }
-        .role-teacher { background-color: #dbeafe; color: #1d4ed8; }
-        .role-secretary { background-color: #f0fdf4; color: #16a34a; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduGest Pro — Gestion Scolaire</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:       #f0f5ff;
+  --surface:  #ffffff;
+  --s2:       #e8f0fd;
+  --s3:       #d6e4fb;
+  --border:   #c5d8f8;
+  --blue:     #2563eb;
+  --blue2:    #1d4ed8;
+  --blue-gl:  rgba(37,99,235,.13);
+  --blue-lt:  #eff6ff;
+  --text:     #0f1f4a;
+  --muted:    #6278a0;
+  --green:    #16a34a;
+  --green-bg: rgba(22,163,74,.1);
+  --red:      #dc2626;
+  --red-bg:   rgba(220,38,38,.1);
+  --orange:   #ea580c;
+  --orange-bg:rgba(234,88,12,.1);
+  --purple:   #7c3aed;
+  --purple-bg:rgba(124,58,237,.1);
+  --r:        14px;
+  --r-sm:     9px;
+  --shadow:   0 4px 24px rgba(37,99,235,.08);
+  --shadow-lg:0 12px 48px rgba(37,99,235,.13);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#bcd4f8 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0;opacity:.35}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+/* ── UTILS ── */
+.hidden{display:none!important}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:600;letter-spacing:.04em}
+.tag-blue{background:var(--blue-lt);color:var(--blue);border:1px solid var(--border)}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.tag-orange{background:var(--orange-bg);color:var(--orange)}
+.tag-purple{background:var(--purple-bg);color:var(--purple)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+/* ── LOGIN ── */
+#loginScreen{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#3b82f6 100%);
+  padding:20px;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.login-card{
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(20px);
+  border-radius:24px;
+  padding:48px 40px;
+  width:100%;max-width:460px;
+  box-shadow:0 32px 80px rgba(0,0,0,.25);
+  animation:fadeUp .5s ease both;
+  position:relative;
+}
+.login-icon{
+  width:72px;height:72px;
+  background:linear-gradient(135deg,var(--blue),#60a5fa);
+  border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  box-shadow:0 8px 32px var(--blue-gl);
+}
+.login-card h1{font-size:1.85rem;font-weight:800;text-align:center;color:var(--text);letter-spacing:-.02em}
+.login-card p{text-align:center;color:var(--muted);font-size:.9rem;margin:6px 0 32px}
+.field-label{display:block;font-size:.78rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.field-wrap{position:relative;margin-bottom:18px}
+.field-wrap i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem}
+.field-input{
+  width:100%;padding:13px 16px 13px 44px;
+  background:var(--s2);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-family:'Outfit',sans-serif;
+  font-size:.95rem;color:var(--text);transition:all .2s;
+}
+.field-input:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px var(--blue-gl)}
+.field-input::placeholder{color:#a0b0cc}
+.btn-primary{
+  width:100%;background:var(--blue);color:#fff;border:none;
+  border-radius:var(--r-sm);font-family:'Outfit',sans-serif;
+  font-size:.95rem;font-weight:700;padding:14px;cursor:pointer;
+  transition:all .25s;letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-primary:hover{background:var(--blue2);box-shadow:0 6px 20px rgba(37,99,235,.4);transform:translateY(-1px)}
+.login-hints{margin-top:24px;padding:16px;background:var(--s2);border-radius:var(--r-sm);border:1px solid var(--border)}
+.login-hints p{font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:600}
+.login-hints code{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--blue);background:var(--blue-lt);padding:2px 6px;border-radius:4px}
+
+/* ── MAIN LAYOUT ── */
+#mainApp{display:flex;flex-direction:column;min-height:100vh;position:relative;z-index:1}
+
+/* ── HEADER ── */
+.app-header{
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  border-bottom:1.5px solid var(--border);
+  padding:0 24px;
+  height:68px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(37,99,235,.06);
+}
+.header-brand{display:flex;align-items:center;gap:14px}
+.brand-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--blue),#60a5fa);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:18px;
+  box-shadow:0 4px 14px var(--blue-gl);
+}
+.brand-name{font-size:1.25rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.brand-name span{color:var(--blue)}
+.brand-sub{font-size:.72rem;color:var(--muted);font-weight:500}
+.header-right{display:flex;align-items:center;gap:12px}
+.header-user{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 14px;background:var(--s2);
+  border-radius:99px;border:1.5px solid var(--border);
+  cursor:pointer;transition:all .2s;
+}
+.header-user:hover{border-color:var(--blue);background:var(--blue-lt)}
+.user-avatar{
+  width:32px;height:32px;background:linear-gradient(135deg,var(--blue),#60a5fa);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:12px;font-weight:700;
+}
+.user-name{font-size:.85rem;font-weight:600;color:var(--text)}
+.btn-icon{
+  width:38px;height:38px;background:var(--s2);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.btn-icon:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+
+/* ── LAYOUT BODY ── */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:240px;min-width:240px;
+  background:rgba(255,255,255,.95);
+  border-right:1.5px solid var(--border);
+  padding:20px 12px;
+  overflow-y:auto;
+  height:calc(100vh - 68px);
+  position:sticky;top:68px;
+}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 14px 4px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:var(--r-sm);
+  color:var(--muted);font-size:.88rem;font-weight:500;
+  cursor:pointer;transition:all .2s;margin-bottom:2px;
+  border:1.5px solid transparent;
+  text-decoration:none;
+}
+.nav-item:hover{background:var(--blue-lt);color:var(--blue);border-color:var(--border)}
+.nav-item.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 4px 14px var(--blue-gl)}
+.nav-item .nav-icon{width:18px;text-align:center;font-size:.9rem}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;border-radius:99px;font-size:.65rem;font-weight:700;padding:2px 7px;min-width:20px;text-align:center}
+.nav-item.active .nav-badge{background:rgba(255,255,255,.3)}
+
+/* ── MAIN CONTENT ── */
+.main-content{
+  flex:1;overflow-y:auto;
+  padding:28px;
+  height:calc(100vh - 68px);
+}
+
+/* ── PAGE HEADER ── */
+.page-title{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:4px}
+.page-sub{font-size:.85rem;color:var(--muted);margin-bottom:24px}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:22px;
+  transition:all .2s;cursor:default;
+  box-shadow:var(--shadow);
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:3px 3px 0 0;
+  transform:scaleX(0);transform-origin:left;transition:transform .35s;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.stat-card:hover::before{transform:scaleX(1)}
+.sc-blue::before{background:var(--blue)}
+.sc-green::before{background:var(--green)}
+.sc-orange::before{background:var(--orange)}
+.sc-red::before{background:var(--red)}
+.sc-purple::before{background:var(--purple)}
+.stat-icon{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;margin-bottom:14px;
+}
+.si-blue{background:var(--blue-lt);color:var(--blue)}
+.si-green{background:var(--green-bg);color:var(--green)}
+.si-orange{background:var(--orange-bg);color:var(--orange)}
+.si-red{background:var(--red-bg);color:var(--red)}
+.si-purple{background:var(--purple-bg);color:var(--purple)}
+.stat-val{font-size:2rem;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.stat-change{font-size:.75rem;margin-top:8px;font-weight:500}
+.stat-change.up{color:var(--green)}.stat-change.down{color:var(--red)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.card-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--blue)}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.toolbar-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.toolbar-right{display:flex;align-items:center;gap:10px}
+
+/* ── INPUTS ── */
+.inp{
+  padding:9px 14px;background:var(--s2);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-family:'Outfit',sans-serif;font-size:.85rem;
+  color:var(--text);transition:all .2s;
+}
+.inp:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px var(--blue-gl)}
+.inp::placeholder{color:#a0b0cc}
+.inp-icon{position:relative}
+.inp-icon i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;pointer-events:none}
+.inp-icon .inp{padding-left:36px}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:9px 18px;border:none;border-radius:var(--r-sm);
+  font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;
+}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:var(--blue2);box-shadow:0 4px 16px rgba(37,99,235,.3)}
+.btn-outline{background:var(--surface);color:var(--muted);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-lt)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#15803d}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:#b91c1c}
+.btn-ghost{background:transparent;color:var(--muted);border:1.5px solid transparent;padding:6px 12px}
+.btn-ghost:hover{background:var(--s2);border-color:var(--border);color:var(--text)}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1.5px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:var(--surface)}
+thead tr{background:var(--s2)}
+th{padding:12px 16px;text-align:left;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td{padding:14px 16px;font-size:.88rem;border-top:1px solid var(--s2);color:var(--text);vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--blue-lt)}
+.td-actions{display:flex;gap:6px;justify-content:flex-end}
+
+/* ── FORM MODAL ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(15,31,74,.5);
+  backdrop-filter:blur(6px);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:20px;width:100%;box-shadow:var(--shadow-lg);
+  transform:scale(.95);transition:transform .25s;
+  max-height:90vh;overflow:hidden;display:flex;flex-direction:column;
+}
+.overlay.open .modal{transform:scale(1)}
+.modal-head{
+  padding:22px 26px;border-bottom:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.modal-head h3{font-size:1.1rem;font-weight:800;color:var(--text)}
+.modal-body{padding:24px 26px;overflow-y:auto;flex:1}
+.modal-foot{padding:18px 26px;border-top:1.5px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid .full{grid-column:1/-1}
+.form-field label{display:block;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.form-field .inp,.form-field select,.form-field textarea{width:100%}
+.form-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236278a0' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+/* ── GRADES TABLE ── */
+.grade-inp{
+  width:70px;text-align:center;padding:7px 8px;
+  background:var(--s2);border:1.5px solid var(--border);
+  border-radius:6px;font-family:'DM Mono',monospace;font-size:.88rem;
+  transition:all .2s;
+}
+.grade-inp:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px var(--blue-gl)}
+.grade-bad{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red)!important}
+.grade-ok{border-color:var(--green)!important;background:var(--green-bg)!important;color:var(--green)!important}
+.grade-mid{border-color:var(--orange)!important;background:var(--orange-bg)!important;color:var(--orange)!important}
+
+/* ── ATTENDANCE ── */
+.att-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);margin-bottom:8px;transition:all .2s}
+.att-row:hover{border-color:var(--blue);box-shadow:0 2px 12px var(--blue-gl)}
+.att-name{font-weight:600;font-size:.9rem}
+.att-btns{display:flex;gap:6px}
+.att-btn{
+  padding:6px 14px;border-radius:99px;font-size:.78rem;font-weight:700;
+  border:2px solid transparent;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;
+}
+.att-btn-p{background:var(--green-bg);color:var(--green);border-color:var(--green-bg)}
+.att-btn-p.sel,.att-btn-p:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.att-btn-a{background:var(--red-bg);color:var(--red);border-color:var(--red-bg)}
+.att-btn-a.sel,.att-btn-a:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.att-btn-r{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-bg)}
+.att-btn-r.sel,.att-btn-r:hover{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+/* ── BULLETIN ── */
+.bulletin{
+  background:#fff;border:2px solid var(--border);border-radius:var(--r);
+  padding:32px;max-width:800px;margin:0 auto;
+  box-shadow:var(--shadow-lg);
+}
+.bulletin-header{border-bottom:2px solid var(--blue);padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start}
+.bulletin-school h2{font-size:1.1rem;font-weight:800;color:var(--blue)}
+.bulletin-school p{font-size:.8rem;color:var(--muted);margin-top:2px}
+.bulletin-info{font-size:.8rem;text-align:right;color:var(--muted)}
+.bulletin-info strong{color:var(--text);display:block;font-size:.95rem;margin-bottom:2px}
+.b-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.b-table th{background:var(--blue);color:#fff;padding:10px 14px;text-align:left;font-size:.75rem;letter-spacing:.05em}
+.b-table td{padding:10px 14px;border-bottom:1px solid var(--s2);font-size:.85rem}
+.b-table tr:nth-child(even) td{background:var(--s2)}
+.b-total td{background:var(--blue-lt)!important;font-weight:700;border-top:2px solid var(--blue)}
+.mention{padding:4px 12px;border-radius:99px;font-size:.8rem;font-weight:700}
+.m-exc{background:rgba(22,163,74,.15);color:var(--green)}
+.m-bon{background:rgba(37,99,235,.12);color:var(--blue)}
+.m-ab{background:rgba(234,88,12,.12);color:var(--orange)}
+.m-ins{background:rgba(220,38,38,.12);color:var(--red)}
+
+/* ── DASHBOARD CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);padding:14px 18px;
+  font-size:.88rem;font-weight:500;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(20px);opacity:0;transition:all .3s;
+  display:flex;align-items:center;gap:10px;max-width:320px;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.t-ok{border-left:3px solid var(--green);color:var(--green)}
+#toast.t-err{border-left:3px solid var(--red);color:var(--red)}
+#toast.t-info{border-left:3px solid var(--blue);color:var(--blue)}
+
+/* ── CONFIRM MODAL ── */
+.confirm-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+
+/* ── LOADING ── */
+.spinner{width:36px;height:36px;border:3px solid var(--s3);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}
+.skeleton{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px}
+
+/* ── PROGRESS BAR ── */
+.progress{height:6px;background:var(--s3);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .4s ease}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:56px 20px;color:var(--muted)}
+.empty i{font-size:2.4rem;opacity:.3;display:block;margin-bottom:12px}
+.empty p{font-size:.9rem}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;top:68px;left:0;height:calc(100vh - 68px);z-index:50;box-shadow:var(--shadow-lg)}
+  .charts-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .full{grid-column:1}
+}
+@media(max-width:640px){
+  .main-content{padding:16px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .toolbar{flex-direction:column;align-items:flex-start}
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.anim{animation:fadeUp .4s ease both}
+
+@media print{
+  body>*{display:none}
+  #printArea{display:block!important}
+}
+</style>
 </head>
-<body class="bg-gray-50">
-    <!-- Écran de connexion -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-slide-in">
-            <div class="text-center mb-8">
-                <div class="bg-blue-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-graduation-cap text-white text-3xl"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-800">Gestion Scolaire</h1>
-                <p class="text-gray-600 mt-2">Système complet de gestion d'établissement</p>
-            </div>
-            <form id="loginForm" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="loginEmail" value="admin@ecole.cm" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                    <input type="password" id="loginPassword" value="admin123" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
-                </button>
-            </form>
-            <div id="loginError" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm"></div>
-            <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Comptes de test:</p>
-                <p>Admin: admin@ecole.cm / admin123</p>
-                <p>Secrétaire: secretaire@ecole.cm / secretaire123</p>
-                <p>Enseignant: enseignant@ecole.cm / enseignant123</p>
-            </div>
-        </div>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon"><i class="fas fa-graduation-cap" style="color:#fff;font-size:28px"></i></div>
+    <h1>EduGest Pro</h1>
+    <p>Système de gestion scolaire — Cameroun</p>
+
+    <div>
+      <label class="field-label" for="lEmail"><i class="fas fa-envelope" style="margin-right:4px"></i> Email</label>
+      <div class="field-wrap">
+        <i class="fas fa-at"></i>
+        <input class="field-input" type="email" id="lEmail" value="admin@ecole.cm" placeholder="email@ecole.cm">
+      </div>
     </div>
+    <div>
+      <label class="field-label" for="lPassword"><i class="fas fa-lock" style="margin-right:4px"></i> Mot de passe</label>
+      <div class="field-wrap">
+        <i class="fas fa-lock"></i>
+        <input class="field-input" type="password" id="lPassword" value="admin123" placeholder="••••••••">
+      </div>
+    </div>
+    <button class="btn-primary" id="loginBtn">
+      <i class="fas fa-sign-in-alt"></i> Se connecter
+    </button>
+    <div id="loginError" class="hidden" style="margin-top:14px;padding:12px;background:var(--red-bg);color:var(--red);border-radius:var(--r-sm);font-size:.85rem;font-weight:500"></div>
 
-    <!-- Application principale -->
-    <div id="mainApp" class="hidden">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-            <div class="flex items-center justify-between px-6 py-4">
-                <div class="flex items-center space-x-4">
-                    <button id="toggleSidebar" class="lg:hidden text-gray-600 hover:text-gray-800">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-school text-white"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-800">Gestion Scolaire Pro</h1>
-                            <p class="text-xs text-gray-500" id="schoolName">Collège/Lycée Excellence</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-600 hidden md:inline" id="userRole">Administrateur</span>
-                    <span id="userRoleBadge" class="role-badge role-admin">Admin</span>
-                    <button id="logoutBtn" class="flex items-center space-x-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="hidden sm:inline">Déconnexion</span>
-                    </button>
-                </div>
+    <div class="login-hints">
+      <p>Comptes de démonstration :</p>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+        <span><code>admin@ecole.cm</code> / <code>admin123</code> → Admin</span>
+        <span><code>secretaire@ecole.cm</code> / <code>sec123</code> → Secrétaire</span>
+        <span><code>prof@ecole.cm</code> / <code>prof123</code> → Enseignant</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="mainApp" class="hidden">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div style="display:flex;align-items:center;gap:16px">
+      <button id="toggleSidebar" style="display:none;background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px"><i class="fas fa-bars"></i></button>
+      <div class="header-brand">
+        <div class="brand-icon"><i class="fas fa-school"></i></div>
+        <div>
+          <div class="brand-name">Edu<span>Gest</span> Pro</div>
+          <div class="brand-sub" id="hSchoolName">Collège/Lycée Excellence — Douala</div>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-user">
+        <div class="user-avatar" id="hUserInitials">AD</div>
+        <div>
+          <div class="user-name" id="hUserName">Administrateur</div>
+          <div style="font-size:.7rem;color:var(--muted)" id="hUserRole">Admin</div>
+        </div>
+      </div>
+      <div class="btn-icon" id="logoutBtn" title="Déconnexion"><i class="fas fa-sign-out-alt"></i></div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Principal</div>
+        <a class="nav-item active" data-sec="dashboard">
+          <i class="nav-icon fas fa-chart-pie"></i> Tableau de bord
+        </a>
+        <a class="nav-item" data-sec="students">
+          <i class="nav-icon fas fa-user-graduate"></i> Élèves
+          <span class="nav-badge" id="nb-students">0</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Pédagogie</div>
+        <a class="nav-item" data-sec="grades">
+          <i class="nav-icon fas fa-clipboard-list"></i> Notes
+        </a>
+        <a class="nav-item" data-sec="attendance">
+          <i class="nav-icon fas fa-calendar-check"></i> Assiduité
+        </a>
+        <a class="nav-item" data-sec="bulletins">
+          <i class="nav-icon fas fa-file-alt"></i> Bulletins
+        </a>
+      </div>
+      <div class="sidebar-section" id="adminNav">
+        <div class="sidebar-label">Administration</div>
+        <a class="nav-item" data-sec="users">
+          <i class="nav-icon fas fa-users-cog"></i> Utilisateurs
+        </a>
+        <a class="nav-item" data-sec="settings">
+          <i class="nav-icon fas fa-sliders-h"></i> Paramètres
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content" id="mainContent">
+
+      <!-- ── DASHBOARD ── -->
+      <section id="sec-dashboard" class="anim">
+        <div class="page-title">Tableau de bord</div>
+        <div class="page-sub">Vue d'ensemble de l'établissement — <span id="todayDate"></span></div>
+
+        <div class="stat-grid">
+          <div class="stat-card sc-blue">
+            <div class="stat-icon si-blue"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-val" id="ds-students">0</div>
+            <div class="stat-lbl">Élèves inscrits</div>
+            <div class="stat-change up"><i class="fas fa-arrow-up"></i> Actifs</div>
+          </div>
+          <div class="stat-card sc-green">
+            <div class="stat-icon si-green"><i class="fas fa-star"></i></div>
+            <div class="stat-val" id="ds-avg">—</div>
+            <div class="stat-lbl">Moyenne générale</div>
+          </div>
+          <div class="stat-card sc-purple">
+            <div class="stat-icon si-purple"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-val" id="ds-presence">—</div>
+            <div class="stat-lbl">Taux de présence</div>
+          </div>
+          <div class="stat-card sc-red">
+            <div class="stat-icon si-red"><i class="fas fa-exclamation-circle"></i></div>
+            <div class="stat-val" id="ds-absent">0</div>
+            <div class="stat-lbl">Absences totales</div>
+          </div>
+          <div class="stat-card sc-orange">
+            <div class="stat-icon si-orange"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div class="stat-val" id="ds-classes">7</div>
+            <div class="stat-lbl">Classes actives</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-title"><i class="fas fa-chart-bar"></i> Élèves par classe</div>
+            <canvas id="chartClasses" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="fas fa-chart-line"></i> Moyennes par matière</div>
+            <canvas id="chartSubjects" height="220"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-list"></i> Derniers élèves inscrits</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Matricule</th><th>Nom complet</th><th>Classe</th><th>Date inscription</th><th>Statut</th></tr></thead>
+              <tbody id="recentStudents"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── STUDENTS ── -->
+      <section id="sec-students" class="hidden anim">
+        <div class="page-title">Gestion des Élèves</div>
+        <div class="page-sub">Gérez les inscriptions et les dossiers</div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="inp-icon">
+              <i class="fas fa-search"></i>
+              <input class="inp" id="searchStudents" placeholder="Rechercher un élève…" style="width:220px">
             </div>
-        </header>
-
-        <div class="flex">
-            <!-- Sidebar -->
-            <aside id="sidebar" class="fixed lg:sticky top-16 lg:top-0 left-0 h-screen bg-white border-r border-gray-200 w-64 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 overflow-y-auto">
-                <nav class="p-4 space-y-2">
-                    <a href="#" data-section="dashboard" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-chart-line w-5"></i>
-                        <span>Tableau de bord</span>
-                    </a>
-                    <a href="#" data-section="students" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-users w-5"></i>
-                        <span>Élèves</span>
-                    </a>
-                    <a href="#" data-section="grades" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-clipboard-list w-5"></i>
-                        <span>Notes</span>
-                    </a>
-                    <a href="#" data-section="attendance" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-calendar-check w-5"></i>
-                        <span>Assiduité</span>
-                    </a>
-                    <a href="#" data-section="reports" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-file-pdf w-5"></i>
-                        <span>Bulletins</span>
-                    </a>
-                    <a href="#" data-section="users" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-user-shield w-5"></i>
-                        <span>Utilisateurs</span>
-                    </a>
-                    <a href="#" data-section="settings" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700">
-                        <i class="fas fa-cog w-5"></i>
-                        <span>Paramètres</span>
-                    </a>
-                </nav>
-            </aside>
-
-            <!-- Contenu principal -->
-            <main class="flex-1 p-6 overflow-y-auto" style="max-height: calc(100vh - 73px);">
-                <!-- Dashboard -->
-                <div id="dashboardSection" class="section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Tableau de bord</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm">Total Élèves</p>
-                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="totalStudents">0</h3>
-                                </div>
-                                <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-users text-blue-600 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm">Moyenne Générale</p>
-                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="avgGrade">--</h3>
-                                </div>
-                                <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-star text-green-600 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm">Taux Présence</p>
-                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="attendanceRate">--</h3>
-                                </div>
-                                <div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-500 text-sm">Absences</p>
-                                    <h3 class="text-3xl font-bold text-red-600 mt-1" id="absencesCount">0</h3>
-                                </div>
-                                <div class="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Répartition par classe</h3>
-                            <canvas id="classChart"></canvas>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Évolution des moyennes</h3>
-                            <canvas id="gradeChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gestion des élèves -->
-                <div id="studentsSection" class="section hidden">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
-                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Élèves</h2>
-                        <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
-                            <i class="fas fa-plus mr-2"></i>Nouveau élève
-                        </button>
-                    </div>
-                    
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <input type="text" id="searchStudent" placeholder="Rechercher un élève..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <select id="filterClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="">Toutes les classes</option>
-                                <option value="6ème">6ème</option>
-                                <option value="5ème">5ème</option>
-                                <option value="4ème">4ème</option>
-                                <option value="3ème">3ème</option>
-                                <option value="2nde">2nde</option>
-                                <option value="1ère">1ère</option>
-                                <option value="Tle">Terminale</option>
-                            </select>
-                            <select id="filterSex" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="">Tous</option>
-                                <option value="M">Garçons</option>
-                                <option value="F">Filles</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button id="exportCSV" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm">
-                                <i class="fas fa-file-csv mr-2"></i>Export CSV
-                            </button>
-                            <button id="exportExcel" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition text-sm">
-                                <i class="fas fa-file-excel mr-2"></i>Export Excel
-                            </button>
-                            <button id="importCSV" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition text-sm">
-                                <i class="fas fa-file-import mr-2"></i>Import CSV
-                            </button>
-                            <input type="file" id="csvFileInput" accept=".csv" class="hidden">
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matricule</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom complet</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Classe</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sexe</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="studentTableBody" class="bg-white divide-y divide-gray-200">
-                                    <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Chargement...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Notes -->
-                <div id="gradesSection" class="section hidden">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Gestion des Notes</h2>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                        <select id="gradeClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner une classe</option>
-                            <option value="6ème">6ème</option>
-                            <option value="5ème">5ème</option>
-                            <option value="4ème">4ème</option>
-                            <option value="3ème">3ème</option>
-                            <option value="2nde">2nde</option>
-                            <option value="1ère">1ère</option>
-                            <option value="Tle">Terminale</option>
-                        </select>
-                        <select id="gradeTrimester" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner un trimestre</option>
-                            <option value="1">Trimestre 1</option>
-                            <option value="2">Trimestre 2</option>
-                            <option value="3">Trimestre 3</option>
-                        </select>
-                        <select id="gradeSubject" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner une matière</option>
-                            <option value="Mathématiques">Mathématiques</option>
-                            <option value="Français">Français</option>
-                            <option value="Anglais">Anglais</option>
-                            <option value="SVT">SVT</option>
-                            <option value="Histoire-Géo">Histoire-Géo</option>
-                            <option value="Physique-Chimie">Physique-Chimie</option>
-                            <option value="EPS">EPS</option>
-                        </select>
-                    </div>
-
-                    <div id="gradesStudentsList" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <p class="text-gray-500 text-center">Sélectionnez une classe, un trimestre et une matière</p>
-                    </div>
-                </div>
-
-                <!-- Assiduité -->
-                <div id="attendanceSection" class="section hidden">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Suivi de l'Assiduité</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <select id="attendanceClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner une classe</option>
-                            <option value="6ème">6ème</option>
-                            <option value="5ème">5ème</option>
-                            <option value="4ème">4ème</option>
-                            <option value="3ème">3ème</option>
-                            <option value="2nde">2nde</option>
-                            <option value="1ère">1ère</option>
-                            <option value="Tle">Terminale</option>
-                        </select>
-                        <input type="date" id="attendanceDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div id="attendanceList" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                        <p class="text-gray-500 text-center">Sélectionnez une classe et une date</p>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <h3 class="text-lg font-semibold mb-4">Statistiques d'assiduité</h3>
-                        <div id="attendanceStats" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="text-center p-4 bg-green-50 rounded-lg">
-                                <p class="text-green-600 text-2xl font-bold" id="presentCount">0</p>
-                                <p class="text-sm text-gray-600">Présents</p>
-                            </div>
-                            <div class="text-center p-4 bg-red-50 rounded-lg">
-                                <p class="text-red-600 text-2xl font-bold" id="absentCount">0</p>
-                                <p class="text-sm text-gray-600">Absents</p>
-                            </div>
-                            <div class="text-center p-4 bg-orange-50 rounded-lg">
-                                <p class="text-orange-600 text-2xl font-bold" id="lateCount">0</p>
-                                <p class="text-sm text-gray-600">Retards</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bulletins -->
-                <div id="reportsSection" class="section hidden">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Bulletins Scolaires</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <select id="bulletinClass" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner une classe</option>
-                            <option value="6ème">6ème</option>
-                            <option value="5ème">5ème</option>
-                            <option value="4ème">4ème</option>
-                            <option value="3ème">3ème</option>
-                            <option value="2nde">2nde</option>
-                            <option value="1ère">1ère</option>
-                            <option value="Tle">Terminale</option>
-                        </select>
-                        <select id="bulletinTrimester" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner un trimestre</option>
-                            <option value="1">Trimestre 1</option>
-                            <option value="2">Trimestre 2</option>
-                            <option value="3">Trimestre 3</option>
-                        </select>
-                        <button id="generateBulletins" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition">
-                            <i class="fas fa-file-pdf mr-2"></i>Générer les bulletins
-                        </button>
-                    </div>
-
-                    <div id="bulletinsList" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <p class="text-gray-500 text-center">Sélectionnez une classe et un trimestre</p>
-                    </div>
-                </div>
-
-                <!-- Gestion des utilisateurs -->
-                <div id="usersSection" class="section hidden">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
-                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Utilisateurs</h2>
-                        <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
-                            <i class="fas fa-user-plus mr-2"></i>Nouvel utilisateur
-                        </button>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rôle</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date création</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
-                                    <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Chargement...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Paramètres -->
-                <div id="settingsSection" class="section hidden">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Paramètres du Système</h2>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 class="text-lg font-semibold mb-4">Informations de l'établissement</h3>
-                            <form id="schoolInfoForm" class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'établissement</label>
-                                    <input type="text" id="schoolNameInput" value="Collège/Lycée Excellence" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Devise</label>
-                                    <input type="text" id="schoolMotto" value="Excellence et Discipline" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
-                                    <input type="text" id="schoolAddress" value="Douala, Cameroun" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-                                    <input type="tel" id="schoolPhone" value="+237 6XX XXX XXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
-                                    <i class="fas fa-save mr-2"></i>Enregistrer
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 class="text-lg font-semibold mb-4">Gestion des matières</h3>
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                    <span>Mathématiques (Coef: 4)</span>
-                                    <button class="text-blue-600"><i class="fas fa-edit"></i></button>
-                                </div>
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                    <span>Français (Coef: 3)</span>
-                                    <button class="text-blue-600"><i class="fas fa-edit"></i></button>
-                                </div>
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                    <span>Anglais (Coef: 2)</span>
-                                    <button class="text-blue-600"><i class="fas fa-edit"></i></button>
-                                </div>
-                            </div>
-                            <button class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
-                                <i class="fas fa-plus mr-2"></i>Ajouter une matière
-                            </button>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 class="text-lg font-semibold mb-4">Sauvegarde des données</h3>
-                            <p class="text-sm text-gray-600 mb-4">Exportez toutes les données du système</p>
-                            <button id="backupData" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition">
-                                <i class="fas fa-download mr-2"></i>Télécharger la sauvegarde
-                            </button>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 class="text-lg font-semibold mb-4">Rapport complet</h3>
-                            <p class="text-sm text-gray-600 mb-4">Générer un rapport complet de l'établissement</p>
-                            <button onclick="exportCompleteReport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition">
-                                <i class="fas fa-chart-bar mr-2"></i>Générer rapport
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </main>
+            <select class="inp" id="filterClass">
+              <option value="">Toutes les classes</option>
+              <option>6ème</option><option>5ème</option><option>4ème</option>
+              <option>3ème</option><option>2nde</option><option>1ère</option><option>Tle</option>
+            </select>
+            <select class="inp" id="filterSex">
+              <option value="">Tous</option>
+              <option value="M">Garçons</option>
+              <option value="F">Filles</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-outline btn-sm" id="exportCSVBtn"><i class="fas fa-file-csv"></i> CSV</button>
+            <button class="btn btn-blue" id="openAddStudent"><i class="fas fa-plus"></i> Nouvel élève</button>
+          </div>
         </div>
-    </div>
 
-    <!-- Modal ajout/modification élève -->
-    <div id="studentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
-                <h3 class="text-xl font-bold text-gray-800" id="studentModalTitle">Nouvel Élève</h3>
-                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Matricule</th><th>Nom complet</th><th>Classe</th><th>Sexe</th>
+                <th>Date naiss.</th><th>Contact parent</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTbody"></tbody>
+          </table>
+        </div>
+        <div id="studsEmpty" class="empty hidden"><i class="fas fa-user-graduate"></i><p>Aucun élève trouvé</p></div>
+      </section>
+
+      <!-- ── GRADES ── -->
+      <section id="sec-grades" class="hidden anim">
+        <div class="page-title">Gestion des Notes</div>
+        <div class="page-sub">Saisie et consultation des notes par matière</div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="inp" id="gClass">
+              <option value="">Classe…</option>
+              <option>6ème</option><option>5ème</option><option>4ème</option>
+              <option>3ème</option><option>2nde</option><option>1ère</option><option>Tle</option>
+            </select>
+            <select class="inp" id="gTrimester">
+              <option value="">Trimestre…</option>
+              <option value="1">Trimestre 1</option>
+              <option value="2">Trimestre 2</option>
+              <option value="3">Trimestre 3</option>
+            </select>
+            <select class="inp" id="gSubject">
+              <option value="">Matière…</option>
+              <option>Mathématiques</option><option>Français</option><option>Anglais</option>
+              <option>SVT</option><option>Histoire-Géo</option><option>Physique-Chimie</option><option>EPS</option>
+            </select>
+          </div>
+          <button class="btn btn-blue" id="saveGradesBtn" style="display:none"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+
+        <div id="gradesArea">
+          <div class="empty"><i class="fas fa-clipboard-list"></i><p>Sélectionnez une classe, un trimestre et une matière</p></div>
+        </div>
+      </section>
+
+      <!-- ── ATTENDANCE ── -->
+      <section id="sec-attendance" class="hidden anim">
+        <div class="page-title">Suivi de l'Assiduité</div>
+        <div class="page-sub">Appel journalier et statistiques de présence</div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="inp" id="attClass">
+              <option value="">Classe…</option>
+              <option>6ème</option><option>5ème</option><option>4ème</option>
+              <option>3ème</option><option>2nde</option><option>1ère</option><option>Tle</option>
+            </select>
+            <input type="date" class="inp" id="attDate">
+          </div>
+          <button class="btn btn-blue" id="saveAttBtn" style="display:none"><i class="fas fa-save"></i> Sauvegarder l'appel</button>
+        </div>
+
+        <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+          <div class="stat-card sc-green"><div class="stat-icon si-green"><i class="fas fa-check"></i></div><div class="stat-val" id="att-p">0</div><div class="stat-lbl">Présents</div></div>
+          <div class="stat-card sc-red"><div class="stat-icon si-red"><i class="fas fa-times"></i></div><div class="stat-val" id="att-a">0</div><div class="stat-lbl">Absents</div></div>
+          <div class="stat-card sc-orange"><div class="stat-icon si-orange"><i class="fas fa-clock"></i></div><div class="stat-val" id="att-r">0</div><div class="stat-lbl">Retards</div></div>
+        </div>
+
+        <div id="attendanceArea">
+          <div class="empty"><i class="fas fa-calendar-check"></i><p>Sélectionnez une classe et une date</p></div>
+        </div>
+      </section>
+
+      <!-- ── BULLETINS ── -->
+      <section id="sec-bulletins" class="hidden anim">
+        <div class="page-title">Bulletins Scolaires</div>
+        <div class="page-sub">Génération et impression des bulletins trimestriels</div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="inp" id="bClass">
+              <option value="">Classe…</option>
+              <option>6ème</option><option>5ème</option><option>4ème</option>
+              <option>3ème</option><option>2nde</option><option>1ère</option><option>Tle</option>
+            </select>
+            <select class="inp" id="bTrimester">
+              <option value="">Trimestre…</option>
+              <option value="1">Trimestre 1</option>
+              <option value="2">Trimestre 2</option>
+              <option value="3">Trimestre 3</option>
+            </select>
+          </div>
+          <button class="btn btn-blue" id="genBulletins"><i class="fas fa-list"></i> Afficher les bulletins</button>
+        </div>
+
+        <div id="bulletinsArea">
+          <div class="empty"><i class="fas fa-file-alt"></i><p>Sélectionnez une classe et un trimestre</p></div>
+        </div>
+      </section>
+
+      <!-- ── USERS ── -->
+      <section id="sec-users" class="hidden anim">
+        <div class="page-title">Gestion des Utilisateurs</div>
+        <div class="page-sub">Comptes et droits d'accès</div>
+
+        <div class="toolbar">
+          <div class="toolbar-left"></div>
+          <button class="btn btn-blue" id="openAddUser"><i class="fas fa-user-plus"></i> Nouvel utilisateur</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nom complet</th><th>Email</th><th>Rôle</th><th>Créé le</th><th>Actions</th></tr></thead>
+            <tbody id="usersTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ── -->
+      <section id="sec-settings" class="hidden anim">
+        <div class="page-title">Paramètres</div>
+        <div class="page-sub">Configuration de l'établissement</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="card-title"><i class="fas fa-school"></i> Établissement</div>
+            <div class="form-field" style="margin-bottom:14px">
+              <label>Nom de l'établissement</label>
+              <input class="inp" id="stName" value="Collège/Lycée Excellence" style="width:100%">
             </div>
-            <form id="studentForm" class="p-6 space-y-4">
-                <input type="hidden" id="studentId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
-                        <input type="text" name="lastName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Prénoms *</label>
-                        <input type="text" name="firstName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Sexe *</label>
-                        <select name="sex" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner</option>
-                            <option value="M">Masculin</option>
-                            <option value="F">Féminin</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance *</label>
-                        <input type="date" name="birthDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Lieu de naissance</label>
-                        <input type="text" name="birthPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Classe *</label>
-                        <select name="class" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Sélectionner</option>
-                            <option value="6ème">6ème</option>
-                            <option value="5ème">5ème</option>
-                            <option value="4ème">4ème</option>
-                            <option value="3ème">3ème</option>
-                            <option value="2nde">2nde</option>
-                            <option value="1ère">1ère</option>
-                            <option value="Tle">Terminale</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Série/Option</label>
-                        <input type="text" name="series" placeholder="Ex: A, C, D..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Contact Parent *</label>
-                        <input type="tel" name="parentPhone" required placeholder="Ex: 6XXXXXXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom du parent</label>
-                        <input type="text" name="parentName" placeholder="Nom complet" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email parent</label>
-                        <input type="email" name="parentEmail" placeholder="email@exemple.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
-                        <input type="text" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                    <button type="button" id="cancelBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Annuler</button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-                        <i class="fas fa-save mr-2"></i>Enregistrer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal ajout/modification utilisateur -->
-    <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
-                <h3 class="text-xl font-bold text-gray-800" id="userModalTitle">Nouvel Utilisateur</h3>
-                <button id="closeUserModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+            <div class="form-field" style="margin-bottom:14px">
+              <label>Devise</label>
+              <input class="inp" id="stMotto" value="Excellence et Discipline" style="width:100%">
             </div>
-            <form id="userForm" class="p-6 space-y-4">
-                <input type="hidden" id="userId">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet *</label>
-                    <input type="text" name="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                    <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Rôle *</label>
-                    <select name="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">Sélectionner</option>
-                        <option value="admin">Administrateur</option>
-                        <option value="teacher">Enseignant</option>
-                        <option value="secretary">Secrétaire</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe *</label>
-                    <input type="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                    <button type="button" id="cancelUserBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Annuler</button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-                        <i class="fas fa-save mr-2"></i>Enregistrer
-                    </button>
-                </div>
-            </form>
+            <div class="form-field" style="margin-bottom:14px">
+              <label>Adresse</label>
+              <input class="inp" id="stAddress" value="Douala, Cameroun" style="width:100%">
+            </div>
+            <div class="form-field" style="margin-bottom:20px">
+              <label>Téléphone</label>
+              <input class="inp" id="stPhone" value="+237 6XX XXX XXX" style="width:100%">
+            </div>
+            <button class="btn btn-blue" id="saveSettings" style="width:100%"><i class="fas fa-save"></i> Enregistrer</button>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-title"><i class="fas fa-book"></i> Matières & Coefficients</div>
+              <div id="subjectsList"></div>
+            </div>
+            <div class="card">
+              <div class="card-title"><i class="fas fa-database"></i> Données</div>
+              <button class="btn btn-outline" style="width:100%;margin-bottom:10px" id="exportBackup">
+                <i class="fas fa-download"></i> Télécharger sauvegarde JSON
+              </button>
+              <button class="btn btn-outline" style="width:100%" id="clearData">
+                <i class="fas fa-trash"></i> Réinitialiser les données
+              </button>
+            </div>
+          </div>
         </div>
-    </div>
+      </section>
 
-    <!-- Loading overlay -->
-    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-xl p-8 flex flex-col items-center">
-            <div class="loading-spinner mb-4"></div>
-            <p class="text-gray-700 font-medium">Chargement...</p>
+    </main>
+  </div>
+</div>
+
+<!-- ═══ STUDENT MODAL ═══ -->
+<div class="overlay" id="studentModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <h3 id="studentModalTitle">Nouvel Élève</h3>
+      <button class="btn btn-ghost btn-sm" data-close="studentModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field"><label>Nom *</label><input class="inp" name="lastName" required></div>
+        <div class="form-field"><label>Prénom(s) *</label><input class="inp" name="firstName" required></div>
+        <div class="form-field"><label>Sexe *</label>
+          <select class="inp" name="sex" required>
+            <option value="">—</option><option value="M">Masculin</option><option value="F">Féminin</option>
+          </select>
         </div>
+        <div class="form-field"><label>Date de naissance *</label><input class="inp" type="date" name="birthDate" required></div>
+        <div class="form-field"><label>Lieu de naissance</label><input class="inp" name="birthPlace"></div>
+        <div class="form-field"><label>Classe *</label>
+          <select class="inp" name="class" required>
+            <option value="">—</option>
+            <option>6ème</option><option>5ème</option><option>4ème</option>
+            <option>3ème</option><option>2nde</option><option>1ère</option><option>Tle</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Série/Option</label><input class="inp" name="series" placeholder="A, C, D…"></div>
+        <div class="form-field"><label>Téléphone parent *</label><input class="inp" name="parentPhone" required placeholder="6XXXXXXXX"></div>
+        <div class="form-field"><label>Nom du parent</label><input class="inp" name="parentName"></div>
+        <div class="form-field"><label>Email parent</label><input class="inp" type="email" name="parentEmail"></div>
+        <div class="form-field full"><label>Adresse</label><input class="inp" name="address" style="width:100%"></div>
+      </div>
     </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-close="studentModal">Annuler</button>
+      <button class="btn btn-blue" id="saveStudentBtn"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, updateDoc, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<!-- ═══ USER MODAL ═══ -->
+<div class="overlay" id="userModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3 id="userModalTitle">Nouvel Utilisateur</h3>
+      <button class="btn btn-ghost btn-sm" data-close="userModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:14px"><label>Nom complet *</label><input class="inp" id="uName" required style="width:100%"></div>
+      <div class="form-field" style="margin-bottom:14px"><label>Email *</label><input class="inp" type="email" id="uEmail" required style="width:100%"></div>
+      <div class="form-field" style="margin-bottom:14px"><label>Rôle *</label>
+        <select class="inp" id="uRole" style="width:100%">
+          <option value="">—</option>
+          <option value="admin">Administrateur</option>
+          <option value="teacher">Enseignant</option>
+          <option value="secretary">Secrétaire</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Mot de passe *</label><input class="inp" type="password" id="uPassword" required style="width:100%"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-close="userModal">Annuler</button>
+      <button class="btn btn-blue" id="saveUserBtn"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAigx8KtDCEulSWjpu17fnYsrqK7C9o3R8",
-            authDomain: "petit-jobs-express.firebaseapp.com",
-            projectId: "petit-jobs-express",
-            storageBucket: "petit-jobs-express.appspot.com",
-            messagingSenderId: "446118780236",
-            appId: "1:446118780236:web:08c3a87d56bcd67399c3e9"
-        };
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="overlay" id="confirmModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-body" style="text-align:center">
+      <div class="confirm-icon si-red" style="margin:0 auto 14px;background:var(--red-bg)"><i class="fas fa-trash" style="color:var(--red)"></i></div>
+      <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:8px" id="confirmTitle">Supprimer ?</h3>
+      <p style="color:var(--muted);font-size:.9rem" id="confirmMsg">Cette action est irréversible.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-close="confirmModal">Annuler</button>
+      <button class="btn btn-red" id="confirmOk"><i class="fas fa-trash"></i> Confirmer</button>
+    </div>
+  </div>
+</div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+<!-- TOAST -->
+<div id="toast"></div>
 
-        let currentUser = null;
-        let currentUserRole = null;
-        let students = [];
-        let grades = [];
-        let attendance = [];
-        let users = [];
-        let schoolSettings = {
-            name: "Collège/Lycée Excellence",
-            motto: "Excellence et Discipline",
-            address: "Douala, Cameroun",
-            phone: "+237 6XX XXX XXX"
-        };
+<!-- PRINT AREA -->
+<div id="printArea" style="display:none"></div>
 
-        const subjects = [
-            { name: "Mathématiques", coef: 4 },
-            { name: "Français", coef: 3 },
-            { name: "Anglais", coef: 2 },
-            { name: "SVT", coef: 2 },
-            { name: "Histoire-Géo", coef: 2 },
-            { name: "Physique-Chimie", coef: 3 },
-            { name: "EPS", coef: 1 }
-        ];
+<script>
+/* ═══════════════════════════════════════════
+   EduGest Pro — Local State Management
+   ═══════════════════════════════════════════ */
 
-        // ==================== AUTHENTIFICATION ====================
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadUserRole();
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                initApp();
-            } else {
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('mainApp').classList.add('hidden');
-            }
-        });
+// ── DATA STORE ──────────────────────────────
+const DB = {
+  load(key, def) { try { return JSON.parse(localStorage.getItem('edugest_'+key)) ?? def } catch { return def } },
+  save(key, val) { localStorage.setItem('edugest_'+key, JSON.stringify(val)) }
+};
 
-        async function loadUserRole() {
-            try {
-                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-                if (userDoc.exists()) {
-                    currentUserRole = userDoc.data().role;
-                    document.getElementById('userRole').textContent = getRoleDisplayName(currentUserRole);
-                    document.getElementById('userRoleBadge').textContent = getRoleDisplayName(currentUserRole);
-                    document.getElementById('userRoleBadge').className = `role-badge role-${currentUserRole}`;
-                    updateUIForRole();
-                } else {
-                    // Si l'utilisateur n'a pas de rôle défini, on le crée comme admin par défaut
-                    currentUserRole = 'admin';
-                    await setDoc(doc(db, 'users', currentUser.uid), {
-                        uid: currentUser.uid,
-                        email: currentUser.email,
-                        fullName: currentUser.email.split('@')[0],
-                        role: 'admin',
-                        createdAt: new Date().toISOString()
-                    });
-                    document.getElementById('userRole').textContent = getRoleDisplayName(currentUserRole);
-                    document.getElementById('userRoleBadge').textContent = getRoleDisplayName(currentUserRole);
-                    document.getElementById('userRoleBadge').className = `role-badge role-${currentUserRole}`;
-                    updateUIForRole();
-                }
-            } catch (error) {
-                console.error('Erreur chargement rôle:', error);
-            }
-        }
+let state = {
+  user: null,
+  students:   DB.load('students', []),
+  grades:     DB.load('grades', {}),
+  attendance: DB.load('attendance', {}),
+  users:      DB.load('users', []),
+  settings:   DB.load('settings', { name:'Collège/Lycée Excellence', motto:'Excellence et Discipline', address:'Douala, Cameroun', phone:'+237 6XX XXX XXX' })
+};
 
-        function getRoleDisplayName(role) {
-            const roles = {
-                'admin': 'Administrateur',
-                'teacher': 'Enseignant',
-                'secretary': 'Secrétaire'
-            };
-            return roles[role] || role;
-        }
+const SUBJECTS = [
+  { name:'Mathématiques', coef:4 },
+  { name:'Français',      coef:3 },
+  { name:'Anglais',       coef:2 },
+  { name:'SVT',           coef:2 },
+  { name:'Histoire-Géo',  coef:2 },
+  { name:'Physique-Chimie',coef:3},
+  { name:'EPS',           coef:1 }
+];
 
-        function updateUIForRole() {
-            // Cacher les sections selon le rôle
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            // Afficher le tableau de bord par défaut
-            document.getElementById('dashboardSection').classList.remove('hidden');
-            
-            // Mettre à jour les liens de navigation
-            document.querySelectorAll('.sidebar-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.dataset.section === 'dashboard') {
-                    link.classList.add('active');
-                }
-                
-                // Cacher les liens selon le rôle
-                if (currentUserRole === 'teacher') {
-                    if (['users', 'settings'].includes(link.dataset.section)) {
-                        link.style.display = 'none';
-                    }
-                } else if (currentUserRole === 'secretary') {
-                    if (['users', 'settings', 'grades', 'attendance'].includes(link.dataset.section)) {
-                        link.style.display = 'none';
-                    }
-                }
-            });
-            
-            // Cacher les boutons selon le rôle
-            if (currentUserRole === 'teacher' || currentUserRole === 'secretary') {
-                document.getElementById('addStudentBtn').style.display = 'none';
-            }
-            
-            if (currentUserRole === 'teacher') {
-                document.getElementById('addUserBtn').style.display = 'none';
-            }
-        }
+const ACCOUNTS = [
+  { email:'admin@ecole.cm',      password:'admin123', role:'admin',     name:'Administrateur' },
+  { email:'secretaire@ecole.cm', password:'sec123',   role:'secretary', name:'Secrétaire' },
+  { email:'prof@ecole.cm',       password:'prof123',  role:'teacher',   name:'Enseignant' }
+];
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('loginError');
+// seed demo students if empty
+if (!state.students.length) {
+  const classes = ['6ème','5ème','4ème','3ème','2nde','1ère','Tle'];
+  const fnames = ['Nzomo','Mbarga','Kameni','Fouda','Ateba','Bello','Tchoufa','Manga','Eto\'o','Nguele'];
+  const pnames = ['Brayan','Carine','Junior','Estelle','Kevin','Grace','Patrick','Sandra','Ulrich','Merveille'];
+  for (let i=0;i<28;i++) {
+    state.students.push({
+      id: 'STU'+(1000+i),
+      lastName: fnames[i%fnames.length],
+      firstName: pnames[i%pnames.length],
+      sex: i%2===0 ? 'M' : 'F',
+      birthDate: '200'+(5+i%5)+'-0'+(1+i%9)+'-1'+(i%9),
+      birthPlace: ['Douala','Yaoundé','Bafoussam','Bamenda'][i%4],
+      class: classes[i%7],
+      series: ['A','C','D',''][i%4],
+      parentPhone: '6'+Math.floor(10000000+Math.random()*89999999),
+      parentName: fnames[(i+3)%fnames.length]+' '+(i%2===0?'Jean':'Marie'),
+      parentEmail: '',
+      address: 'Douala, Cameroun',
+      createdAt: new Date(Date.now()-i*86400000*7).toISOString()
+    });
+  }
+  DB.save('students', state.students);
+}
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                // Si le compte n'existe pas, on le crée
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                    try {
-                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                        const user = userCredential.user;
-                        
-                        // Déterminer le rôle basé sur l'email
-                        let role = 'teacher';
-                        if (email.includes('admin')) role = 'admin';
-                        if (email.includes('secretaire')) role = 'secretary';
-                        
+if (!state.users.length) {
+  state.users = ACCOUNTS.map((a,i) => ({ id:'USR'+(i+1), fullName:a.name, email:a.email, role:a.role, createdAt:new Date().toISOString() }));
+  DB.save('users', state.users);
+}
+
+// seed demo grades
+if (!Object.keys(state.grades).length) {
+  state.students.forEach(s => {
+    SUBJECTS.forEach(sub => {
+      for (let t=1;t<=3;t++) {
+        const key = `${s.class}|${t}|${sub.name}`;
+        if (!state.grades[key]) state.grades[key] = {};
+        state.grades[key][s.id] = (Math.random()*11+7).toFixed(1);
+      }
+    });
+  });
+  DB.save('grades', state.grades);
+}
+
+// ── HELPERS ─────────────────────────────────
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function toast(msg, type='t-info') {
+  const el = $('#toast');
+  el.className = 'show '+type;
+  el.innerHTML = `<i class="fas ${type==='t-ok'?'fa-check-circle':type==='t-err'?'fa-times-circle':'fa-info-circle'}"></i>${msg}`;
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 3000);
+}
+function openModal(id) { $('#'+id).classList.add('open') }
+function closeModal(id) { $('#'+id).classList.remove('open') }
+
+document.addEventListener('click', e => {
+  const closer = e.target.closest('[data-close]');
+  if (closer) closeModal(closer.dataset.close);
+  const ov = e.target.classList.contains('overlay');
+  if (ov) e.target.classList.remove('open');
+});
+
+function genId(prefix) { return prefix + Date.now().toString(36).toUpperCase() }
+
+function roleTag(role) {
+  const map = { admin:'tag-red', teacher:'tag-blue', secretary:'tag-green' };
+  const lab = { admin:'Admin', teacher:'Enseignant', secretary:'Secrétaire' };
+  return `<span class="tag ${map[role]||'tag-blue'}">${lab[role]||role}</span>`;
+}
+
+function mention(avg) {
+  if (avg>=16) return '<span class="mention m-exc">Excellent</span>';
+  if (avg>=14) return '<span class="mention m-bon">Bien</span>';
+  if (avg>=10) return '<span class="mention m-ab">Passable</span>';
+  return '<span class="mention m-ins">Insuffisant</span>';
+}
+
+function studentAvg(sid) {
+  let total=0, coefSum=0, count=0;
+  SUBJECTS.forEach(sub => {
+    for (let t=1;t<=3;t++) {
+      const key = `${state.students.find(s=>s.id===sid)?.class}|${t}|${sub.name}`;
+      const g = parseFloat(state.grades[key]?.[sid]);
+      if (!isNaN(g)) { total+=g*sub.coef; coefSum+=sub.coef; count++; }
+    }
+  });
+  return count ? (total/coefSum) : null;
+}
+
+// ── AUTH ─────────────────────────────────────
+$('#loginBtn').addEventListener('click', doLogin);
+$('#lPassword').addEventListener('keydown', e => { if(e.key==='Enter') doLogin() });
+
+function doLogin() {
+  const email = $('#lEmail').value.trim();
+  const pass  = $('#lPassword').value;
+  const err   = $('#loginError');
+  const acc   = ACCOUNTS.find(a => a.email===email && a.password===pass);
+  if (!acc) { err.textContent='Email ou mot de passe incorrect.'; err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  state.user = acc;
+  $('#loginScreen').classList.add('hidden');
+  $('#mainApp').classList.remove('hidden');
+  initApp();
+}
+
+$('#logoutBtn').addEventListener('click', () => {
+  state.user = null;
+  $('#mainApp').classList.add('hidden');
+  $('#loginScreen').classList.remove('hidden');
+  toast('Déconnecté avec succès','t-info');
+});
+
+// ── INIT ─────────────────────────────────────
+let charts = {};
+function initApp() {
+  const u = state.user;
+  $('#hUserName').textContent = u.name;
+  $('#hUserRole').textContent = { admin:'Administrateur', teacher:'Enseignant', secretary:'Secrétaire' }[u.role];
+  $('#hUserInitials').textContent = u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  $('#hSchoolName').textContent = state.settings.name+' — '+state.settings.address;
+  $('#todayDate').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  $('#attDate').valueAsDate = new Date();
+
+  // role-based nav
+  if (u.role !== 'admin') $('#adminNav').style.display='none';
+  if (u.role === 'secretary') {
+    $$('[data-sec="grades"],[data-sec="attendance"]').forEach(el=>el.style.display='none');
+  }
+
+  // sidebar mobile
+  const sidebar = $('#sidebar');
+  $('#toggleSidebar').style.display='';
+  $('#toggleSidebar').addEventListener('click', ()=>sidebar.classList.toggle('open'));
+
+  // nav routing
+  $$('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const sec = item.dataset.sec;
+      if (!sec) return;
+      $$('.nav-item').forEach(n=>n.classList.remove('active'));
+      item.classList.add('active');
+      $$('section[id^="sec-"]').forEach(s=>s.classList.add('hidden'));
+      const el = $(`#sec-${sec}`);
+      if (el) { el.classList.remove('hidden'); el.classList.add('anim'); }
+      if (sec==='dashboard') renderDashboard();
+      if (sec==='students')  renderStudents();
+      if (sec==='users')     renderUsers();
+      if (sec==='settings')  renderSettings();
+    });
+  });
+
+  renderDashboard();
+  renderStudents();
+  initGrades();
+  initAttendance();
+  initBulletins();
+  renderUsers();
+  renderSettings();
+  $('#nb-students').textContent = state.students.length;
+}
+
+// ── DASHBOARD ────────────────────────────────
+function renderDashboard() {
+  $('#ds-students').textContent = state.students.length;
+
+  // global avg
+  let allAvgs = state.students.map(s => studentAvg(s.id)).filter(v=>v!==null);
+  const globalAvg = allAvgs.length ? (allAvgs.reduce((a,b)=>a+b,0)/allAvgs.length).toFixed(2) : '—';
+  $('#ds-avg').textContent = globalAvg;
+
+  // attendance
+  const allKeys = Object.keys(state.attendance);
+  let totalRec=0, presentRec=0, absentRec=0;
+  allKeys.forEach(k => {
+    const recs = state.attendance[k];
+    Object.values(recs).forEach(v => { totalRec++; if(v==='P') presentRec++; else if(v==='A') absentRec++; });
+  });
+  $('#ds-presence').textContent = totalRec ? Math.round(presentRec/totalRec*100)+'%' : '—';
+  $('#ds-absent').textContent = absentRec;
+
+  // charts
+  const classes = ['6ème','5ème','4ème','3ème','2nde','1ère','Tle'];
+  const classCounts = classes.map(c => state.students.filter(s=>s.class===c).length);
+  const subjectAvgs = SUBJECTS.map(sub => {
+    let total=0, count=0;
+    Object.keys(state.grades).forEach(key => {
+      if (key.includes('|'+sub.name)) {
+        Object.values(state.grades[key]).forEach(g => { if(!isNaN(g)) { total+=parseFloat(g); count++; } });
+      }
+    });
+    return count ? +(total/count).toFixed(1) : 0;
+  });
+
+  if (charts.classes) charts.classes.destroy();
+  charts.classes = new Chart($('#chartClasses'), {
+    type:'bar',
+    data:{
+      labels: classes,
+      datasets:[{ label:'Élèves', data:classCounts,
+        backgroundColor:'rgba(37,99,235,.7)', borderRadius:6, borderSkipped:false }]
+    },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}} } }
+  });
+
+  if (charts.subjects) charts.subjects.destroy();
+  charts.subjects = new Chart($('#chartSubjects'), {
+    type:'radar',
+    data:{
+      labels: SUBJECTS.map(s=>s.name),
+      datasets:[{ label:'Moyenne', data:subjectAvgs,
+        backgroundColor:'rgba(37,99,235,.15)', borderColor:'rgba(37,99,235,.8)', pointBackgroundColor:'var(--blue)' }]
+    },
+    options:{ responsive:true, scales:{ r:{ min:0, max:20, grid:{ color:'rgba(0,0,0,.06)' }, pointLabels:{ font:{size:10} } } } }
+  });
+
+  // recent students
+  const recent = [...state.students].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
+  $('#recentStudents').innerHTML = recent.map(s => `
+    <tr>
+      <td><span class="tag tag-blue">${esc(s.id)}</span></td>
+      <td style="font-weight:600">${esc(s.lastName+' '+s.firstName)}</td>
+      <td>${esc(s.class)}</td>
+      <td style="color:var(--muted);font-size:.82rem">${new Date(s.createdAt).toLocaleDateString('fr-FR')}</td>
+      <td><span class="tag tag-green"><span class="dot" style="background:var(--green)"></span>Actif</span></td>
+    </tr>
+  `).join('');
+}
+
+// ── STUDENTS ─────────────────────────────────
+let editingStudentId = null;
+
+function renderStudents(filter='', cls='', sex='') {
+  let list = state.students.filter(s => {
+    const full = (s.lastName+' '+s.firstName+' '+s.id).toLowerCase();
+    return (!filter || full.includes(filter.toLowerCase()))
+        && (!cls || s.class===cls)
+        && (!sex || s.sex===sex);
+  });
+
+  const empty = $('#studsEmpty');
+  const tbody = $('#studentsTbody');
+
+  if (!list.length) { tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = list.map(s => `
+    <tr>
+      <td><span class="tag tag-blue">${esc(s.id)}</span></td>
+      <td style="font-weight:600">${esc(s.lastName)} ${esc(s.firstName)}</td>
+      <td>${esc(s.class)}${s.series?' '+esc(s.series):''}</td>
+      <td><span class="tag ${s.sex==='M'?'tag-blue':'tag-purple'}">${s.sex==='M'?'♂ M':'♀ F'}</span></td>
+      <td style="color:var(--muted);font-size:.82rem">${s.birthDate||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.82rem">${esc(s.parentPhone)}</td>
+      <td>
+        <div class="td-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editStudent('${s.id}')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteStudent('${s.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+$('#searchStudents').addEventListener('input', e => renderStudents(e.target.value, $('#filterClass').value, $('#filterSex').value));
+$('#filterClass').addEventListener('change', e => renderStudents($('#searchStudents').value, e.target.value, $('#filterSex').value));
+$('#filterSex').addEventListener('change', e => renderStudents($('#searchStudents').value, $('#filterClass').value, e.target.value));
+
+$('#openAddStudent').addEventListener('click', () => {
+  editingStudentId = null;
+  $('#studentModalTitle').textContent = 'Nouvel Élève';
+  $$('#studentModal .inp,#studentModal select').forEach(el => el.value='');
+  openModal('studentModal');
+});
+
+function editStudent(id) {
+  const s = state.students.find(x=>x.id===id);
+  if (!s) return;
+  editingStudentId = id;
+  $('#studentModalTitle').textContent = 'Modifier l\'élève';
+  const form = $('#studentModal');
+  Object.keys(s).forEach(k => {
+    const el = form.querySelector(`[name="${k}"]`);
+    if (el) el.value = s[k];
+  });
+  openModal('studentModal');
+}
+
+$('#saveStudentBtn').addEventListener('click', () => {
+  const form = $('#studentModal');
+  const get = name => form.querySelector(`[name="${name}"]`).value.trim();
+  if (!get('lastName')||!get('firstName')||!get('class')||!get('parentPhone')||!get('sex')||!get('birthDate')) {
+    toast('Remplissez tous les champs obligatoires *','t-err'); return;
+  }
+  const data = { lastName:get('lastName'), firstName:get('firstName'), sex:get('sex'), birthDate:get('birthDate'),
+    birthPlace:get('birthPlace'), class:get('class'), series:get('series'), parentPhone:get('parentPhone'),
+    parentName:get('parentName'), parentEmail:get('parentEmail'), address:get('address') };
+
+  if (editingStudentId) {
+    const i = state.students.findIndex(s=>s.id===editingStudentId);
+    state.students[i] = { ...state.students[i], ...data };
+    toast('Élève modifié avec succès','t-ok');
+  } else {
+    state.students.push({ id:genId('STU'), createdAt:new Date().toISOString(), ...data });
+    toast('Élève ajouté avec succès','t-ok');
+  }
+  DB.save('students', state.students);
+  $('#nb-students').textContent = state.students.length;
+  closeModal('studentModal');
+  renderStudents();
+});
+
+let deleteStudentId = null;
+function deleteStudent(id) {
+  deleteStudentId = id;
+  const s = state.students.find(x=>x.id===id);
+  $('#confirmTitle').textContent = 'Supprimer l\'élève ?';
+  $('#confirmMsg').textContent = `${s.lastName} ${s.firstName} sera définitivement supprimé.`;
+  openModal('confirmModal');
+  $('#confirmOk').onclick = () => {
+    state.students = state.students.filter(x=>x.id!==deleteStudentId);
+    DB.save('students', state.students);
+    $('#nb-students').textContent = state.students.length;
+    closeModal('confirmModal');
+    renderStudents();
+    toast('Élève supprimé','t-ok');
+  };
+}
+
+$('#exportCSVBtn').addEventListener('click', () => {
+  const header = ['Matricule','Nom','Prénom','Sexe','Date naiss.','Classe','Série','Tel. parent'];
+  const rows = state.students.map(s => [s.id, s.lastName, s.firstName, s.sex, s.birthDate, s.class, s.series, s.parentPhone]);
+  const csv = [header, ...rows].map(r=>r.map(c=>`"${c||''}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download = 'eleves_'+new Date().toLocaleDateString('fr-FR').replace(/\//g,'-')+'.csv';
+  a.click();
+  toast('Export CSV téléchargé','t-ok');
+});
+
+// ── GRADES ───────────────────────────────────
+function initGrades() {
+  function tryLoad() {
+    const cls = $('#gClass').value, tri = $('#gTrimester').value, sub = $('#gSubject').value;
+    if (!cls||!tri||!sub) { $('#gradesArea').innerHTML='<div class="empty"><i class="fas fa-clipboard-list"></i><p>Sélectionnez une classe, un trimestre et une matière</p></div>'; $('#saveGradesBtn').style.display='none'; return; }
+    renderGrades(cls, tri, sub);
+  }
+  $('#gClass').addEventListener('change', tryLoad);
+  $('#gTrimester').addEventListener('change', tryLoad);
+  $('#gSubject').addEventListener('change', tryLoad);
+
+  $('#saveGradesBtn').addEventListener('click', () => {
+    const cls=$('#gClass').value, tri=$('#gTrimester').value, sub=$('#gSubject').value;
+    if (!cls||!tri||!sub) return;
+    const key=`${cls}|${tri}|${sub}`;
+    if (!state.grades[key]) state.grades[key]={};
+    $$('.grade-inp').forEach(inp => {
+      const sid = inp.dataset.sid;
+      const val = inp.value.trim();
+      if (val!=='') { const f=parseFloat(val); if(!isNaN(f)&&f>=0&&f<=20) state.grades[key][sid]=f.toFixed(1); }
+    });
+    DB.save('grades', state.grades);
+    toast('Notes enregistrées','t-ok');
+    renderGrades(cls,tri,sub);
+  });
+}
+
+function renderGrades(cls, tri, sub) {
+  const students = state.students.filter(s=>s.class===cls);
+  const key = `${cls}|${tri}|${sub}`;
+  const grads = state.grades[key]||{};
+  $('#saveGradesBtn').style.display='';
+
+  if (!students.length) { $('#gradesArea').innerHTML='<div class="empty"><i class="fas fa-users"></i><p>Aucun élève dans cette classe</p></div>'; return; }
+
+  let sum=0, count=0;
+  const rows = students.map(s => {
+    const g = grads[s.id];
+    const gf = parseFloat(g);
+    if (!isNaN(gf)) { sum+=gf; count++; }
+    const cls2 = !isNaN(gf) ? (gf<10?'grade-bad':gf<14?'grade-mid':'grade-ok') : '';
+    return `<tr>
+      <td><span class="tag tag-blue">${esc(s.id)}</span></td>
+      <td style="font-weight:600">${esc(s.lastName+' '+s.firstName)}</td>
+      <td><input class="grade-inp ${cls2}" data-sid="${s.id}" value="${g||''}" placeholder="—" min="0" max="20" step="0.5" oninput="colorGradeInp(this)"></td>
+      <td>${!isNaN(gf) ? mention(gf) : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const avg = count ? (sum/count).toFixed(2) : '—';
+  $('#gradesArea').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div class="tag tag-green"><i class="fas fa-calculator"></i> Moyenne de la classe : <strong>${avg}/20</strong></div>
+      <div class="tag tag-blue">${count}/${students.length} notes saisies</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Matricule</th><th>Élève</th><th>Note /20</th><th>Mention</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+window.colorGradeInp = function(inp) {
+  inp.classList.remove('grade-bad','grade-mid','grade-ok');
+  const v = parseFloat(inp.value);
+  if (!isNaN(v) && v>=0 && v<=20) {
+    inp.classList.add(v<10?'grade-bad':v<14?'grade-mid':'grade-ok');
+  }
+};
+
+// ── ATTENDANCE ────────────────────────────────
+function initAttendance() {
+  function tryLoad() {
+    const cls=$('#attClass').value, date=$('#attDate').value;
+    if (!cls||!date) { $('#attendanceArea').innerHTML='<div class="empty"><i class="fas fa-calendar-check"></i><p>Sélectionnez une classe et une date</p></div>'; $('#saveAttBtn').style.display='none'; updateAttStats(); return; }
+    renderAttendance(cls, date);
+  }
+  $('#attClass').addEventListener('change', tryLoad);
+  $('#attDate').addEventListener('change', tryLoad);
+
+  $('#saveAttBtn').addEventListener('click', () => {
+    const cls=$('#attClass').value, date=$('#attDate').value;
+    if (!cls||!date) return;
+    const key=`${cls}|${date}`;
+    state.attendance[key]={};
+    $$('.att-btn.sel').forEach(btn => {
+      const row=btn.closest('[data-sid]');
+      if (row) state.attendance[key][row.dataset.sid]=btn.dataset.status;
+    });
+    DB.save('attendance', state.attendance);
+    toast('Appel sauvegardé','t-ok');
+  });
+}
+
+function renderAttendance(cls, date) {
+  const students = state.students.filter(s=>s.class===cls);
+  const key=`${cls}|${date}`;
+  const rec = state.attendance[key]||{};
+  $('#saveAttBtn').style.display='';
+
+  if (!students.length) { $('#attendanceArea').innerHTML='<div class="empty"><i class="fas fa-users"></i><p>Aucun élève dans cette classe</p></div>'; return; }
+
+  $('#attendanceArea').innerHTML = students.map(s => {
+    const status = rec[s.id]||'';
+    return `<div class="att-row" data-sid="${s.id}">
+      <div>
+        <div class="att-name">${esc(s.lastName)} ${esc(s.firstName)}</div>
+        <div style="font-size:.75rem;color:var(--muted)">${esc(s.id)} — ${esc(s.class)}</div>
+      </div>
+      <div class="att-btns">
+        <button class="att-btn att-btn-p${status==='P'?' sel':''}" data-status="P" onclick="setAtt(this)"><i class="fas fa-check"></i> Présent</button>
+        <button class="att-btn att-btn-a${status==='A'?' sel':''}" data-status="A" onclick="setAtt(this)"><i class="fas fa-times"></i> Absent</button>
+        <button class="att-btn att-btn-r${status==='R'?' sel':''}" data-status="R" onclick="setAtt(this)"><i class="fas fa-clock"></i> Retard</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateAttStats();
+}
+
+window.setAtt = function(btn) {
+  const row = btn.closest('[data-sid]');
+  row.querySelectorAll('.att-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  updateAttStats();
+};
+
+function updateAttStats() {
+  const p=$$(`.att-btn-p.sel`).length, a=$$(`.att-btn-a.sel`).length, r=$$(`.att-btn-r.sel`).length;
+  $('#att-p').textContent=p; $('#att-a').textContent=a; $('#att-r').textContent=r;
+}
+
+// ── BULLETINS ────────────────────────────────
+function initBulletins() {
+  $('#genBulletins').addEventListener('click', () => {
+    const cls=$('#bClass').value, tri=$('#bTrimester').value;
+    if (!cls||!tri) { toast('Sélectionnez une classe et un trimestre','t-err'); return; }
+    renderBulletins(cls, tri);
+  });
+}
+
+function renderBulletins(cls, tri) {
+  const students = state.students.filter(s=>s.class===cls);
+  if (!students.length) { $('#bulletinsArea').innerHTML='<div class="empty"><i class="fas fa-users"></i><p>Aucun élève</p></div>'; return; }
+
+  const html = students.map(s => {
+    let totalPts=0, totalCoef=0;
+    const rows = SUBJECTS.map(sub => {
+      const key=`${cls}|${tri}|${sub.name}`;
+      const g = parseFloat(state.grades[key]?.[s.id]);
+      if (!isNaN(g)) { totalPts+=g*sub.coef; totalCoef+=sub.coef; }
+      return `<tr>
+        <td>${esc(sub.name)}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:600">${!isNaN(g)?g.toFixed(1):'—'}</td>
+        <td style="text-align:center">${sub.coef}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${!isNaN(g)?(g*sub.coef).toFixed(1):'—'}</td>
+        <td style="text-align:center">${!isNaN(g)?mention(g):''}</td>
+      </tr>`;
+    }).join('');
+    const avg = totalCoef ? (totalPts/totalCoef).toFixed(2) : '—';
+    const rank = students.map(x=>{
+      let tp=0,tc=0;
+      SUBJECTS.forEach(sub=>{const key=`${cls}|${tri}|${sub.name}`;const g=parseFloat(state.grades[key]?.[x.id]);if(!isNaN(g)){tp+=g*sub.coef;tc+=sub.coef;}});
+      return tc?tp/tc:0;
+    }).sort((a,b)=>b-a).findIndex(v=>v===parseFloat(avg))+1;
+
+    return `
+    <div class="bulletin" style="margin-bottom:32px">
+      <div class="bulletin-header">
+        <div class="bulletin-school">
+          <h2>${esc(state.settings.name)}</h2>
+          <p>${esc(state.settings.address)} — ${esc(state.settings.phone)}</p>
+          <p style="font-style:italic;margin-top:2px">${esc(state.settings.motto)}</p>
+        </div>
+        <div class="bulletin-info">
+          <strong>${esc(s.lastName+' '+s.firstName)}</strong>
+          Classe : ${esc(s.class)}${s.series?' '+esc(s.series):''}<br>
+          Trimestre ${tri} — ${new Date().getFullYear()}<br>
+          Matricule : ${esc(s.id)}
+        </div>
+      </div>
+      <table class="b-table">
+        <thead><tr><th>Matière</th><th style="text-align:center">Note /20</th><th style="text-align:center">Coef.</th><th style="text-align:center">Points</th><th style="text-align:center">Mention</th></tr></thead>
+        <tbody>
+          ${rows}
+          <tr class="b-total">
+            <td><strong>MOYENNE GÉNÉRALE</strong></td>
+            <td style="text-align:center;font-size:1.1rem;font-family:'DM Mono',monospace"><strong>${avg}/20</strong></td>
+            <td style="text-align:center">${totalCoef}</td>
+            <td style="text-align:center;font-family:'DM Mono',monospace">${totalPts.toFixed(1)}</td>
+            <td style="text-align:center">${avg!=='—'?mention(parseFloat(avg)):''}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <div>Rang : <strong>${rank}${rank===1?'er':'ème'}/${students.length}</strong></div>
+        <div>Absences : <strong>${Object.values(state.attendance).reduce((acc,rec)=>acc+(rec[s.id]==='A'?1:0),0)}</strong> | Retards : <strong>${Object.values(state.attendance).reduce((acc,rec)=>acc+(rec[s.id]==='R'?1:0),0)}</strong></div>
+        <button class="btn btn-blue btn-sm" onclick="printBulletin('${s.id}','${tri}')"><i class="fas fa-print"></i> Imprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  $('#bulletinsArea').innerHTML = html;
+}
+
+window.printBulletin = function(sid, tri) {
+  const el = document.querySelector(`.bulletin`);
+  const printArea = $('#printArea');
+  printArea.innerHTML = document.querySelector(`#bulletinsArea`).innerHTML;
+  window.print();
+  toast('Impression lancée','t-info');
+};
+
+// ── USERS ─────────────────────────────────────
+let editingUserId = null;
+
+function renderUsers() {
+  $('#usersTbody').innerHTML = state.users.map(u => `
+    <tr>
+      <td style="font-weight:600">${esc(u.fullName)}</td>
+      <td style="color:var(--muted);font-size:.85rem">${esc(u.email)}</td>
+      <td>${roleTag(u.role)}</td>
+      <td style="color:var(--muted);font-size:.82rem">${new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
+      <td>
+        <div class="td-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editUser('${u.id}')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteUser('${u.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+$('#openAddUser').addEventListener('click', () => {
+  editingUserId = null;
+  $('#userModalTitle').textContent='Nouvel Utilisateur';
+  ['uName','uEmail','uRole','uPassword'].forEach(id => $(`#${id}`).value='');
+  openModal('userModal');
+});
+
+function editUser(id) {
+  const u = state.users.find(x=>x.id===id);
+  if (!u) return;
+  editingUserId = id;
+  $('#userModalTitle').textContent='Modifier l\'utilisateur';
+  $('#uName').value=u.fullName; $('#uEmail').value=u.email; $('#uRole').value=u.role; $('#uPassword').value='';
+  openModal('userModal');
+}
+
+$('#saveUserBtn').addEventListener('click', () => {
+  const name=$('#uName').value.trim(), email=$('#uEmail').value.trim(), role=$('#uRole').value, pass=$('#uPassword').value;
+  if (!name||!email||!role||(!editingUserId&&!pass)) { toast('Remplissez tous les champs *','t-err'); return; }
+  if (editingUserId) {
+    const i=state.users.findIndex(u=>u.id===editingUserId);
+    state.users[i]={...state.users[i], fullName:name, email, role};
+    toast('Utilisateur modifié','t-ok');
+  } else {
+    state.users.push({id:genId('USR'), fullName:name, email, role, createdAt:new Date().toISOString()});
+    toast('Utilisateur créé','t-ok');
+  }
+  DB.save('users', state.users);
+  closeModal('userModal');
+  renderUsers();
+});
+
+function deleteUser(id) {
+  const u=state.users.find(x=>x.id===id);
+  if (!u) return;
+  $('#confirmTitle').textContent='Supprimer l\'utilisateur ?';
+  $('#confirmMsg').textContent=`${u.fullName} sera définitivement supprimé.`;
+  openModal('confirmModal');
+  $('#confirmOk').onclick=()=>{
+    state.users=state.users.filter(x=>x.id!==id);
+    DB.save('users',state.users);
+    closeModal('confirmModal');
+    renderUsers();
+    toast('Utilisateur supprimé','t-ok');
+  };
+}
+
+// ── SETTINGS ─────────────────────────────────
+function renderSettings() {
+  $('#stName').value=state.settings.name;
+  $('#stMotto').value=state.settings.motto;
+  $('#stAddress').value=state.settings.address;
+  $('#stPhone').value=state.settings.phone;
+
+  $('#subjectsList').innerHTML = SUBJECTS.map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--s2);border-radius:var(--r-sm);margin-bottom:8px;border:1px solid var(--border)">
+      <span style="font-weight:500">${esc(s.name)}</span>
+      <span class="tag tag-blue">Coef. ${s.coef}</span>
+    </div>
+  `).join('');
+}
+
+$('#saveSettings').addEventListener('click', () => {
+  state.settings = { name:$('#stName').value, motto:$('#stMotto').value, address:$('#stAddress').value, phone:$('#stPhone').value };
+  DB.save('settings', state.settings);
+  $('#hSchoolName').textContent = state.settings.name+' — '+state.settings.address;
+  toast('Paramètres enregistrés','t-ok');
+});
+
+$('#exportBackup').addEventListener('click', () => {
+  const data = JSON.stringify({ students:state.students, grades:state.grades, attendance:state.attendance, users:state.users, settings:state.settings, exportedAt:new Date().toISOString() }, null, 2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
+  a.download='edugest_backup_'+Date.now()+'.json';
+  a.click();
+  toast('Sauvegarde téléchargée','t-ok');
+});
+
+$('#clearData').addEventListener('click', () => {
+  $('#confirmTitle').textContent='Réinitialiser toutes les données ?';
+  $('#confirmMsg').textContent='Cette action supprime tous les élèves, notes et assiduités.';
+  openModal('confirmModal');
+  $('#confirmOk').onclick=()=>{
+    ['students','grades','attendance','users','settings'].forEach(k=>localStorage.removeItem('edugest_'+k));
+    closeModal('confirmModal');
+    toast('Données réinitialisées — rechargez la page','t-info');
+    setTimeout(()=>location.reload(),1500);
+  };
+});
+
+// ── MOBILE TOGGLE ────────────────────────────
+window.addEventListener('resize', ()=>{
+  if(window.innerWidth>900) $('#sidebar').classList.remove('open');
+  const t=$('#toggleSidebar');
+  if(t) t.style.display=window.innerWidth<=900?'block':'none';
+});
+window.dispatchEvent(new Event('resize'));
+</script>
+</body>
+</html>                    
                         await setDoc(doc(db, 'users', user.uid), {
                             uid: user.uid,
                             email: user.email,

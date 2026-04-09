@@ -3,30 +3,998 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de Connexion</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Administration — Creator Market</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:          #f0f6ff;
+            --surface:     #ffffff;
+            --surface2:    #e8f1fc;
+            --border:      #c8ddf7;
+            --blue:        #2a7ef4;
+            --blue-dim:    #1a5fc0;
+            --blue-glow:   rgba(42,126,244,.14);
+            --blue-light:  #e4effd;
+            --text:        #0f2147;
+            --muted:       #6b87b0;
+            --danger:      #e0495a;
+            --danger-bg:   rgba(224,73,90,.10);
+            --warn:        #e09a2e;
+            --warn-bg:     rgba(224,154,46,.10);
+            --success:     #19a97a;
+            --radius:      16px;
+            --radius-sm:   10px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* subtle dot grid bg */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: radial-gradient(circle, #c0d8f8 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: .45;
+        }
+
+        /* ── AUTH ───────────────────────────────────── */
+        #auth-screen {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            animation: fadeUp .5s ease both;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .auth-logo .crown {
+            width: 68px; height: 68px;
+            background: var(--blue-light);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--blue);
+            margin-bottom: 16px;
+            box-shadow: 0 8px 28px var(--blue-glow);
+        }
+
+        .auth-logo h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+        }
+
+        .auth-logo h1 span { color: var(--blue); }
+
+        .auth-logo p {
+            color: var(--muted);
+            font-size: .85rem;
+            margin-top: 6px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px;
+            box-shadow: 0 20px 60px rgba(42,90,180,.10), 0 2px 8px rgba(42,90,180,.06);
+        }
+
+        .auth-card label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .input-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-wrap i.icon {
+            position: absolute;
+            left: 15px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .88rem;
+            pointer-events: none;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            padding: 13px 16px 13px 42px;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+        .input-wrap input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 4px var(--blue-glow);
+            background: #fff;
+        }
+
+        .input-wrap input::placeholder { color: #aabcd8; }
+
+        .attempts-bar {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 20px;
+        }
+
+        .attempt-dot {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 99px;
+            transition: background .3s;
+        }
+
+        .attempt-dot.active { background: var(--blue); }
+        .attempt-dot.lost   { background: var(--danger); }
+
+        .auth-btn {
+            width: 100%;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Syne', sans-serif;
+            font-size: .95rem;
+            font-weight: 700;
+            padding: 14px;
+            cursor: pointer;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            letter-spacing: .03em;
+        }
+
+        .auth-btn:hover:not(:disabled) {
+            background: var(--blue-dim);
+            box-shadow: 0 6px 24px rgba(42,126,244,.35);
+            transform: translateY(-2px);
+        }
+
+        .auth-btn:disabled {
+            background: var(--border);
+            color: var(--muted);
+            cursor: not-allowed;
+            box-shadow: none; transform: none;
+        }
+
+        .auth-error {
+            margin-top: 14px;
+            font-size: .84rem;
+            color: var(--danger);
+            text-align: center;
+            min-height: 20px;
+            font-weight: 500;
+        }
+
+        /* ── DASHBOARD ──────────────────────────────── */
+        #dashboard {
+            display: none;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            animation: fadeUp .4s ease both;
+        }
+
+        /* Topbar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-brand .crown {
+            width: 48px; height: 48px;
+            background: var(--blue-light);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--blue); font-size: 20px;
+            box-shadow: 0 4px 14px var(--blue-glow);
+        }
+
+        .topbar-brand h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+
+        .topbar-brand h1 span { color: var(--blue); }
+        .topbar-brand small { display: block; color: var(--muted); font-size: .78rem; margin-top: 2px; }
+
+        .topbar-actions { display: flex; gap: 10px; }
+
+        .btn-outline {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            color: var(--muted);
+            border-radius: var(--radius-sm);
+            padding: 9px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex; align-items: center; gap: 7px;
+        }
+
+        .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+        .btn-blue {
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 9px 18px;
+            font-family: 'Syne', sans-serif;
+            font-size: .85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex; align-items: center; gap: 7px;
+            text-decoration: none;
+            letter-spacing: .02em;
+        }
+
+        .btn-blue:hover { background: var(--blue-dim); box-shadow: 0 4px 16px rgba(42,126,244,.3); }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 26px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color .2s, box-shadow .2s, transform .2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--blue);
+            box-shadow: 0 8px 32px var(--blue-glow);
+            transform: translateY(-2px);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            height: 3px; width: 100%;
+            background: linear-gradient(90deg, var(--blue), #72b0ff);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .35s;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .stat-card:hover::after { transform: scaleX(1); }
+
+        .stat-icon {
+            width: 40px; height: 40px;
+            background: var(--blue-light);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--blue);
+            font-size: 16px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: .78rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            font-weight: 600;
+        }
+
+        .stat-loading {
+            width: 60px; height: 28px;
+            background: var(--surface2);
+            border-radius: 6px;
+            animation: pulse 1.5s ease infinite;
+            margin-bottom: 6px;
+        }
+
+        /* Section card */
+        .section-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(42,90,180,.05);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+        }
+
+        .section-title i { color: var(--blue); font-size: .95rem; }
+
+        .badge {
+            background: var(--blue-light);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: .73rem;
+            padding: 3px 11px;
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        /* Search */
+        .search-input-wrap { position: relative; }
+        .search-input-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .85rem; }
+        .search-input {
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            padding: 9px 14px 9px 36px;
+            width: 220px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .search-input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-glow); background: #fff; }
+        .search-input::placeholder { color: #aabcd8; }
+
+        /* Boutique items */
+        .boutique-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .boutique-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px 20px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .boutique-item:hover {
+            border-color: var(--blue);
+            box-shadow: 0 4px 16px var(--blue-glow);
+        }
+
+        .boutique-avatar {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: var(--blue-light);
+            border: 1.5px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--blue); font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .boutique-meta { flex: 1; min-width: 0; }
+        .boutique-meta h4 { font-weight: 600; font-size: .95rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .boutique-meta p { color: var(--muted); font-size: .8rem; }
+
+        .boutique-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(25,169,122,.10);
+            color: var(--success);
+            border-radius: 99px;
+            font-size: .72rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            letter-spacing: .05em;
+            border: 1px solid rgba(25,169,122,.2);
+        }
+
+        .boutique-status::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+
+        .boutique-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .btn-sm {
+            padding: 7px 13px;
+            border-radius: var(--radius-sm);
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: flex; align-items: center; gap: 6px;
+            transition: all .2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-warn {
+            background: var(--warn-bg);
+            color: var(--warn);
+            border-color: rgba(224,154,46,.25);
+        }
+        .btn-warn:hover { background: rgba(224,154,46,.20); }
+
+        .btn-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: rgba(224,73,90,.2);
+        }
+        .btn-danger:hover { background: rgba(224,73,90,.18); }
+
+        /* Empty / skeleton */
+        .empty-state {
+            text-align: center;
+            padding: 52px 20px;
+            color: var(--muted);
+        }
+        .empty-state i { font-size: 2rem; margin-bottom: 12px; opacity: .35; display: block; }
+        .empty-state p { font-size: .9rem; }
+
+        .skeleton-item {
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            height: 72px;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            font-size: .88rem;
+            font-weight: 500;
+            box-shadow: 0 16px 48px rgba(42,90,180,.14);
+            z-index: 9999;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all .3s ease;
+            display: flex; align-items: center; gap: 10px;
+            max-width: 320px;
+            color: var(--text);
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { border-left: 3px solid var(--success); }
+        #toast.error   { border-left: 3px solid var(--danger);  }
+        #toast.warn    { border-left: 3px solid var(--warn);    }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,33,71,.45);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            opacity: 0; pointer-events: none;
+            transition: opacity .25s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            width: 100%; max-width: 480px;
+            transform: scale(.95);
+            transition: transform .25s;
+            box-shadow: 0 24px 64px rgba(42,90,180,.18);
+        }
+        .modal-overlay.open .modal { transform: scale(1); }
+
+        .modal h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        .modal p { color: var(--muted); font-size: .9rem; margin-bottom: 20px; line-height: 1.6; }
+
+        .modal textarea {
+            width: 100%;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            padding: 12px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 20px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .modal textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-glow); }
+        .modal textarea::placeholder { color: #aabcd8; }
+
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+        .confirm-icon {
+            width: 54px; height: 54px;
+            background: var(--danger-bg);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--danger); font-size: 22px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(224,73,90,.2);
+        }
+
+        /* Footer */
+        .admin-footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: .78rem;
+            margin-top: 16px;
+            letter-spacing: .04em;
+        }
+        .admin-footer span { color: var(--blue); font-weight: 600; }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity:0; transform: translateY(18px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: .45; }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .boutique-item { flex-wrap: wrap; }
+            .boutique-actions { width: 100%; }
+            .topbar { flex-direction: column; align-items: flex-start; }
+            .section-header { flex-direction: column; align-items: flex-start; }
+            .search-input { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Connexion</h2>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Nom d'utilisateur</label>
-                <input type="text" id="username" name="username" required>
-                <span class="error-message" id="username-error"></span>
+
+    <!-- ──────────────── AUTH SCREEN ──────────────────── -->
+    <div id="auth-screen">
+        <div class="auth-logo">
+            <div class="crown"><i class="fas fa-crown"></i></div>
+            <h1>Creator <span>Market</span></h1>
+            <p>Zone d'administration sécurisée</p>
+        </div>
+
+        <div class="auth-card">
+            <label for="admin-password"><i class="fas fa-shield-alt"></i>&nbsp; Mot de passe administrateur</label>
+            <div class="input-wrap">
+                <i class="fas fa-lock icon"></i>
+                <input type="password" id="admin-password" placeholder="••••••••••••" autocomplete="current-password">
             </div>
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required>
-                <span class="error-message" id="password-error"></span>
+
+            <div class="attempts-bar" id="attempts-bar">
+                <div class="attempt-dot active" data-index="0"></div>
+                <div class="attempt-dot active" data-index="1"></div>
+                <div class="attempt-dot active" data-index="2"></div>
             </div>
-            <div class="form-group">
-                <input type="checkbox" id="remember-me" name="remember-me">
-                <label for="remember-me">Se souvenir de moi</label>
-            </div>
-            <button type="submit">Se Connecter</button>
-        </form>
+
+            <button id="auth-btn" class="auth-btn">
+                <i class="fas fa-key"></i>&nbsp; Accéder au panneau
+            </button>
+            <div id="auth-error" class="auth-error"></div>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <!-- ──────────────── DASHBOARD ─────────────────────── -->
+    <div id="dashboard">
+        <div class="topbar">
+            <div class="topbar-brand">
+                <div class="crown"><i class="fas fa-crown"></i></div>
+                <div>
+                    <h1>Creator <span>Market</span></h1>
+                    <small>Panneau d'administration</small>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <a href="acceuil.php" class="btn-blue" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Voir le site
+                </a>
+                <button class="btn-outline" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
+                <button class="btn-outline" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-store"></i></div>
+                <div class="stat-loading" id="stat-boutiques-load"></div>
+                <div class="stat-value" id="stat-boutiques" style="display:none">—</div>
+                <div class="stat-label">Boutiques actives</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-loading" id="stat-users-load"></div>
+                <div class="stat-value" id="stat-users" style="display:none">—</div>
+                <div class="stat-label">Utilisateurs inscrits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                <div class="stat-loading" id="stat-orders-load"></div>
+                <div class="stat-value" id="stat-orders" style="display:none">—</div>
+                <div class="stat-label">Commandes ce mois</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                <div class="stat-loading" id="stat-revenue-load"></div>
+                <div class="stat-value" id="stat-revenue" style="display:none">—</div>
+                <div class="stat-label">Chiffre d'affaires (FCFA)</div>
+            </div>
+        </div>
+
+        <!-- Boutiques -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-store"></i>
+                    Gestion des boutiques
+                    <span class="badge" id="boutiques-count">…</span>
+                </div>
+                <div class="search-input-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="Rechercher…">
+                </div>
+            </div>
+            <div id="boutiques-list" class="boutique-list">
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+            </div>
+        </div>
+
+        <div class="admin-footer">
+            Creator Market &nbsp;·&nbsp; <span>Administration</span> &nbsp;·&nbsp; Douala, Cameroun
+        </div>
+    </div>
+
+    <!-- MODAL WARN -->
+    <div class="modal-overlay" id="warn-modal">
+        <div class="modal">
+            <h3><i class="fas fa-exclamation-triangle" style="color:var(--warn);margin-right:8px"></i>Envoyer un avertissement</h3>
+            <p>Décrivez la raison de cet avertissement. Le propriétaire de la boutique sera notifié par email.</p>
+            <textarea id="warn-reason" placeholder="Ex: Contenu non conforme aux conditions d'utilisation…"></textarea>
+            <div class="modal-actions">
+                <button class="btn-outline" id="warn-cancel">Annuler</button>
+                <button class="btn-sm btn-warn" id="warn-confirm" style="padding:10px 18px">
+                    <i class="fas fa-paper-plane"></i> Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DELETE -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal">
+            <div class="confirm-icon"><i class="fas fa-trash"></i></div>
+            <h3>Supprimer la boutique ?</h3>
+            <p>Cette action est irréversible. Tous les produits, commandes et données associées seront définitivement supprimés.</p>
+            <div class="modal-actions">
+                <button class="btn-outline" id="delete-cancel">Annuler</button>
+                <button class="btn-sm btn-danger" id="delete-confirm" style="padding:10px 18px">
+                    <i class="fas fa-trash"></i> Oui, supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <script>
+    const $ = id => document.getElementById(id);
+
+    function toast(msg, type = 'success') {
+        const el = $('toast');
+        const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warn: 'fa-exclamation-circle' };
+        const colors = { success: 'var(--success)', error: 'var(--danger)', warn: 'var(--warn)' };
+        el.className = `show ${type}`;
+        el.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]}"></i>${msg}`;
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
+    function animateValue(el, value, suffix = '') {
+        el.style.display = '';
+        const ld = document.getElementById(el.id + '-load');
+        if (ld) ld.style.display = 'none';
+        const num = parseInt(value) || 0;
+        let start = 0;
+        const step = ts => {
+            if (!start) start = ts;
+            const p = Math.min((ts - start) / 700, 1);
+            const e = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(e * num).toLocaleString('fr-FR') + suffix;
+            if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    let pendingId = null;
+    const openModal  = id => document.getElementById(id).classList.add('open');
+    const closeModal = id => document.getElementById(id).classList.remove('open');
+
+    /* ── AUTH ─────────────────────────────────────────── */
+    class AdminAuth {
+        constructor() {
+            this.remaining = 3;
+            this._password = 'mamancherie123';
+            this.init();
+        }
+        init() {
+            $('auth-btn').addEventListener('click', () => this.verify());
+            $('admin-password').addEventListener('keydown', e => { if (e.key === 'Enter') this.verify(); });
+            $('admin-password').focus();
+        }
+        verify() {
+            const val = $('admin-password').value;
+            $('auth-error').textContent = '';
+            if (!val) { $('auth-error').textContent = 'Veuillez entrer le mot de passe.'; return; }
+
+            if (val === this._password) {
+                $('auth-screen').style.animation = 'fadeUp .3s ease reverse forwards';
+                setTimeout(() => {
+                    $('auth-screen').style.display = 'none';
+                    $('dashboard').style.display = 'block';
+                    adminPanel.init();
+                }, 280);
+            } else {
+                this.remaining--;
+                document.querySelectorAll('.attempt-dot').forEach((d, i) => {
+                    d.classList.remove('active','lost');
+                    i < this.remaining ? d.classList.add('active') : d.classList.add('lost');
+                });
+                if (this.remaining > 0) {
+                    $('auth-error').textContent = `Mot de passe incorrect — ${this.remaining} tentative${this.remaining > 1 ? 's' : ''} restante${this.remaining > 1 ? 's' : ''}.`;
+                    $('admin-password').value = '';
+                    $('admin-password').focus();
+                    $('admin-password').animate([
+                        {transform:'translateX(-6px)'},{transform:'translateX(6px)'},
+                        {transform:'translateX(-4px)'},{transform:'translateX(4px)'},
+                        {transform:'translateX(0)'}
+                    ], { duration: 320 });
+                } else {
+                    $('auth-error').textContent = 'Accès bloqué. Trop de tentatives échouées.';
+                    $('auth-btn').disabled = true;
+                    $('admin-password').disabled = true;
+                }
+            }
+        }
+    }
+
+    /* ── PANEL ────────────────────────────────────────── */
+    class AdminPanel {
+        constructor() { this._boutiques = []; }
+
+        init() {
+            this.loadStats();
+            this.loadBoutiques();
+
+            $('refresh-btn').addEventListener('click', () => {
+                this.loadStats(); this.loadBoutiques();
+                toast('Données actualisées', 'success');
+            });
+            $('logout-btn').addEventListener('click', () => {
+                $('dashboard').style.display = 'none';
+                $('auth-screen').style.display = 'block';
+                $('admin-password').value = '';
+                $('admin-password').disabled = false;
+                $('auth-btn').disabled = false;
+            });
+            $('search-input').addEventListener('input', e => {
+                const q = e.target.value.toLowerCase();
+                this.renderBoutiques(this._boutiques.filter(b =>
+                    b.nom.toLowerCase().includes(q) || (b.description||'').toLowerCase().includes(q)
+                ));
+            });
+
+            $('warn-cancel').addEventListener('click', () => closeModal('warn-modal'));
+            $('warn-confirm').addEventListener('click', () => this.confirmWarn());
+            $('delete-cancel').addEventListener('click', () => closeModal('delete-modal'));
+            $('delete-confirm').addEventListener('click', () => this.confirmDelete());
+            ['warn-modal','delete-modal'].forEach(id =>
+                document.getElementById(id).addEventListener('click', e => {
+                    if (e.target === document.getElementById(id)) closeModal(id);
+                })
+            );
+        }
+
+        async loadStats() {
+            ['boutiques','users','orders','revenue'].forEach(k => {
+                const el = $(`stat-${k}`), ld = $(`stat-${k}-load`);
+                if (el) el.style.display = 'none';
+                if (ld) ld.style.display = '';
+            });
+            try {
+                const data = await fetch('admin_stats.php').then(r => r.json());
+                animateValue($('stat-boutiques'), data.boutiques || 0);
+                animateValue($('stat-users'), data.utilisateurs || 0);
+                animateValue($('stat-orders'), data.commandes || 0);
+                const rev = parseInt(data.revenus || 0);
+                const revEl = $('stat-revenue');
+                revEl.style.display = ''; $('stat-revenue-load').style.display = 'none';
+                revEl.textContent = rev >= 1_000_000 ? (rev/1_000_000).toFixed(1)+'M'
+                    : rev >= 1000 ? (rev/1000).toFixed(0)+'k'
+                    : rev.toLocaleString('fr-FR');
+            } catch {
+                ['boutiques','users','orders','revenue'].forEach(k => {
+                    const el = $(`stat-${k}`), ld = $(`stat-${k}-load`);
+                    if (el) { el.style.display=''; el.textContent='–'; }
+                    if (ld) ld.style.display='none';
+                });
+            }
+        }
+
+        async loadBoutiques() {
+            $('boutiques-list').innerHTML = `
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>`;
+            try {
+                this._boutiques = await fetch('admin_boutiques.php').then(r => r.json());
+                this.renderBoutiques(this._boutiques);
+            } catch {
+                $('boutiques-list').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Impossible de charger les boutiques.<br>Vérifiez la connexion au serveur.</p>
+                    </div>`;
+                $('boutiques-count').textContent = '—';
+            }
+        }
+
+        renderBoutiques(list) {
+            $('boutiques-count').textContent = list.length;
+            if (!list.length) {
+                $('boutiques-list').innerHTML = `<div class="empty-state"><i class="fas fa-store"></i><p>Aucune boutique trouvée.</p></div>`;
+                return;
+            }
+            const icons = ['fa-tshirt','fa-gem','fa-paint-brush','fa-music','fa-camera','fa-utensils'];
+            $('boutiques-list').innerHTML = list.map((b, i) => `
+                <div class="boutique-item">
+                    <div class="boutique-avatar"><i class="fas ${icons[i%icons.length]}"></i></div>
+                    <div class="boutique-meta">
+                        <h4>${this.esc(b.nom)}</h4>
+                        <p>${this.esc(b.description||'Aucune description')} &nbsp;·&nbsp; Créée le ${new Date(b.date_creation).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                    <div class="boutique-status">ACTIVE</div>
+                    <div class="boutique-actions">
+                        <button class="btn-sm btn-warn" onclick="adminPanel.openWarnModal(${b.id})">
+                            <i class="fas fa-exclamation-triangle"></i> Avertir
+                        </button>
+                        <button class="btn-sm btn-danger" onclick="adminPanel.openDeleteModal(${b.id})">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>`).join('');
+        }
+
+        openWarnModal(id) { pendingId=id; $('warn-reason').value=''; openModal('warn-modal'); setTimeout(()=>$('warn-reason').focus(),100); }
+        openDeleteModal(id) { pendingId=id; openModal('delete-modal'); }
+
+        async confirmWarn() {
+            const reason = $('warn-reason').value.trim();
+            if (!reason) { $('warn-reason').style.borderColor='var(--danger)'; setTimeout(()=>$('warn-reason').style.borderColor='',1500); return; }
+            closeModal('warn-modal');
+            try {
+                const d = await fetch('admin_warn_boutique.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({boutique_id:pendingId,reason})}).then(r=>r.json());
+                toast(d.success ? 'Avertissement envoyé' : (d.message||'Erreur'), d.success ? 'warn' : 'error');
+            } catch { toast('Erreur réseau', 'error'); }
+        }
+
+        async confirmDelete() {
+            closeModal('delete-modal');
+            try {
+                const d = await fetch('admin_delete_boutique.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({boutique_id:pendingId})}).then(r=>r.json());
+                if (d.success) { toast('Boutique supprimée','success'); this.loadBoutiques(); this.loadStats(); }
+                else toast(d.message||'Erreur','error');
+            } catch { toast('Erreur réseau','error'); }
+        }
+
+        esc(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    }
+
+    const adminPanel = new AdminPanel();
+    new AdminAuth();
+    </script>
 </body>
 </html>
