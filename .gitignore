@@ -6,3 +6,16 @@ mobile-app/node_modules/
 *.tmp
 *.DS_Store
 
+# Fichiers uploadés - à ignorer pour réduire la taille du repo
+FRONTEND/uploads/*
+!FRONTEND/uploads/.htaccess
+
+# Fichiers temporaires et cache
+cache/
+temp/
+*.cache
+
+# Fichiers de configuration sensibles
+config/local.php
+.env.local
+
