@@ -9,14 +9,53 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer votre Boutique</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="src/css/vetement.css">
 </head>
 <body>
+    <style>
+.retour {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+
+    background: linear-gradient(135deg, #bd329a, #cf4db3);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.retour:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.retour:active {
+    transform: scale(0.95);
+}
+</style>
+
+<button class="retour" onclick="window.location.href='templates.html'">
+  <i class="fas fa-arrow-left"></i>
+</button>
     <div class="carte-formulaire">
         <div class="en-tete-formulaire">
-            <h1 class="titre-principal">✨ Créez votre Boutique ✨</h1>
+            <h1 class="titre-principal"> <i class="fa-solid fa-sparkles"></i> Créez votre Boutique <i class="fa-solid fa-sparkles"></i></h1>
             <p class="sous-titre">Rejoignez notre plateforme et développez votre clientèle</p>
         </div>
         
